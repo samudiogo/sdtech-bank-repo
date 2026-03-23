@@ -1,0 +1,15 @@
+services:
+  app:
+    image: mcr.microsoft.com/devcontainers/universal:5-linux
+    volumes:
+      - ../..:/workspaces:cached
+    command: sleep infinity
+    networks:
+      - sdtech-bank-dev-network
+      - infra_net      
+
+networks:
+  infra_net:
+    external: true
+  sdtech-bank-dev-network:
+    driver: bridge
