@@ -4,8 +4,8 @@
   "license": "MIT",
   "scripts": {},
   "private": true,
-  "dependencies": {},
   "devDependencies": {
+    "@nx/dotnet": "^22.6.1",
     "@nx/js": "22.6.1",
     "@swc-node/register": "1.11.1",
     "@swc/core": "1.15.8",
