@@ -11,4 +11,9 @@
     <ProjectReference Include="..\SdtechBank.Shared\SdtechBank.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Ports\" />
+    <Folder Include="UseCases\" />
+  </ItemGroup>
+
 </Project>

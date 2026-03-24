@@ -12,4 +12,10 @@
     <ProjectReference Include="..\SdtechBank.Shared\SdtechBank.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DI\" />
+    <Folder Include="Messaging\" />
+    <Folder Include="MongoDB\" />
+  </ItemGroup>
+
 </Project>
