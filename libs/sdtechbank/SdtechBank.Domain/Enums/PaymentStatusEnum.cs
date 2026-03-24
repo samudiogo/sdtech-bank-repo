@@ -3,6 +3,7 @@
 public enum PaymentStatusEnum
 {
     CREATED,
+    PROCESSING,
     CONFIRMED,
     FAILED
 }
