@@ -1,107 +1,297 @@
-# New Nx Repository
+# 🏦 SDTECH Bank — Pix Payment System (Event-Driven)
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+Sistema distribuído para simulação de transferências Pix ponta a ponta, inspirado no fluxo oficial do Banco Central.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+> Este projeto tem como objetivo demonstrar capacidade de **modelagem de domínio financeiro**, **arquitetura orientada a eventos** e **consistência em sistemas distribuídos**.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
-<!-- BEGIN: nx-cloud -->
-## Try the full Nx platform
-🚀 If you haven't connected to Nx Cloud yet, [complete your setup here](https://cloud.nx.app/setup/connect-workspace/guide). Get faster builds with remote caching, distributed task execution, and self-healing CI. [See how your workspace can benefit](#nx-cloud).
-<!-- END: nx-cloud -->
-## Generate a library
+---
 
-```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
-```
+# 🎯 Objetivo
 
-## Run tasks
+Construir um sistema capaz de:
 
-To build the library use:
+- Processar transferências Pix end-to-end
+- Garantir consistência financeira com **ledger (double-entry accounting)**
+- Operar de forma **event-driven**
+- Ser resiliente a duplicidade de mensagens (**idempotência**)
+- Permitir rastreabilidade completa das transações
 
-```sh
-npx nx build pkg1
-```
+---
 
-To run any task with Nx use:
+# 🧠 Contexto de Negócio
 
-```sh
-npx nx <target> <project-name>
-```
+O fluxo Pix envolve:
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+1. Geração da ordem de pagamento
+2. Validação dos dados
+3. Confirmação do usuário
+4. Liquidação da transação
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Este projeto simula um **PSP (Payment Service Provider)** com integração ao DICT (via serviço mockado `BcDict`).
 
-## Versioning and releasing
+---
 
-To version and release the library use
+# 🧩 Domínio
 
-```
-npx nx release
-```
+## Entidades principais
 
-Pass `--dry-run` to see what would happen without actually releasing the library.
+### Transaction
+Representa uma transferência Pix.
 
-[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- `transactionId`
+- `amount`
+- `status`
+- `payer`
+- `receiver`
+- `correlationId`
 
-## Keep TypeScript project references up to date
+---
 
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
+### Account
+- `accountId`
+- `status`
 
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
+> ⚠️ Saldo não é fonte da verdade — é derivado do ledger
 
-```sh
-npx nx sync
-```
+---
 
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
+### PixKey
+- `key`
+- `accountId`
 
-```sh
-npx nx sync:check
-```
+---
 
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
+### LedgerEntry (core do sistema)
 
-## Nx Cloud
+Modelo de **double-entry accounting**:
 
-Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+| Tipo   | Conta    | Valor |
+|--------|---------|------|
+| Débito | Pagador | -100 |
+| Crédito| Recebedor | +100 |
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Regras:
+- Sempre balanceado
+- Imutável
+- Não pode ser atualizado
 
-### Set up CI (non-Github Actions CI)
+---
 
-**Note:** This is only required if your CI provider is not GitHub Actions.
+## Estados da transação
 
-Use the following command to configure a CI workflow for your workspace:
+CREATED → RECEIVER_RESOLVED → VALIDATED → WAITING_CONFIRMATION → CONFIRMED → PROCESSING → COMPLETED → FAILED
 
-```sh
-npx nx g ci-workflow
-```
+---
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Invariantes
 
-## Install Nx Console
+- Transação não pode ser processada mais de uma vez
+- Ledger deve sempre estar balanceado
+- Dados financeiros são imutáveis
+- Consistência eventual controlada via eventos
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+---
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+# 🧱 Arquitetura
 
-## Useful links
+## Estilo
 
-Learn more:
+- Event-Driven Architecture
+- Microsserviços desacoplados
+- Comunicação assíncrona via RabbitMQ
 
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+---
 
-And join the Nx community:
+## Componentes
 
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### 🔹 Payment API
+- Entrada do sistema
+- Recebe requisição do cliente
+- Publica evento `PaymentRequested`
+
+---
+
+### 🔹 Payment Worker
+- Orquestra o fluxo
+- Consome eventos
+- Executa regras de negócio
+
+---
+
+### 🔹 BcDict Service
+- Simula o DICT do Bacen
+- Resolve chave Pix → dados bancários
+
+---
+
+### 🔹 Ledger Service
+- Responsável pelo registro financeiro
+- Garante consistência contábil
+
+---
+
+# 🔄 Fluxo de processamento
+
+PaymentRequested → PixKeyResolved → PaymentValidated → PaymentConfirmed → PaymentProcessed → PaymentCompleted
+
+---
+
+# 📩 Eventos
+
+## PaymentRequested
+
+{
+  "transactionId": "uuid",
+  "amount": 100,
+  "payerPixKey": "from@bank.com",
+  "receiverPixKey": "to@bank.com",
+  "correlationId": "abc-123"
+}
+
+---
+
+## PixKeyResolved
+
+{
+  "transactionId": "uuid",
+  "receiverAccount": {
+    "bank": "236",
+    "branch": "1218",
+    "account": "123456-8"
+  }
+}
+
+---
+
+## PaymentCompleted
+
+{
+  "transactionId": "uuid",
+  "status": "COMPLETED"
+}
+
+---
+
+# 🔁 Idempotência
+
+## Problema
+
+Mensagens podem ser entregues mais de uma vez.
+
+## Estratégia
+
+- Uso de `eventId` e `transactionId`
+- Controle de eventos já processados
+- Operações idempotentes
+
+## Garantias
+
+- Nenhuma transação será executada duas vezes
+- Ledger não será duplicado
+
+---
+
+# 📚 Ledger
+
+## Estrutura
+
+[
+  {
+    "transactionId": "uuid",
+    "type": "DEBIT",
+    "accountId": "payer",
+    "amount": -100
+  },
+  {
+    "transactionId": "uuid",
+    "type": "CREDIT",
+    "accountId": "receiver",
+    "amount": 100
+  }
+]
+
+---
+
+## Regras
+
+- Imutável
+- Sempre balanceado
+- Fonte única da verdade
+
+---
+
+# 📡 API
+
+## Criar pagamento
+
+POST /payments
+
+{
+  "amount": 100,
+  "fromPixKey": "from@bank.com",
+  "toPixKey": "to@bank.com",
+  "correlationId": "abc-123"
+}
+
+---
+
+# ⚠️ Tratamento de erros
+
+- Chave Pix inválida
+- Conta inexistente
+- Saldo insuficiente
+- Timeout no BcDict
+- Falha no processamento
+- Mensagem duplicada
+
+---
+
+# 🔍 Observabilidade
+
+- correlationId em todos os fluxos
+- logs estruturados
+- rastreabilidade ponta a ponta
+
+---
+
+# 🔐 Segurança
+
+- JWT ou API Key
+- Validação de payload
+- Proteção contra replay
+
+---
+
+# 🧪 Testes
+
+Cobertura mínima: 80%
+
+---
+
+# 🛠️ Stack
+
+- C#
+- Python
+- RabbitMQ
+- MongoDB
+- Docker
+
+---
+
+# 🚀 Como executar
+
+docker-compose up --build
+
+---
+
+# 📄 Entregáveis
+
+- Código no GitHub
+- Diagramas
+- Relatório técnico
+
+---
+
+# 💬 Considerações finais
+
+Projeto focado em modelagem de domínio e sistemas distribuídos.
