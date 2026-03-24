@@ -1,52 +1,160 @@
-# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+# =========================
+# Node / Frontend
+# =========================
+node_modules/
+dist/
+tmp/
+out-tsc/
+coverage/
+.typings/
+npm-debug.log*
+yarn-error.log*
+testem.log
 
-# compiled output
-dist
-tmp
-out-tsc
+# =========================
+# NX
+# =========================
+.nx/cache
+.nx/workspace-data
+.nx/polygraph
 
-# dependencies
-node_modules
-
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
-
-# IDE - VSCode
+# =========================
+# IDEs / Editors
+# =========================
+.idea/
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+*.code-workspace
 
-# misc
-/.sass-cache
-/connect.lock
-/coverage
-/libpeerconnection.log
-npm-debug.log
-yarn-error.log
-testem.log
-/typings
+.project
+.classpath
+.settings/
+*.sublime-workspace
+.c9/
 
-# System Files
+# =========================
+# System files
+# =========================
 .DS_Store
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
 
-.nx/cache
-.nx/workspace-data
-.cursor/rules/nx-rules.mdc
-.github/instructions/nx.instructions.md
+# =========================
+# Logs / temp
+# =========================
+*.log
+*.tmp
+*.cache
+*.pidb
+*.svclog
+*.stackdump
 
-.claude/worktrees
-.claude/settings.local.json
-.nx/polygraph
-# .NET
-**/bin/
-**/obj/
-/artifacts/
+# =========================
+# Env
+# =========================
+.env
+
+# =========================
+# .NET / Visual Studio
+# =========================
+bin/
+obj/
+artifacts/
+
+.vs/
+Generated Files/
+
+# User-specific
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# Build outputs
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]*/
+bld/
+
+# Test results
+[Tt]est[Rr]esult*/
+*.coverage*
+*.trx
+
+# NuGet
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+
+# Azure / publish
+*.pubxml
+*.publishproj
+PublishScripts/
+
+# =========================
+# Coverage
+# =========================
+coverage*.json
+coverage*.xml
+coverage*.info
+
+# =========================
+# Python (VS tooling)
+# =========================
+__pycache__/
+*.pyc
+
+# =========================
+# Misc tools
+# =========================
+_ReSharper*/
+_TeamCity*
+*.dotCover
+.axoCover/*
+!.axoCover/settings.json
+
+# =========================
+# Sass
+# =========================
+.sass-cache/
+
+# =========================
+# OS (macOS extra)
+# =========================
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# =========================
+# Windows extras
+# =========================
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# =========================
+# Vim
+# =========================
+*.swp
+
+# =========================
+# Custom / Project-specific
+# =========================
+.cursor/
+.claude/
+.github/instructions/
