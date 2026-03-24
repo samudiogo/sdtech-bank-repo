@@ -1,3 +1,20 @@
 <Solution>
-  <Project Path="SdtechBank.Domain/SdtechBank.Domain.csproj" Id="585cdad1-99b3-4f19-9491-c9c8aacba554" />
+  <Folder Name="/1 - Presentation/">
+    <Project Path="../../apps/SdtechBank.PixManagerApi/SdtechBank.PixManagerApi.csproj" />
+    <Project Path="../../apps/SdtechBank.PixManagerWorker/SdtechBank.PixManagerWorker.csproj" />
+  </Folder>
+  <Folder Name="/2 - Domain/">
+    <Project Path="SdtechBank.Domain/SdtechBank.Domain.csproj" />
+  </Folder>
+  <Folder Name="/3 - Application/">
+    <Project Path="SdtechBank.Application/SdtechBank.Application.csproj" />
+  </Folder>
+  <Folder Name="/4 - Infrastructure/">
+    <Project Path="SdtechBank.Infrastructure/SdtechBank.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/5 - Shared/">
+    <Project Path="SdtechBank.Shared/SdtechBank.Shared.csproj" />
+  </Folder>
+  <Folder Name="/6 - Tests/">
+  </Folder>  
 </Solution>

@@ -1,0 +1,6 @@
+@SdtechBank.PixManagerApi_HostAddress = http://localhost:5149
+
+GET {{SdtechBank.PixManagerApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
