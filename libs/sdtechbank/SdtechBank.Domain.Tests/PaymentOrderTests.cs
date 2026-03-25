@@ -1,7 +1,6 @@
 ﻿using SdtechBank.Domain.Entities;
 using SdtechBank.Domain.Enums;
 using SdtechBank.Domain.ValueObjects;
-using Xunit;
 
 namespace SdtechBank.Domain.Tests;
 
