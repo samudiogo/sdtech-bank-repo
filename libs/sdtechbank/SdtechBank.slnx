@@ -16,5 +16,6 @@
     <Project Path="SdtechBank.Shared/SdtechBank.Shared.csproj" />
   </Folder>
   <Folder Name="/6 - Tests/">
+    <Project Path="SdtechBank.Domain.Tests/SdtechBank.Domain.Tests.csproj" />
   </Folder>  
 </Solution>
