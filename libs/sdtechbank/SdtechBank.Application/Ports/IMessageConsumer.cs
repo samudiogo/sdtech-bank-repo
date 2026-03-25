@@ -10,3 +10,8 @@ public interface IMessageConsumer
 {
     Task StartConsumingAsync(CancellationToken cancellationToken);
 }
+
+public interface IEventBus
+{
+    Task PublishAsync<T>(T @event);
+}

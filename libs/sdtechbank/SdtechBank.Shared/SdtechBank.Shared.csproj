@@ -10,8 +10,4 @@
     <ProjectReference Include="..\SdtechBank.Domain\SdtechBank.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Extensions\" />
-  </ItemGroup>
-
 </Project>

@@ -1,0 +1,60 @@
+﻿using FluentValidation;
+using SdtechBank.Shared.DTOs.Payments.Requests;
+
+namespace SdtechBank.Application.Payments.CreatePayment;
+
+public class CreatePaymentValidator : AbstractValidator<CreatePaymentRequest>
+{
+    public CreatePaymentValidator()
+    {
+        RuleFor(x => x.Amount)
+            .GreaterThan(0).WithMessage("Amount deve ser maior que zero");
+
+        RuleFor(x => x.PayerId)
+            .NotEmpty().WithMessage("PayerId é obrigatório");
+
+        RuleFor(x => x.Receiver)
+            .NotNull().WithMessage("Receiver é obrigatório")
+            .SetValidator(new PaymentReceiverRequestValidator());
+    }
+}
+
+public class PaymentReceiverRequestValidator : AbstractValidator<PaymentReceiverRequest>
+{
+    public PaymentReceiverRequestValidator()
+    {
+        When(x => string.IsNullOrWhiteSpace(x.PixKey) && x.BankAccount is null, () =>
+        {
+            RuleFor(x => x)
+            .Must(x => string.IsNullOrWhiteSpace(x.PixKey) || x.BankAccount is null)
+            .WithMessage("Informe PixKey ou BankAccount");
+        });
+
+        When(x => !string.IsNullOrWhiteSpace(x.PixKey) && x.BankAccount is not null, () =>
+        {
+            RuleFor(x => x)
+            .Must(x => !string.IsNullOrWhiteSpace(x.PixKey) || x.BankAccount is not null)
+            .WithMessage("Informe apenas um tipo de recebedor");
+        });
+
+        When(x => string.IsNullOrWhiteSpace(x.PixKey) && x.BankAccount is not null, () =>
+        {
+            RuleFor(x => x.BankAccount!).SetValidator(new BankAccountRequestValidator());
+        });
+
+    }
+}
+
+public class BankAccountRequestValidator : AbstractValidator<BankAccountRequest>
+{
+    public BankAccountRequestValidator()
+    {
+        RuleFor(x => x.FullName).NotEmpty().WithMessage("FullName é obrigatório");
+        RuleFor(x => x.BankCode).NotEmpty().WithMessage("BankCode é obrigatório");
+        RuleFor(x => x.Branch).NotEmpty().WithMessage("Branch é obrigatório");
+        RuleFor(x => x.Account).NotEmpty().WithMessage("Account é obrigatório");
+        RuleFor(x => x.Cpf)
+            .NotEmpty().WithMessage("CPF é obrigatório")
+            .Length(11).WithMessage("CPF deve ter 11 caracteres");
+    }
+}

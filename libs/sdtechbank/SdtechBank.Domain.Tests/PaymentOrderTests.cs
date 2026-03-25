@@ -8,15 +8,25 @@ public class PaymentOrderTests
 {
     private static PaymentOrder CreateValidOrder()
     {
+        var destination = PaymentDestination.FromPixKey("pixkey");
         return PaymentOrder.Create(
             Guid.NewGuid(),
-            Guid.NewGuid(),
+            destination,
             new Money(100, CurrencyEnum.BRL)
         );
     }
 
     [Fact]
-    public void Create_ShouldSetStatusCreated()
+    public void Create_WithBankAccountDestination_ShouldSetStatusCreated()
+    {
+        var destination = PaymentDestination.FromBankAccount(new BankAccount { FullName = "name", BankCode = "0436", Branch = "1818", Account = "16435-2", Cpf = "00012345678" });
+        var order = PaymentOrder.Create(Guid.NewGuid(), destination, new Money(100, CurrencyEnum.BRL));
+
+        Assert.Equal(PaymentStatusEnum.CREATED, order.PaymentStatus);
+    }
+
+    [Fact]
+    public void Create_WithPixKeyDestination_ShouldSetStatusCreated()
     {
         var order = CreateValidOrder();
 
@@ -56,14 +66,6 @@ public class PaymentOrderTests
     }
 
     [Fact]
-    public void Create_WithSamePayerAndReceiver_ShouldThrow()
-    {
-        var id = Guid.NewGuid();
-
-        Assert.Throws<InvalidOperationException>(() => PaymentOrder.Create(id, id, new Money(100, CurrencyEnum.BRL)));
-    }
-
-    [Fact]
     public void MarkAsProcessing_WhenNotCreated_ShouldThrow()
     {
         var order = CreateValidOrder();
@@ -75,7 +77,7 @@ public class PaymentOrderTests
     [Fact]
     public void MarkAsConfirmed_WhenNotProcessing_ShouldThrow()
     {
-        var order = CreateValidOrder();        
+        var order = CreateValidOrder();
 
         Assert.Throws<InvalidOperationException>(() => order.MarkAsConfirmed());
     }
@@ -89,6 +91,6 @@ public class PaymentOrderTests
         order.MarkAsConfirmed();
 
         Assert.Throws<InvalidOperationException>(() => order.MarkAsConfirmed());
-    }   
+    }
 
 }

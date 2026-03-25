@@ -10,16 +10,16 @@ public sealed class PaymentOrder
 {
     public Guid Id { get; private set; }
     public Guid PayerId { get; private set; }
-    public Guid ReceiverId { get; private set; }
+    public PaymentDestination Destination { get; private set; }
     public Money Amount { get; private set; }
     public PaymentStatusEnum PaymentStatus { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
-    private PaymentOrder(Guid id, Guid payerId, Guid receiverId, Money amount, PaymentStatusEnum paymentStatus, DateTime createdAt)
+    private PaymentOrder(Guid id, Guid payerId, PaymentDestination destination, Money amount, PaymentStatusEnum paymentStatus, DateTime createdAt)
     {
         Id = id;
         PayerId = payerId;
-        ReceiverId = receiverId;
+        Destination = destination;
         Amount = amount;
         PaymentStatus = paymentStatus;
         CreatedAt = createdAt;
@@ -35,12 +35,9 @@ public sealed class PaymentOrder
     /// <param name="amount">O valor a ser transferido na ordem de pagamento.</param>
     /// <returns>Uma nova instância de <see cref="PaymentOrder"/> representando a ordem de pagamento criada.</returns>
     /// <exception cref="InvalidOperationException">Lançada se <paramref name="payerId"/> e <paramref name="receiverId"/> forem iguais.</exception>
-    public static PaymentOrder Create(Guid payerId, Guid receiverId, Money amount)
+    public static PaymentOrder Create(Guid payerId, PaymentDestination destination, Money amount)
     {
-        if (payerId.Equals(receiverId))
-            throw new InvalidOperationException("O pagador não pode ser o mesmo que o recebedor");
-
-        return new PaymentOrder(Guid.NewGuid(), payerId, receiverId, amount, PaymentStatusEnum.CREATED, DateTime.UtcNow);
+        return new PaymentOrder(Guid.NewGuid(), payerId, destination, amount, PaymentStatusEnum.CREATED, DateTime.UtcNow);
     }
 
     /// <summary>
