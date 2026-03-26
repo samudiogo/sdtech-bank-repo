@@ -1,36 +1,25 @@
 ﻿using FluentValidation;
+using SdtechBank.Application.Contracts;
+using SdtechBank.Application.Contracts.Events.Payments;
 using SdtechBank.Application.Payments.Extensions;
-using SdtechBank.Application.Ports;
 using SdtechBank.Domain.Contracts;
-using SdtechBank.Domain.Entities;
-using SdtechBank.Shared.DTOs.Payments.Extensions;
 using SdtechBank.Shared.DTOs.Payments.Requests;
+using SdtechBank.Shared.DTOs.Payments.Responses;
 
 namespace SdtechBank.Application.Payments.CreatePayment;
 
-public class CreatePaymentUseCase : ICreatePaymentUseCase
+public class CreatePaymentUseCase(IPaymentOrderRepository repository, IEventBus eventBus, CreatePaymentValidator validator) : ICreatePaymentUseCase
 {
-    private readonly IPaymentOrderRepository _repository;
-    private readonly IEventBus _eventBus;
-    private readonly CreatePaymentValidator _validator;
-
-    public CreatePaymentUseCase(IPaymentOrderRepository repository, IEventBus eventBus, CreatePaymentValidator validator)
+    public async Task<PaymentResponse> ExecuteAsync(CreatePaymentRequest request)
     {
-        _repository = repository;
-        _eventBus = eventBus;
-        _validator = validator;
-    }
-
-    public async Task<PaymentOrder> ExecuteAsync(CreatePaymentRequest request)
-    {
-       _validator.Validate(request, opt => opt.ThrowOnFailures());       
+       validator.Validate(request, opt => opt.ThrowOnFailures());       
 
         var payment = request.ToEntity();
 
-        await _repository.SaveAsync(payment);
+        await repository.SaveAsync(payment);
 
-        await _eventBus.PublishAsync(payment);
+        await eventBus.PublishAsync(payment.ToPaymentCreatedEvent());
 
-        return payment;
+        return payment.ToResponse();
     }
 }

@@ -1,9 +1,9 @@
-﻿using SdtechBank.Domain.Entities;
-using SdtechBank.Shared.DTOs.Payments.Requests;
+﻿using SdtechBank.Shared.DTOs.Payments.Requests;
+using SdtechBank.Shared.DTOs.Payments.Responses;
 
 namespace SdtechBank.Application.Payments.CreatePayment;
 
 public interface ICreatePaymentUseCase
 {
-    Task<PaymentOrder> ExecuteAsync(CreatePaymentRequest request);
+    Task<PaymentResponse> ExecuteAsync(CreatePaymentRequest request);
 }
