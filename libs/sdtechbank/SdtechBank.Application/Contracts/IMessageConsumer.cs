@@ -1,5 +1,4 @@
-﻿
-namespace SdtechBank.Application.Ports;
+﻿namespace SdtechBank.Application.Contracts;
 
 /// <summary>
 /// Defines a contract for consuming messages asynchronously from a message source.
@@ -13,5 +12,5 @@ public interface IMessageConsumer
 
 public interface IEventBus
 {
-    Task PublishAsync<T>(T @event);
+    Task PublishAsync<T>(T @event) where T : IDomainIntegrationEvent;
 }

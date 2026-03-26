@@ -1,9 +1,16 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
-using SdtechBank.Application.Ports;
+using MongoDB.Bson.Serialization;
+using SdtechBank.Application.Contracts;
+using SdtechBank.Application.Payments.CreatePayment;
+using SdtechBank.Domain.Contracts;
+using SdtechBank.Infrastructure.Data;
 using SdtechBank.Infrastructure.Messaging;
 using SdtechBank.Infrastructure.MongoDB;
+using SdtechBank.Domain.Entities;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson;
 
 namespace SdtechBank.Infrastructure.DI;
 
@@ -21,6 +28,7 @@ public static class InfrastructureExtensions
 
     private static void AddMongoDbConfig(IServiceCollection services, IConfiguration configuration)
     {
+        BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
         var settings = configuration.GetSection("MongoDb").Get<MongoDbSettings>()!;
         services.Configure<MongoDbSettings>(opts => configuration.GetSection("MongoDb").Bind(opts));
         services.AddSingleton<IMongoClient>(_ => new MongoClient(settings.ConnectionString));
@@ -30,23 +38,32 @@ public static class InfrastructureExtensions
             var client = sp.GetRequiredService<IMongoClient>();
             return new MongoDbContext(client, settings.DatabaseName);
         });
+
+        BsonClassMap.RegisterClassMap<PaymentOrder>(cm =>
+        {
+            cm.AutoMap();
+            cm.MapIdProperty(c => c.Id);
+            cm.SetIgnoreExtraElements(true);
+        });
     }
 
     private static void AddRabbitMqConfig(IServiceCollection services, IConfiguration configuration)
     {        
         services.Configure<RabbitMqSettings>(opts => configuration.GetSection("RabbitMq").Bind(opts));
+        services.Configure<RabbitMqQueueSettings>(opts => configuration.GetSection("RabbitMqQueues").Bind(opts));
+
+        services.AddSingleton<IEventBus, RabbitMqEventBus>();
         services.AddScoped<IMessageConsumer, RabbitMqConsumer>();
     }
 
     private static void AddUseCasesConfig(IServiceCollection services)
     {
-        // TODO: adicionar as implementações dos casos de uso, por exemplo:
-        // services.AddScoped<ITransferenciaUseCase, TransferenciaUseCase>();
+         services.AddScoped<ICreatePaymentUseCase, CreatePaymentUseCase>();
+        services.AddScoped<CreatePaymentValidator>();
     }
 
     private static void AddRepositoriesConfig(IServiceCollection services)
     {
-        // TODO: adicionar as implementações dos repositórios, por exemplo:
-        // services.AddScoped<IContaRepository, ContaRepository>();
+        services.AddScoped<IPaymentOrderRepository, PaymentOrderRepository>();
     }
 }
