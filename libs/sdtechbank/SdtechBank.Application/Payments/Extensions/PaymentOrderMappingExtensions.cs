@@ -14,9 +14,9 @@ public static class PaymentOrderMappingExtensions
 
     public static PaymentOrder ToEntity(this CreatePaymentRequest request)
     {
-        var payerId = Guid.Parse(request.PayerId);
+        var payerId = Guid.Parse(request.PayerId!);
         var destination = request.Receiver.ToEntity();
-        var amount = new Money(request.Amount, Domain.Enums.CurrencyEnum.BRL);
+        var amount = new Money(request.Amount!.Value, Domain.Enums.CurrencyEnum.BRL);
 
         return PaymentOrder.Create(payerId: payerId, destination: destination, amount: amount);
     }

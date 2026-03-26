@@ -12,7 +12,7 @@ public class CreatePaymentUseCase(IPaymentOrderRepository repository, IEventBus 
 {
     public async Task<PaymentResponse> ExecuteAsync(CreatePaymentRequest request)
     {
-       validator.Validate(request, opt => opt.ThrowOnFailures());       
+        ValidateRequest(request);
 
         var payment = request.ToEntity();
 
@@ -21,5 +21,13 @@ public class CreatePaymentUseCase(IPaymentOrderRepository repository, IEventBus 
         await eventBus.PublishAsync(payment.ToPaymentCreatedEvent());
 
         return payment.ToResponse();
+    }
+
+    private void ValidateRequest(CreatePaymentRequest request)
+    {
+        var result  = validator.Validate(request);
+        
+        if(result.IsValid is false)
+           throw new ValidationException(result.Errors);        
     }
 }

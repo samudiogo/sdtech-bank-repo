@@ -11,6 +11,7 @@ using SdtechBank.Infrastructure.MongoDB;
 using SdtechBank.Domain.Entities;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson;
+using FluentValidation;
 
 namespace SdtechBank.Infrastructure.DI;
 
@@ -22,6 +23,7 @@ public static class InfrastructureExtensions
         AddRabbitMqConfig(services, configuration);
         AddUseCasesConfig(services);
         AddRepositoriesConfig(services);
+        AddValidators(services);
         return services;
     }
 
@@ -59,11 +61,16 @@ public static class InfrastructureExtensions
     private static void AddUseCasesConfig(IServiceCollection services)
     {
          services.AddScoped<ICreatePaymentUseCase, CreatePaymentUseCase>();
-        services.AddScoped<CreatePaymentValidator>();
+        
     }
 
     private static void AddRepositoriesConfig(IServiceCollection services)
     {
         services.AddScoped<IPaymentOrderRepository, PaymentOrderRepository>();
+    }
+
+    private static void AddValidators(IServiceCollection services)
+    {
+            services.AddScoped<CreatePaymentValidator>();
     }
 }

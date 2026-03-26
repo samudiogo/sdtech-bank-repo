@@ -2,7 +2,7 @@
 
 public class CreatePaymentRequest
 {
-    public required decimal Amount { get; set; }
-    public required string PayerId { get; set; }
-    public PaymentReceiverRequest Receiver { get; set; } = default!;
+    public decimal? Amount { get; set; }
+    public string? PayerId { get; set; }
+    public PaymentReceiverRequest? Receiver { get; set; }
 }

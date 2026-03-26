@@ -2,9 +2,9 @@
 
 public class BankAccountRequest
 {
-    public required string FullName { get; set; }
-    public required string Cpf { get; set; }
-    public required string BankCode { get; set; }
-    public required string Branch { get; set; }
-    public required string Account { get; set; }
+    public string? FullName { get; set; }
+    public string? Cpf { get; set; }
+    public string? BankCode { get; set; }
+    public string? Branch { get; set; }
+    public string? Account { get; set; }
 }
