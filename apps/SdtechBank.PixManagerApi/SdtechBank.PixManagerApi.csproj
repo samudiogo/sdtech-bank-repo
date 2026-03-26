@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.5" />
+	<PackageReference Include="Scalar.AspNetCore" Version="2.13.13" />
   </ItemGroup>
 
   <ItemGroup>
@@ -15,5 +16,4 @@
     <ProjectReference Include="..\..\libs\sdtechbank\SdtechBank.Infrastructure\SdtechBank.Infrastructure.csproj" />
     <ProjectReference Include="..\..\libs\sdtechbank\SdtechBank.Shared\SdtechBank.Shared.csproj" />
   </ItemGroup>
-
 </Project>
