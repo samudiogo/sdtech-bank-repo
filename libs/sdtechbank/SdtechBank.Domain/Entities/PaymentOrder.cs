@@ -41,47 +41,72 @@ public sealed class PaymentOrder
     }
 
     /// <summary>
-    /// Altera o status do pagamento para indicar que o processamento foi iniciado.
+    /// Atualiza o pagamento para o status de aguardando confirmação.
     /// </summary>
-    /// <remarks>
-    /// Chame este método para marcar um pagamento como sendo processado.
-    /// Esta operação só é válida quando o pagamento está no estado 'Created'.
-    /// </remarks>
-    /// <exception cref="InvalidOperationException">Lançada uma exceção se o status atual do pagamento não for 'Created'.</exception>
-    public void MarkAsProcessing()
+    /// <exception cref="InvalidOperationException">
+    /// Lançada quando o status atual não é 'CREATED'.
+    /// </exception>
+    public void MarkAsWaitingConfirmation()
     {
         if (PaymentStatus != PaymentStatusEnum.CREATED)
-            throw new InvalidOperationException("Só é possível processar pagamentos criados");
-        PaymentStatus = PaymentStatusEnum.PROCESSING;
+            throw new InvalidOperationException("Transição para 'WAITING_CONFIRMATION' permitida apenas para pagamentos com status 'CREATED'.");
+
+        PaymentStatus = PaymentStatusEnum.WAITING_CONFIRMATION;
     }
 
     /// <summary>
-    /// Altera o status do pagamento para indicar que o processamento foi confirmado com sucesso.
+    /// Atualiza o pagamento para o status de pronto para transferência.
     /// </summary>
-    /// <remarks>
-    /// Chame este método para marcar um pagamento como sendo processado.
-    /// Esta operação só é válida quando o pagamento está no estado 'PROCESSING'.
-    /// </remarks>
-    /// <exception cref="InvalidOperationException">Lançada uma exceção se o status atual do pagamento não for 'PROCESSING'.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// Lançada quando o status atual não é 'WAITING_CONFIRMATION'.
+    /// </exception>
+    public void MarkAsReadyToTransfer()
+    {
+        if (PaymentStatus != PaymentStatusEnum.WAITING_CONFIRMATION)
+            throw new InvalidOperationException("Transição para 'READY_TO_TRANSFER' requer status 'WAITING_CONFIRMATION'.");
+
+        PaymentStatus = PaymentStatusEnum.READY_TO_TRANSFER;
+    }
+
+    /// <summary>
+    /// Atualiza o pagamento para o status em processamento de transferência.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// Lançada quando o status atual não é 'READY_TO_TRANSFER'.
+    /// </exception>
+    public void MarkAsInTransfer()
+    {
+        if (PaymentStatus != PaymentStatusEnum.READY_TO_TRANSFER)
+            throw new InvalidOperationException("Transição para 'IN_TRANSFER' requer status 'READY_TO_TRANSFER'.");
+
+        PaymentStatus = PaymentStatusEnum.IN_TRANSFER;
+    }
+
+    /// <summary>
+    /// Atualiza o pagamento para o status confirmado.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// Lançada quando o status atual não é 'IN_TRANSFER'.
+    /// </exception>
     public void MarkAsConfirmed()
     {
-        if (PaymentStatus != PaymentStatusEnum.PROCESSING)
-            throw new InvalidOperationException("Só é possível concluir pagamentos em processamento");
+        if (PaymentStatus != PaymentStatusEnum.IN_TRANSFER)
+            throw new InvalidOperationException("Confirmação permitida apenas para pagamentos em 'IN_TRANSFER'.");
+
         PaymentStatus = PaymentStatusEnum.CONFIRMED;
     }
 
     /// <summary>
-    /// Altera o status do pagamento para indicar que o processamento falhou.
+    /// Atualiza o pagamento para o status de falha.
     /// </summary>
-    /// <remarks>
-    /// Chame este método para marcar um pagamento como sendo processado.
-    /// Esta operação só é válida quando o pagamento está no estado 'CONFIRMED'.
-    /// </remarks>
-    /// <exception cref="InvalidOperationException">Lançada uma exceção se o status atual do pagamento não for 'CONFIRMED'.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// Lançada quando o pagamento já está confirmado.
+    /// </exception>
     public void MarkAsFailed()
     {
         if (PaymentStatus == PaymentStatusEnum.CONFIRMED)
-            throw new InvalidOperationException("Pagamento confirmado não pode falhar");
+            throw new InvalidOperationException("Operação inválida: pagamento com status 'CONFIRMED' não pode ser marcado como falha.");
+
         PaymentStatus = PaymentStatusEnum.FAILED;
     }
 

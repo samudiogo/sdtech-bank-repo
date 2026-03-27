@@ -32,50 +32,94 @@ public class PaymentOrderTests
 
         Assert.Equal(PaymentStatusEnum.CREATED, order.PaymentStatus);
     }
-
-    [Fact]
-    public void MarkAsProcessing_WhenCreated_ShouldChangeStatus()
-    {
-        var order = CreateValidOrder();
-
-        order.MarkAsProcessing();
-
-        Assert.Equal(PaymentStatusEnum.PROCESSING, order.PaymentStatus);
-    }
-
+    
     [Fact]
     public void FullFlow_ShouldTransitionCorrectly()
     {
         var order = CreateValidOrder();
 
-        order.MarkAsProcessing();
+        order.MarkAsWaitingConfirmation();
+        order.MarkAsReadyToTransfer();
+        order.MarkAsInTransfer();
         order.MarkAsConfirmed();
 
         Assert.Equal(PaymentStatusEnum.CONFIRMED, order.PaymentStatus);
     }
 
     [Fact]
-    public void MarkAsFailed_WhenCreated_ShouldChangeStatus()
+    public void MarkAsWaitingConfirmation_WhenCreated_ShouldChangeStatus()
     {
         var order = CreateValidOrder();
 
-        order.MarkAsProcessing();
-        order.MarkAsFailed();
+        order.MarkAsWaitingConfirmation();
 
+        Assert.Equal(PaymentStatusEnum.WAITING_CONFIRMATION, order.PaymentStatus);
+    }    
+
+    [Fact]
+    public void MarkAsReadyToTransfer_WhenWaitingConfirmation_ShouldChangeStatus()
+    {
+        var order = CreateValidOrder();
+        order.MarkAsWaitingConfirmation();
+        order.MarkAsReadyToTransfer();
+        Assert.Equal(PaymentStatusEnum.READY_TO_TRANSFER, order.PaymentStatus);
+    }
+
+    [Fact]
+    public void MarkAsInTransfer_WhenReadyToTransfer_ShouldChangeStatus()
+    {
+        var order = CreateValidOrder();
+        order.MarkAsWaitingConfirmation();
+        order.MarkAsReadyToTransfer();
+        order.MarkAsInTransfer();
+        Assert.Equal(PaymentStatusEnum.IN_TRANSFER, order.PaymentStatus);
+    }
+
+    [Fact]
+    public void MarkAsConfirmed_WhenInTransfer_ShouldChangeStatus()
+    {
+        var order = CreateValidOrder();
+        order.MarkAsWaitingConfirmation();
+        order.MarkAsReadyToTransfer();
+        order.MarkAsInTransfer();
+        order.MarkAsConfirmed();
+        Assert.Equal(PaymentStatusEnum.CONFIRMED, order.PaymentStatus);
+    }    
+
+    [Fact]
+    public void MarkAsFailed_WhenCreated_ShouldChangeStatus()
+    {
+        var order = CreateValidOrder();
+        order.MarkAsFailed();
         Assert.Equal(PaymentStatusEnum.FAILED, order.PaymentStatus);
     }
 
     [Fact]
-    public void MarkAsProcessing_WhenNotCreated_ShouldThrow()
+    public void MarkAsWaitingConfirmation_WhenNotCreated_ShouldThrow()
     {
         var order = CreateValidOrder();
-        order.MarkAsProcessing();
-
-        Assert.Throws<InvalidOperationException>(() => order.MarkAsProcessing());
+        order.MarkAsWaitingConfirmation();
+        order.MarkAsReadyToTransfer();
+        Assert.Throws<InvalidOperationException>(() => order.MarkAsWaitingConfirmation());
     }
 
     [Fact]
-    public void MarkAsConfirmed_WhenNotProcessing_ShouldThrow()
+    public void MarkAsReadyToTransfer_WhenNotAsWaitingConfirmation_ShouldThrow()
+    {
+        var order = CreateValidOrder();
+        Assert.Throws<InvalidOperationException>(() => order.MarkAsReadyToTransfer());
+    }
+
+    [Fact]
+    public void MarkAsInTransfer_WhenNotAsReadyToTransfer_ShouldThrow()
+    {
+        var order = CreateValidOrder();
+        order.MarkAsWaitingConfirmation();
+        Assert.Throws<InvalidOperationException>(() => order.MarkAsInTransfer());
+    }    
+
+    [Fact]
+    public void MarkAsConfirmed_WhenNotInTransfer_ShouldThrow()
     {
         var order = CreateValidOrder();
 
@@ -87,10 +131,12 @@ public class PaymentOrderTests
     {
         var order = CreateValidOrder();
 
-        order.MarkAsProcessing();
+        order.MarkAsWaitingConfirmation();
+        order.MarkAsReadyToTransfer();
+        order.MarkAsInTransfer();
         order.MarkAsConfirmed();
 
-        Assert.Throws<InvalidOperationException>(() => order.MarkAsConfirmed());
+        Assert.Throws<InvalidOperationException>(() => order.MarkAsFailed());
     }
 
 }
