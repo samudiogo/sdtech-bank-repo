@@ -1,5 +1,4 @@
-﻿
-namespace SdtechBank.Domain.ValueObjects;
+﻿namespace SdtechBank.Domain.PaymentOrders.ValueObjects;
 
 public sealed record PaymentDestination
 {

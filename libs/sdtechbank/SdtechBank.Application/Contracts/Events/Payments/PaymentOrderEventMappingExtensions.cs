@@ -1,5 +1,5 @@
-using SdtechBank.Domain.Entities;
-using SdtechBank.Domain.ValueObjects;
+using SdtechBank.Domain.PaymentOrders.Entities;
+using SdtechBank.Domain.PaymentOrders.ValueObjects;
 
 namespace SdtechBank.Application.Contracts.Events.Payments;
 

@@ -1,4 +1,4 @@
-﻿using SdtechBank.Domain.ValueObjects;
+﻿using SdtechBank.Domain.PaymentOrders.ValueObjects;
 using SdtechBank.Shared.DTOs.Payments.Requests;
 
 namespace SdtechBank.Application.Payments.Extensions;

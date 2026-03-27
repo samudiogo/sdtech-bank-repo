@@ -1,6 +1,6 @@
-﻿using SdtechBank.Domain.Enums;
+﻿using SdtechBank.Domain.Shared.Enums;
 
-namespace SdtechBank.Domain.ValueObjects;
+namespace SdtechBank.Domain.Shared.ValueObjects;
 public sealed record Money
 {
     public decimal Amount { get; init; }

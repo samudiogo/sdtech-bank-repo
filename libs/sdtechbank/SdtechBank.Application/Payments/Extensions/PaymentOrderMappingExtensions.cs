@@ -1,5 +1,6 @@
-﻿using SdtechBank.Domain.Entities;
-using SdtechBank.Domain.ValueObjects;
+﻿using SdtechBank.Domain.PaymentOrders.Entities;
+using SdtechBank.Domain.Shared.Enums;
+using SdtechBank.Domain.Shared.ValueObjects;
 using SdtechBank.Shared.DTOs.Payments.Requests;
 using SdtechBank.Shared.DTOs.Payments.Responses;
 
@@ -16,7 +17,7 @@ public static class PaymentOrderMappingExtensions
     {
         var payerId = Guid.Parse(request.PayerId!);
         var destination = request.Receiver!.ToEntity();
-        var amount = new Money(request.Amount!.Value, Domain.Enums.CurrencyEnum.BRL);
+        var amount = new Money(request.Amount!.Value, CurrencyEnum.BRL);
 
         return PaymentOrder.Create(payerId: payerId, destination: destination, amount: amount);
     }

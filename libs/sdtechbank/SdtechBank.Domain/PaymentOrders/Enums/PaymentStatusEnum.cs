@@ -1,4 +1,4 @@
-﻿namespace SdtechBank.Domain.Enums;
+﻿namespace SdtechBank.Domain.PaymentOrders.Enums;
 
 public enum PaymentStatusEnum
 {

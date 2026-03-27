@@ -1,5 +1,5 @@
-﻿using SdtechBank.Domain.Enums;
-using SdtechBank.Domain.ValueObjects;
+﻿using SdtechBank.Domain.Shared.Enums;
+using SdtechBank.Domain.Shared.ValueObjects;
 
 namespace SdtechBank.Domain.Tests;
 

@@ -4,7 +4,7 @@ using SdtechBank.Application.Common.Errors;
 using SdtechBank.Application.Contracts;
 using SdtechBank.Application.Contracts.Events.Payments;
 using SdtechBank.Application.Payments.Extensions;
-using SdtechBank.Domain.Contracts;
+using SdtechBank.Domain.PaymentOrders.Contracts;
 using SdtechBank.Shared.DTOs.Payments.Requests;
 using SdtechBank.Shared.DTOs.Payments.Responses;
 

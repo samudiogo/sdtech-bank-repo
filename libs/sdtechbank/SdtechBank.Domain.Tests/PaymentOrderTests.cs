@@ -1,6 +1,8 @@
-﻿using SdtechBank.Domain.Entities;
-using SdtechBank.Domain.Enums;
-using SdtechBank.Domain.ValueObjects;
+﻿using SdtechBank.Domain.PaymentOrders.Entities;
+using SdtechBank.Domain.PaymentOrders.Enums;
+using SdtechBank.Domain.PaymentOrders.ValueObjects;
+using SdtechBank.Domain.Shared.Enums;
+using SdtechBank.Domain.Shared.ValueObjects;
 
 namespace SdtechBank.Domain.Tests;
 

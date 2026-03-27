@@ -1,7 +1,8 @@
-﻿using SdtechBank.Domain.Enums;
-using SdtechBank.Domain.ValueObjects;
+﻿using SdtechBank.Domain.PaymentOrders.Enums;
+using SdtechBank.Domain.PaymentOrders.ValueObjects;
+using SdtechBank.Domain.Shared.ValueObjects;
 
-namespace SdtechBank.Domain.Entities;
+namespace SdtechBank.Domain.PaymentOrders.Entities;
 
 /// <summary>
 /// Representa uma ordem de pagamento contendo informações sobre o pagador, recebedor, valor, status e hora de criação.

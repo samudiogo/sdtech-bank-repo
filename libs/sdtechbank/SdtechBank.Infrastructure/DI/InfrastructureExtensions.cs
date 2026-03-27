@@ -4,13 +4,13 @@ using MongoDB.Driver;
 using MongoDB.Bson.Serialization;
 using SdtechBank.Application.Contracts;
 using SdtechBank.Application.Payments.CreatePayment;
-using SdtechBank.Domain.Contracts;
 using SdtechBank.Infrastructure.Data;
 using SdtechBank.Infrastructure.Messaging;
 using SdtechBank.Infrastructure.MongoDB;
-using SdtechBank.Domain.Entities;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson;
+using SdtechBank.Domain.PaymentOrders.Contracts;
+using SdtechBank.Domain.PaymentOrders.Entities;
 
 namespace SdtechBank.Infrastructure.DI;
 

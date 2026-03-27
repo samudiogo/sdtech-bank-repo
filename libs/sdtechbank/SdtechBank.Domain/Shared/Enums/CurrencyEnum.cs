@@ -1,4 +1,4 @@
-﻿namespace SdtechBank.Domain.Enums;
+﻿namespace SdtechBank.Domain.Shared.Enums;
 
 public enum CurrencyEnum
 {

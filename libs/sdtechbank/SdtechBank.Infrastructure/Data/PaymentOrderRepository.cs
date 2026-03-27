@@ -1,6 +1,6 @@
 ﻿using MongoDB.Driver;
-using SdtechBank.Domain.Contracts;
-using SdtechBank.Domain.Entities;
+using SdtechBank.Domain.PaymentOrders.Contracts;
+using SdtechBank.Domain.PaymentOrders.Entities;
 using SdtechBank.Infrastructure.MongoDB;
 using System;
 using System.Collections.Generic;
