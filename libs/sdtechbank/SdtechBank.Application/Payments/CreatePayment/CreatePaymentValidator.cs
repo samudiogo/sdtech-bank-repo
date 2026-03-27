@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using SdtechBank.Application.Utils;
+using SdtechBank.Application.Common;
 using SdtechBank.Shared.DTOs.Payments.Requests;
 
 namespace SdtechBank.Application.Payments.CreatePayment;
@@ -20,20 +20,20 @@ public class CreatePaymentValidator : AbstractValidator<CreatePaymentRequest>
     }
 }
 
-public class PaymentReceiverRequestValidator : AbstractValidator<PaymentReceiverRequest>
+public class PaymentReceiverRequestValidator : AbstractValidator<PaymentReceiverRequest?>
 {
     public PaymentReceiverRequestValidator()
     {
         RuleFor(x => x)
             .RequireExactlyOne(
-                x => x.PixKey,
-                x => x.BankAccount
+                x => x?.PixKey,
+                x => x?.BankAccount
             )
             .WithMessage("Informe PixKey ou BankAccount, mas não ambos");
 
-        When(x => x.BankAccount is not null, () =>
+        When(x => x?.BankAccount is not null, () =>
         {
-            RuleFor(x => x.BankAccount!).SetValidator(new BankAccountRequestValidator());
+            RuleFor(x => x!.BankAccount!).SetValidator(new BankAccountRequestValidator());
         });
 
     }

@@ -11,7 +11,6 @@ using SdtechBank.Infrastructure.MongoDB;
 using SdtechBank.Domain.Entities;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson;
-using FluentValidation;
 
 namespace SdtechBank.Infrastructure.DI;
 

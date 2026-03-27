@@ -1,9 +1,10 @@
-﻿using SdtechBank.Shared.DTOs.Payments.Requests;
+﻿using SdtechBank.Application.Common;
+using SdtechBank.Shared.DTOs.Payments.Requests;
 using SdtechBank.Shared.DTOs.Payments.Responses;
 
 namespace SdtechBank.Application.Payments.CreatePayment;
 
 public interface ICreatePaymentUseCase
 {
-    Task<PaymentResponse> ExecuteAsync(CreatePaymentRequest request);
+    Task<Result<PaymentResponse>> ExecuteAsync(CreatePaymentRequest request);
 }

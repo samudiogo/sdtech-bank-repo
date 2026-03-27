@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SdtechBank.Application.Payments.CreatePayment;
+using SdtechBank.PixManagerApi.Extensions;
 using SdtechBank.Shared.DTOs.Payments.Requests;
 using SdtechBank.Shared.DTOs.Payments.Responses;
 
@@ -10,11 +11,11 @@ namespace SdtechBank.PixManagerApi.Controllers;
 public class PaymentsController (ICreatePaymentUseCase createPaymentUseCase) : ControllerBase
 {
 
-    [HttpPost()]
-    public async Task<ActionResult<PaymentResponse>> CreatePaymentOrder(CreatePaymentRequest request)
+    [HttpPost]
+    public async Task<ActionResult> CreatePaymentOrder(CreatePaymentRequest request)
     {
         var result = await createPaymentUseCase.ExecuteAsync(request);
 
-        return result;
+        return result.ToActionResult();
     }
 }

@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace SdtechBank.Application.Utils;
+namespace SdtechBank.Application.Common;
 
 public static class CustomValidators
 {
