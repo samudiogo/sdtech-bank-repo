@@ -10,4 +10,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.5" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\libs\sdtechbank\SdtechBank.Application\SdtechBank.Application.csproj" />
+  </ItemGroup>
 </Project>
