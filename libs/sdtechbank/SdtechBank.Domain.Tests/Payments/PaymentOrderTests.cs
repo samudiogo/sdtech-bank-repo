@@ -4,7 +4,7 @@ using SdtechBank.Domain.PaymentOrders.ValueObjects;
 using SdtechBank.Domain.Shared.Enums;
 using SdtechBank.Domain.Shared.ValueObjects;
 
-namespace SdtechBank.Domain.Tests;
+namespace SdtechBank.Domain.Tests.Payments;
 
 public class PaymentOrderTests
 {

@@ -1,5 +1,4 @@
-﻿using FluentValidation;
-using SdtechBank.Application.Common;
+﻿using SdtechBank.Application.Common;
 using SdtechBank.Application.Common.Contracts;
 using SdtechBank.Application.Common.Errors;
 using SdtechBank.Application.Payments.Contracts.Events;
@@ -18,7 +17,7 @@ public class CreatePaymentUseCase(IPaymentOrderRepository repository, IEventBus 
         var validation = ValidateRequest(request);
 
         if (validation.IsSuccess is false)
-            return Result<PaymentResponse>.Failure(validation.Errors); //quebrou aqui
+            return Result<PaymentResponse>.Failure(validation.Errors);
 
         var payment = request.ToEntity();
 

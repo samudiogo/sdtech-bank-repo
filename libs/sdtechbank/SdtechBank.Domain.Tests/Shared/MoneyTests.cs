@@ -1,7 +1,7 @@
 ﻿using SdtechBank.Domain.Shared.Enums;
 using SdtechBank.Domain.Shared.ValueObjects;
 
-namespace SdtechBank.Domain.Tests;
+namespace SdtechBank.Domain.Tests.Shared;
 
 public class MoneyTests
 {
