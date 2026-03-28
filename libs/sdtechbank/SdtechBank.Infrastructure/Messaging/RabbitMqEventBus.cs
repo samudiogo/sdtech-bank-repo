@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
-using SdtechBank.Application.Contracts;
+using SdtechBank.Application.Common.Contracts;
 using System.Text;
 using System.Text.Json;
 

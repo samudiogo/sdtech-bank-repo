@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SdtechBank.Application.Contracts;
+using SdtechBank.Application.Common.Contracts;
 
 namespace SdtechBank.Infrastructure.Messaging;
 

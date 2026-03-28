@@ -1,5 +1,4 @@
-﻿
-namespace SdtechBank.Application.Contracts;
+﻿namespace SdtechBank.Application.Common.Contracts;
 
 public interface IDomainIntegrationEvent
 {

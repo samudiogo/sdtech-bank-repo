@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SdtechBank.Application.Payments.CreatePayment;
+using SdtechBank.Application.Payments.UseCases.CreatePayment;
 using SdtechBank.PixManagerApi.Extensions;
 using SdtechBank.Shared.DTOs.Payments.Requests;
-using SdtechBank.Shared.DTOs.Payments.Responses;
 
 namespace SdtechBank.PixManagerApi.Controllers;
 

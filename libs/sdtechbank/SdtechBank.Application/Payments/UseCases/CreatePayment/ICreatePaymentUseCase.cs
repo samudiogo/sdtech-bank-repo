@@ -2,7 +2,7 @@
 using SdtechBank.Shared.DTOs.Payments.Requests;
 using SdtechBank.Shared.DTOs.Payments.Responses;
 
-namespace SdtechBank.Application.Payments.CreatePayment;
+namespace SdtechBank.Application.Payments.UseCases.CreatePayment;
 
 public interface ICreatePaymentUseCase
 {

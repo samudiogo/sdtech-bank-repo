@@ -1,4 +1,6 @@
-﻿namespace SdtechBank.Application.Contracts.Events.Payments;
+﻿using SdtechBank.Application.Common.Contracts;
+
+namespace SdtechBank.Application.Payments.Contracts.Events;
 
 public sealed record PaymentCreatedEvent : IDomainIntegrationEvent
 {

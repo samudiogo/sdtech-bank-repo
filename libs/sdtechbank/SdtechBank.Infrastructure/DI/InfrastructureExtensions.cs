@@ -2,8 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using MongoDB.Bson.Serialization;
-using SdtechBank.Application.Contracts;
-using SdtechBank.Application.Payments.CreatePayment;
 using SdtechBank.Infrastructure.Data;
 using SdtechBank.Infrastructure.Messaging;
 using SdtechBank.Infrastructure.MongoDB;
@@ -11,6 +9,8 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson;
 using SdtechBank.Domain.PaymentOrders.Contracts;
 using SdtechBank.Domain.PaymentOrders.Entities;
+using SdtechBank.Application.Common.Contracts;
+using SdtechBank.Application.Payments.UseCases.CreatePayment;
 
 namespace SdtechBank.Infrastructure.DI;
 

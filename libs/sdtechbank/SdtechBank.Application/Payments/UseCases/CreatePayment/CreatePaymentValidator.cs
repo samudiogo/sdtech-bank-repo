@@ -2,7 +2,7 @@
 using SdtechBank.Application.Common;
 using SdtechBank.Shared.DTOs.Payments.Requests;
 
-namespace SdtechBank.Application.Payments.CreatePayment;
+namespace SdtechBank.Application.Payments.UseCases.CreatePayment;
 
 public class CreatePaymentValidator : AbstractValidator<CreatePaymentRequest>
 {

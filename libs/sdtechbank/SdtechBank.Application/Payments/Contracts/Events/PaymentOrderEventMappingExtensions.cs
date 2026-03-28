@@ -1,7 +1,7 @@
 using SdtechBank.Domain.PaymentOrders.Entities;
 using SdtechBank.Domain.PaymentOrders.ValueObjects;
 
-namespace SdtechBank.Application.Contracts.Events.Payments;
+namespace SdtechBank.Application.Payments.Contracts.Events;
 
 public static class PaymentOrderEventMappingExtensions
 {

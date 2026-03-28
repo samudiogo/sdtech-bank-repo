@@ -1,14 +1,14 @@
 ﻿using FluentValidation;
 using SdtechBank.Application.Common;
+using SdtechBank.Application.Common.Contracts;
 using SdtechBank.Application.Common.Errors;
-using SdtechBank.Application.Contracts;
-using SdtechBank.Application.Contracts.Events.Payments;
+using SdtechBank.Application.Payments.Contracts.Events;
 using SdtechBank.Application.Payments.Extensions;
 using SdtechBank.Domain.PaymentOrders.Contracts;
 using SdtechBank.Shared.DTOs.Payments.Requests;
 using SdtechBank.Shared.DTOs.Payments.Responses;
 
-namespace SdtechBank.Application.Payments.CreatePayment;
+namespace SdtechBank.Application.Payments.UseCases.CreatePayment;
 
 public class CreatePaymentUseCase(IPaymentOrderRepository repository, IEventBus eventBus, CreatePaymentValidator validator) : ICreatePaymentUseCase
 {

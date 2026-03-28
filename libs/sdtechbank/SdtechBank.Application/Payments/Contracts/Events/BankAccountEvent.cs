@@ -1,4 +1,4 @@
-﻿namespace SdtechBank.Application.Contracts.Events.Payments;
+﻿namespace SdtechBank.Application.Payments.Contracts.Events;
 
 public sealed record BankAccountEvent
 {
