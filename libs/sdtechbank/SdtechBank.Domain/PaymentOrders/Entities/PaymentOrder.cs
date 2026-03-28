@@ -13,10 +13,10 @@ public sealed class PaymentOrder
     public Guid PayerId { get; private set; }
     public PaymentDestination Destination { get; private set; }
     public Money Amount { get; private set; }
-    public PaymentStatusEnum PaymentStatus { get; private set; }
+    public PaymentStatus PaymentStatus { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
-    private PaymentOrder(Guid id, Guid payerId, PaymentDestination destination, Money amount, PaymentStatusEnum paymentStatus, DateTime createdAt)
+    private PaymentOrder(Guid id, Guid payerId, PaymentDestination destination, Money amount, PaymentStatus paymentStatus, DateTime createdAt)
     {
         Id = id;
         PayerId = payerId;
@@ -38,7 +38,7 @@ public sealed class PaymentOrder
     /// <exception cref="InvalidOperationException">Lançada se <paramref name="payerId"/> e <paramref name="receiverId"/> forem iguais.</exception>
     public static PaymentOrder Create(Guid payerId, PaymentDestination destination, Money amount)
     {
-        return new PaymentOrder(Guid.NewGuid(), payerId, destination, amount, PaymentStatusEnum.CREATED, DateTime.UtcNow);
+        return new PaymentOrder(Guid.NewGuid(), payerId, destination, amount, PaymentStatus.CREATED, DateTime.UtcNow);
     }
 
     /// <summary>
@@ -49,10 +49,10 @@ public sealed class PaymentOrder
     /// </exception>
     public void MarkAsWaitingConfirmation()
     {
-        if (PaymentStatus != PaymentStatusEnum.CREATED)
+        if (PaymentStatus != PaymentStatus.CREATED)
             throw new InvalidOperationException("Transição para 'WAITING_CONFIRMATION' permitida apenas para pagamentos com status 'CREATED'.");
 
-        PaymentStatus = PaymentStatusEnum.WAITING_CONFIRMATION;
+        PaymentStatus = PaymentStatus.WAITING_CONFIRMATION;
     }
 
     /// <summary>
@@ -63,10 +63,10 @@ public sealed class PaymentOrder
     /// </exception>
     public void MarkAsReadyToTransfer()
     {
-        if (PaymentStatus != PaymentStatusEnum.WAITING_CONFIRMATION)
+        if (PaymentStatus != PaymentStatus.WAITING_CONFIRMATION)
             throw new InvalidOperationException("Transição para 'READY_TO_TRANSFER' requer status 'WAITING_CONFIRMATION'.");
 
-        PaymentStatus = PaymentStatusEnum.READY_TO_TRANSFER;
+        PaymentStatus = PaymentStatus.READY_TO_TRANSFER;
     }
 
     /// <summary>
@@ -77,10 +77,10 @@ public sealed class PaymentOrder
     /// </exception>
     public void MarkAsInTransfer()
     {
-        if (PaymentStatus != PaymentStatusEnum.READY_TO_TRANSFER)
+        if (PaymentStatus != PaymentStatus.READY_TO_TRANSFER)
             throw new InvalidOperationException("Transição para 'IN_TRANSFER' requer status 'READY_TO_TRANSFER'.");
 
-        PaymentStatus = PaymentStatusEnum.IN_TRANSFER;
+        PaymentStatus = PaymentStatus.IN_TRANSFER;
     }
 
     /// <summary>
@@ -91,10 +91,10 @@ public sealed class PaymentOrder
     /// </exception>
     public void MarkAsConfirmed()
     {
-        if (PaymentStatus != PaymentStatusEnum.IN_TRANSFER)
+        if (PaymentStatus != PaymentStatus.IN_TRANSFER)
             throw new InvalidOperationException("Confirmação permitida apenas para pagamentos em 'IN_TRANSFER'.");
 
-        PaymentStatus = PaymentStatusEnum.CONFIRMED;
+        PaymentStatus = PaymentStatus.CONFIRMED;
     }
 
     /// <summary>
@@ -105,10 +105,10 @@ public sealed class PaymentOrder
     /// </exception>
     public void MarkAsFailed()
     {
-        if (PaymentStatus == PaymentStatusEnum.CONFIRMED)
+        if (PaymentStatus == PaymentStatus.CONFIRMED)
             throw new InvalidOperationException("Operação inválida: pagamento com status 'CONFIRMED' não pode ser marcado como falha.");
 
-        PaymentStatus = PaymentStatusEnum.FAILED;
+        PaymentStatus = PaymentStatus.FAILED;
     }
 
 }

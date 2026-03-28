@@ -1,6 +1,6 @@
 ﻿namespace SdtechBank.Domain.PaymentOrders.Enums;
 
-public enum PaymentStatusEnum
+public enum PaymentStatus
 {
     CREATED = 1,
     WAITING_CONFIRMATION = 2,

@@ -24,7 +24,7 @@ public class PaymentOrderTests
         var destination = PaymentDestination.FromBankAccount(new BankAccount { FullName = "name", BankCode = "0436", Branch = "1818", Account = "16435-2", Cpf = "00012345678" });
         var order = PaymentOrder.Create(Guid.NewGuid(), destination, new Money(100, CurrencyEnum.BRL));
 
-        Assert.Equal(PaymentStatusEnum.CREATED, order.PaymentStatus);
+        Assert.Equal(PaymentStatus.CREATED, order.PaymentStatus);
     }
 
     [Fact]
@@ -32,7 +32,7 @@ public class PaymentOrderTests
     {
         var order = CreateValidOrder();
 
-        Assert.Equal(PaymentStatusEnum.CREATED, order.PaymentStatus);
+        Assert.Equal(PaymentStatus.CREATED, order.PaymentStatus);
     }
     
     [Fact]
@@ -45,7 +45,7 @@ public class PaymentOrderTests
         order.MarkAsInTransfer();
         order.MarkAsConfirmed();
 
-        Assert.Equal(PaymentStatusEnum.CONFIRMED, order.PaymentStatus);
+        Assert.Equal(PaymentStatus.CONFIRMED, order.PaymentStatus);
     }
 
     [Fact]
@@ -55,7 +55,7 @@ public class PaymentOrderTests
 
         order.MarkAsWaitingConfirmation();
 
-        Assert.Equal(PaymentStatusEnum.WAITING_CONFIRMATION, order.PaymentStatus);
+        Assert.Equal(PaymentStatus.WAITING_CONFIRMATION, order.PaymentStatus);
     }    
 
     [Fact]
@@ -64,7 +64,7 @@ public class PaymentOrderTests
         var order = CreateValidOrder();
         order.MarkAsWaitingConfirmation();
         order.MarkAsReadyToTransfer();
-        Assert.Equal(PaymentStatusEnum.READY_TO_TRANSFER, order.PaymentStatus);
+        Assert.Equal(PaymentStatus.READY_TO_TRANSFER, order.PaymentStatus);
     }
 
     [Fact]
@@ -74,7 +74,7 @@ public class PaymentOrderTests
         order.MarkAsWaitingConfirmation();
         order.MarkAsReadyToTransfer();
         order.MarkAsInTransfer();
-        Assert.Equal(PaymentStatusEnum.IN_TRANSFER, order.PaymentStatus);
+        Assert.Equal(PaymentStatus.IN_TRANSFER, order.PaymentStatus);
     }
 
     [Fact]
@@ -85,7 +85,7 @@ public class PaymentOrderTests
         order.MarkAsReadyToTransfer();
         order.MarkAsInTransfer();
         order.MarkAsConfirmed();
-        Assert.Equal(PaymentStatusEnum.CONFIRMED, order.PaymentStatus);
+        Assert.Equal(PaymentStatus.CONFIRMED, order.PaymentStatus);
     }    
 
     [Fact]
@@ -93,7 +93,7 @@ public class PaymentOrderTests
     {
         var order = CreateValidOrder();
         order.MarkAsFailed();
-        Assert.Equal(PaymentStatusEnum.FAILED, order.PaymentStatus);
+        Assert.Equal(PaymentStatus.FAILED, order.PaymentStatus);
     }
 
     [Fact]
