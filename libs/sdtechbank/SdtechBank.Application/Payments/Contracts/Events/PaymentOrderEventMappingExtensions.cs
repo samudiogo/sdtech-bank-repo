@@ -10,7 +10,7 @@ public static class PaymentOrderEventMappingExtensions
         return new PaymentCreatedEvent
         {
             PaymentId = paymentOrder.Id,
-            Amount = paymentOrder.Amount.Amount,
+            Amount = paymentOrder.Amount.Value,
             Currency = paymentOrder.Amount.Currency.ToString(),
             PayerId = paymentOrder.PayerId,
             Destination = paymentOrder.Destination.ToPaymentDestinationEvent()

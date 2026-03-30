@@ -17,7 +17,7 @@ public static class PaymentOrderMappingExtensions
     {
         var payerId = Guid.Parse(request.PayerId!);
         var destination = request.Receiver!.ToEntity();
-        var amount = new Money(request.Amount!.Value, CurrencyEnum.BRL);
+        var amount = new Money(request.Amount!.Value, CurrencyType.BRL);
 
         return PaymentOrder.Create(payerId: payerId, destination: destination, amount: amount);
     }

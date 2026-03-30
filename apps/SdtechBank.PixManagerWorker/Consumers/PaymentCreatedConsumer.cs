@@ -7,6 +7,6 @@ public sealed class PaymentCreatedConsumer(ProcessPaymentCreatedUseCase useCase)
 {
     public async Task HandleAsync(PaymentCreatedEvent @event)
     {
-        await useCase.ExcecuteAsync(@event.PaymentId, @event.CorrelationId);
+       // await useCase.ExcecuteAsync(@event.PaymentId, @event.CorrelationId);
     }
 }
