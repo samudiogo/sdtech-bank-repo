@@ -6,13 +6,13 @@ using System.Text.Json;
 
 namespace SdtechBank.Infrastructure.Messaging;
 
-public sealed class RabbitMqEventBus : IEventBus, IAsyncDisposable
+public sealed class RabbitMqEventPublisher : IEventPublisher, IAsyncDisposable
 {
     private readonly RabbitMqSettings _settings;
     private IConnection? _connection;
     private readonly SemaphoreSlim _lock = new(1, 1);
 
-    public RabbitMqEventBus(IOptions<RabbitMqSettings> settings)
+    public RabbitMqEventPublisher(IOptions<RabbitMqSettings> settings)
     {
         _settings = settings.Value;
     }

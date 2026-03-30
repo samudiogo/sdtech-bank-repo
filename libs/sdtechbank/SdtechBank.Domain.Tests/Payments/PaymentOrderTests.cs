@@ -34,18 +34,19 @@ public class PaymentOrderTests
 
         Assert.Equal(PaymentStatus.CREATED, order.PaymentStatus);
     }
-    
+
     [Fact]
     public void FullFlow_ShouldTransitionCorrectly()
     {
         var order = CreateValidOrder();
+        var transactionId = Guid.NewGuid();
 
         order.MarkAsWaitingConfirmation();
         order.MarkAsReadyToTransfer();
         order.MarkAsInTransfer();
-        order.MarkAsConfirmed();
+        order.MarkAsCompleted(transactionId);
 
-        Assert.Equal(PaymentStatus.CONFIRMED, order.PaymentStatus);
+        Assert.Equal(PaymentStatus.COMPLETED, order.PaymentStatus);
     }
 
     [Fact]
@@ -56,7 +57,7 @@ public class PaymentOrderTests
         order.MarkAsWaitingConfirmation();
 
         Assert.Equal(PaymentStatus.WAITING_CONFIRMATION, order.PaymentStatus);
-    }    
+    }
 
     [Fact]
     public void MarkAsReadyToTransfer_WhenWaitingConfirmation_ShouldChangeStatus()
@@ -78,21 +79,23 @@ public class PaymentOrderTests
     }
 
     [Fact]
-    public void MarkAsConfirmed_WhenInTransfer_ShouldChangeStatus()
+    public void MarkAsCompleted_WhenInTransfer_ShouldChangeStatus()
     {
         var order = CreateValidOrder();
+        var transactionId = Guid.NewGuid();
         order.MarkAsWaitingConfirmation();
         order.MarkAsReadyToTransfer();
         order.MarkAsInTransfer();
-        order.MarkAsConfirmed();
-        Assert.Equal(PaymentStatus.CONFIRMED, order.PaymentStatus);
-    }    
+        order.MarkAsCompleted(transactionId);
+        Assert.Equal(PaymentStatus.COMPLETED, order.PaymentStatus);
+    }
 
     [Fact]
     public void MarkAsFailed_WhenCreated_ShouldChangeStatus()
     {
         var order = CreateValidOrder();
-        order.MarkAsFailed();
+        var errorMessage = "Error";
+        order.MarkAsFailed(errorMessage);
         Assert.Equal(PaymentStatus.FAILED, order.PaymentStatus);
     }
 
@@ -118,27 +121,29 @@ public class PaymentOrderTests
         var order = CreateValidOrder();
         order.MarkAsWaitingConfirmation();
         Assert.Throws<InvalidOperationException>(() => order.MarkAsInTransfer());
-    }    
-
-    [Fact]
-    public void MarkAsConfirmed_WhenNotInTransfer_ShouldThrow()
-    {
-        var order = CreateValidOrder();
-
-        Assert.Throws<InvalidOperationException>(() => order.MarkAsConfirmed());
     }
 
     [Fact]
-    public void MarkAsFailed_WhenConfirmed_ShouldThrow()
+    public void MarkAsCompleted_WhenNotInTransfer_ShouldThrow()
     {
         var order = CreateValidOrder();
+        var transactionId = Guid.NewGuid();
+
+        Assert.Throws<InvalidOperationException>(() => order.MarkAsCompleted(transactionId));
+    }
+
+    [Fact]
+    public void MarkAsFailed_WhenCompleted_ShouldThrow()
+    {
+        var order = CreateValidOrder();
+        var transactionId = Guid.NewGuid();
 
         order.MarkAsWaitingConfirmation();
         order.MarkAsReadyToTransfer();
         order.MarkAsInTransfer();
-        order.MarkAsConfirmed();
+        order.MarkAsCompleted(transactionId);
 
-        Assert.Throws<InvalidOperationException>(() => order.MarkAsFailed());
+        Assert.Throws<InvalidOperationException>(() => order.MarkAsFailed(string.Empty));
     }
 
 }

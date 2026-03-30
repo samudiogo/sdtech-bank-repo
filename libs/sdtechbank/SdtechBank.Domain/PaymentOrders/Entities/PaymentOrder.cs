@@ -1,6 +1,7 @@
 ﻿using SdtechBank.Domain.PaymentOrders.Enums;
 using SdtechBank.Domain.PaymentOrders.ValueObjects;
 using SdtechBank.Domain.Shared.ValueObjects;
+using System.Net.NetworkInformation;
 
 namespace SdtechBank.Domain.PaymentOrders.Entities;
 
@@ -14,7 +15,13 @@ public sealed class PaymentOrder
     public PaymentDestination Destination { get; private set; }
     public Money Amount { get; private set; }
     public PaymentStatus PaymentStatus { get; private set; }
+    public int Attempts { get; private set; }
     public DateTime CreatedAt { get; private set; }
+    public DateTime? CompletedAt { get; private set; }
+    public DateTime? FailedAt { get; private set; }
+    public Guid? TransactionId { get; private set; }
+    public string IdempotencyKey { get; private set; } = default!;
+
 
     private PaymentOrder(Guid id, Guid payerId, PaymentDestination destination, Money amount, PaymentStatus paymentStatus, DateTime createdAt)
     {
@@ -24,6 +31,7 @@ public sealed class PaymentOrder
         Amount = amount;
         PaymentStatus = paymentStatus;
         CreatedAt = createdAt;
+        Attempts = 0;
     }
 
     /// <summary>
@@ -89,12 +97,18 @@ public sealed class PaymentOrder
     /// <exception cref="InvalidOperationException">
     /// Lançada quando o status atual não é 'IN_TRANSFER'.
     /// </exception>
-    public void MarkAsConfirmed()
+    public void MarkAsCompleted(Guid transactionId)
     {
+        if (PaymentStatus == PaymentStatus.COMPLETED)
+            return;
+
         if (PaymentStatus != PaymentStatus.IN_TRANSFER)
             throw new InvalidOperationException("Confirmação permitida apenas para pagamentos em 'IN_TRANSFER'.");
 
-        PaymentStatus = PaymentStatus.CONFIRMED;
+        PaymentStatus = PaymentStatus.COMPLETED;
+        CompletedAt = DateTime.UtcNow;
+        TransactionId = transactionId;
+        
     }
 
     /// <summary>
@@ -103,9 +117,9 @@ public sealed class PaymentOrder
     /// <exception cref="InvalidOperationException">
     /// Lançada quando o pagamento já está confirmado.
     /// </exception>
-    public void MarkAsFailed()
+    public void MarkAsFailed(string reason)
     {
-        if (PaymentStatus == PaymentStatus.CONFIRMED)
+        if (PaymentStatus == PaymentStatus.COMPLETED)
             throw new InvalidOperationException("Operação inválida: pagamento com status 'CONFIRMED' não pode ser marcado como falha.");
 
         PaymentStatus = PaymentStatus.FAILED;

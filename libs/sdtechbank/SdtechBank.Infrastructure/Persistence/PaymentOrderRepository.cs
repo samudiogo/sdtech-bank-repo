@@ -9,6 +9,13 @@ namespace SdtechBank.Infrastructure.Persistence
     {
         private readonly IMongoCollection<PaymentOrder> _collection = context.GetCollection<PaymentOrder>("payment-orders");
 
+        public async Task<PaymentOrder?> GetByIdAsync(Guid paymentId)
+        {
+            var filter = Builders<PaymentOrder>.Filter.Eq(o => o.Id, paymentId);
+
+            return await _collection.Find(filter).FirstOrDefaultAsync();
+        }
+
         public async Task SaveAsync(PaymentOrder paymentOrder)
         {
             await _collection.InsertOneAsync(paymentOrder);

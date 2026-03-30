@@ -9,7 +9,7 @@ using SdtechBank.Shared.DTOs.Payments.Responses;
 
 namespace SdtechBank.Application.Payments.UseCases.CreatePayment;
 
-public class CreatePaymentUseCase(IPaymentOrderRepository repository, IEventBus eventBus, CreatePaymentValidator validator) : ICreatePaymentUseCase
+public class CreatePaymentUseCase(IPaymentOrderRepository repository, IEventPublisher eventBus, CreatePaymentValidator validator) : ICreatePaymentUseCase
 {
     public async Task<Result<PaymentResponse>> ExecuteAsync(CreatePaymentRequest request)
     {
