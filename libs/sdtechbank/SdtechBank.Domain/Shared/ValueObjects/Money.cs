@@ -1,37 +1,60 @@
 ﻿using SdtechBank.Domain.Shared.Enums;
+using System.Globalization;
 
 namespace SdtechBank.Domain.Shared.ValueObjects;
+
 public sealed record Money
 {
-    public decimal Amount { get; init; }
-    public CurrencyEnum Currency { get; init; }
+    public decimal Value { get; init; }
+    public CurrencyType Currency { get; init; }
 
-    public Money(decimal amount, CurrencyEnum currency)
+    public Money(decimal amount, CurrencyType currency)
     {
         if (amount <= 0)
             throw new ArgumentException("Valor deve ser maior que zero");
-        Amount = amount;
+        Value = amount;
         Currency = currency;
     }
 
     public Money Add(Money other)
     {
-        if(Currency != other.Currency)
-            throw new InvalidOperationException("Moedas diferentes");
+        ValidateCurrency(other);
 
-        return new Money(Amount + other.Amount, Currency);
+        return new Money(Value + other.Value, Currency);
     }
 
     public Money Subtract(Money other)
     {
         if (Currency != other.Currency)
             throw new InvalidOperationException("Moedas diferentes");
-
-        var result = Amount - other.Amount;
-
-        if (result < 0)
-            throw new InvalidOperationException("Saldo insuficiente");
-        return new Money(result, Currency);
-
+        return new Money(Value - other.Value, Currency);
     }
+
+    public override string ToString() => Value.ToString("C", Cultures.GetValueOrDefault(Currency, CultureInfo.InvariantCulture));
+
+    public static bool operator <(Money a, Money b)
+    {
+        a.ValidateCurrency(b);
+        return a.Value < b.Value;
+    }
+
+    public static bool operator >(Money a, Money b)
+    {
+        a.ValidateCurrency(b);
+        return a.Value > b.Value;
+    }
+
+
+    internal void ValidateCurrency(Money other)
+    {
+        if (Currency != other.Currency)
+            throw new InvalidOperationException("Moedas diferentes");
+    }
+
+
+    private static readonly Dictionary<CurrencyType, CultureInfo> Cultures = new() {
+        { CurrencyType.BRL, new("pt-BR") },
+        { CurrencyType.USD, new("en-US") },
+        { CurrencyType.EUR, new("de-DE") }
+    };
 }

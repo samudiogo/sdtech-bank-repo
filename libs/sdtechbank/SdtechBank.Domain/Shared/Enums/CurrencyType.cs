@@ -1,6 +1,6 @@
 ﻿namespace SdtechBank.Domain.Shared.Enums;
 
-public enum CurrencyEnum
+public enum CurrencyType
 {
     BRL,
     USD,
