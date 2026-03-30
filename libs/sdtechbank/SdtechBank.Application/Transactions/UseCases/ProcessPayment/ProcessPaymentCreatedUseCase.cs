@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using SdtechBank.Application.Common.Contracts;
+using SdtechBank.Application.Transactions.Contracts.Events;
 using SdtechBank.Application.Transactions.Exceptions;
 using SdtechBank.Domain.Accounts.Contracts;
 using SdtechBank.Domain.Ledger.Contracts;
@@ -7,14 +9,15 @@ using SdtechBank.Domain.Shared.ValueObjects;
 using SdtechBank.Domain.Transactions.Contracts;
 using SdtechBank.Domain.Transactions.Entities;
 
-namespace SdtechBank.Application.Transactions.UseCases;
+namespace SdtechBank.Application.Transactions.UseCases.ProcessPayment;
 
 public class ProcessPaymentCreatedUseCase(
                                           ITransactionRepository transactionRepository,
                                           ILedgerRepository ledgerRepository,
                                           IAccountBalanceService balanceService,
                                           IAccountLockService lockService,
-                                          ILogger<ProcessPaymentCreatedUseCase> logger)
+                                          IEventPublisher eventPublisher,
+                                          ILogger<ProcessPaymentCreatedUseCase> logger) : IProcessPaymentCreatedUseCase
 {
     public async Task ExcecuteAsync(Guid paymentId, Guid payerId, Guid receiverId, Money amount, string idempotencyKey)
     {
@@ -42,6 +45,14 @@ public class ProcessPaymentCreatedUseCase(
                 transaction.MarkAsCompleted();
 
                 await transactionRepository.SaveAsync(transaction);
+
+                await eventPublisher.PublishAsync(new TransactionCompletedEvent()
+                {
+                    TransactionId = transaction.Id,
+                    PaymentId = paymentId,
+                    Amount = amount.Value,
+                    CorrelationId = idempotencyKey
+                });
             }
             catch (Exception ex)
             {
@@ -50,6 +61,14 @@ public class ProcessPaymentCreatedUseCase(
                 {
                     transaction.MarkAsFailed();
                     await transactionRepository.SaveAsync(transaction);
+
+                    await eventPublisher.PublishAsync(new TransactionFailedEvent
+                    {
+                        TransactionId = transaction.Id,
+                        PaymentId = paymentId,
+                        Reason = ex.Message,
+                        CorrelationId = idempotencyKey
+                    });
                 }
                 catch (Exception innerEx)
                 {

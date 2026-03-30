@@ -6,6 +6,6 @@ public interface ITransactionRepository
 {
     Task SaveAsync(Transaction transaction);
 
-    Task<Transaction> GetByIdAsync(int id);
-    Task<Transaction> GetByIdempontencyKeyAsync(string idempontencyKey);
+    Task<Transaction?> GetByIdAsync(Guid id);
+    Task<Transaction?> GetByIdempontencyKeyAsync(string idempontencyKey);
 }
