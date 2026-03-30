@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using MongoDB.Bson.Serialization;
-using SdtechBank.Infrastructure.Data;
+using SdtechBank.Infrastructure.Persistence;
 using SdtechBank.Infrastructure.Messaging;
 using SdtechBank.Infrastructure.MongoDB;
 using MongoDB.Bson.Serialization.Serializers;
