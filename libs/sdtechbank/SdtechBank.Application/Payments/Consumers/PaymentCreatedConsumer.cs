@@ -1,7 +1,7 @@
 ﻿using SdtechBank.Application.Payments.Contracts.Events;
 using SdtechBank.Application.Transactions.UseCases.ProcessPayment;
 
-namespace SdtechBank.PixManagerWorker.Consumers;
+namespace SdtechBank.Application.Payments.Consumers;
 
 public sealed class PaymentCreatedConsumer(IProcessPaymentCreatedUseCase useCase)
 {

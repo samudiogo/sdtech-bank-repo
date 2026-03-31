@@ -4,7 +4,7 @@ using SdtechBank.Domain.Ledger.Enums;
 using SdtechBank.Domain.Shared.Enums;
 using SdtechBank.Domain.Shared.ValueObjects;
 
-namespace SdtechBank.Infrastructure.Persistence;
+namespace SdtechBank.Infrastructure.Accounts.Services;
 
 public class AccountBalanceService(ILedgerRepository ledgerRepository) : IAccountBalanceService
 {

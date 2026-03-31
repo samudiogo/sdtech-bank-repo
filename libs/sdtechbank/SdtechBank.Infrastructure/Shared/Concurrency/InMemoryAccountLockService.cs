@@ -1,7 +1,6 @@
-﻿
-using SdtechBank.Domain.Accounts.Contracts;
+﻿using SdtechBank.Domain.Accounts.Contracts;
 
-namespace SdtechBank.Infrastructure.Concurrency;
+namespace SdtechBank.Infrastructure.Shared.Concurrency;
 
 public class InMemoryAccountLockService : IAccountLockService
 {

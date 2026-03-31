@@ -1,9 +1,9 @@
 ﻿using MongoDB.Driver;
 using SdtechBank.Domain.Transactions.Contracts;
 using SdtechBank.Domain.Transactions.Entities;
-using SdtechBank.Infrastructure.MongoDB;
+using SdtechBank.Infrastructure.Shared.Mongo;
 
-namespace SdtechBank.Infrastructure.Persistence;
+namespace SdtechBank.Infrastructure.Transactions.Persistence;
 
 public class TransactionRepository(MongoDbContext context) : ITransactionRepository
 {

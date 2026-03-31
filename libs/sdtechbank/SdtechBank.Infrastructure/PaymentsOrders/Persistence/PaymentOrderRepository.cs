@@ -1,9 +1,9 @@
 ﻿using MongoDB.Driver;
 using SdtechBank.Domain.PaymentOrders.Contracts;
 using SdtechBank.Domain.PaymentOrders.Entities;
-using SdtechBank.Infrastructure.MongoDB;
+using SdtechBank.Infrastructure.Shared.Mongo;
 
-namespace SdtechBank.Infrastructure.Persistence
+namespace SdtechBank.Infrastructure.PaymentsOrders.Persistence
 {
     public class PaymentOrderRepository(MongoDbContext context) : IPaymentOrderRepository
     {

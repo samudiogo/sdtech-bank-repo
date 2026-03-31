@@ -16,10 +16,13 @@ using SdtechBank.Domain.PaymentOrders.Contracts;
 using SdtechBank.Domain.PaymentOrders.Entities;
 using SdtechBank.Domain.Transactions.Contracts;
 using SdtechBank.Domain.Transactions.Entities;
-using SdtechBank.Infrastructure.Concurrency;
+using SdtechBank.Infrastructure.Accounts.Services;
+using SdtechBank.Infrastructure.Ledger.Persistence;
 using SdtechBank.Infrastructure.Messaging;
-using SdtechBank.Infrastructure.MongoDB;
-using SdtechBank.Infrastructure.Persistence;
+using SdtechBank.Infrastructure.PaymentsOrders.Persistence;
+using SdtechBank.Infrastructure.Shared.Concurrency;
+using SdtechBank.Infrastructure.Shared.Mongo;
+using SdtechBank.Infrastructure.Transactions.Persistence;
 
 namespace SdtechBank.Infrastructure.DI;
 

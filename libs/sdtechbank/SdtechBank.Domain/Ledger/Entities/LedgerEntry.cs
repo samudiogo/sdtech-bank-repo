@@ -23,6 +23,6 @@ public sealed class LedgerEntry
 
     public static LedgerEntry CreateDebit(Guid transactionId, Guid accountId, Money amount) => new(transactionId,accountId, amount, LedgerEntryType.DEBIT);
 
-    public static LedgerEntry CreateCreditt(Guid transactionId, Guid accountId, Money amount) => new(transactionId, accountId, amount, LedgerEntryType.CREDIT);
+    public static LedgerEntry CreateCredit(Guid transactionId, Guid accountId, Money amount) => new(transactionId, accountId, amount, LedgerEntryType.CREDIT);
 }
 

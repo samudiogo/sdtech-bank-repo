@@ -1,5 +1,5 @@
 ﻿using MongoDB.Driver;
-namespace SdtechBank.Infrastructure.MongoDB;
+namespace SdtechBank.Infrastructure.Shared.Mongo;
 
 public class MongoDbContext(IMongoClient mongoClient, string database)
 {

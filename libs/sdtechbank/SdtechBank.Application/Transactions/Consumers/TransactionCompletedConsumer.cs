@@ -1,8 +1,7 @@
-﻿
-using SdtechBank.Application.Payments.UseCases.CompletePayment;
+﻿using SdtechBank.Application.Payments.UseCases.CompletePayment;
 using SdtechBank.Application.Transactions.Contracts.Events;
 
-namespace SdtechBank.PixManagerWorker.Consumers;
+namespace SdtechBank.Application.Transactions.Consumers;
 
 public sealed class TransactionCompletedConsumer(ICompletePaymentUseCase useCase)
 {

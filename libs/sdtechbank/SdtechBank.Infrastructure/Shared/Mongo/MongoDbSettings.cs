@@ -1,4 +1,4 @@
-﻿namespace SdtechBank.Infrastructure.MongoDB;
+﻿namespace SdtechBank.Infrastructure.Shared.Mongo;
 public class MongoDbSettings
 {
     public string ConnectionString { get; set; } = string.Empty;

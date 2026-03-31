@@ -1,9 +1,9 @@
 ﻿using MongoDB.Driver;
 using SdtechBank.Domain.Ledger.Contracts;
 using SdtechBank.Domain.Ledger.Entities;
-using SdtechBank.Infrastructure.MongoDB;
+using SdtechBank.Infrastructure.Shared.Mongo;
 
-namespace SdtechBank.Infrastructure.Persistence;
+namespace SdtechBank.Infrastructure.Ledger.Persistence;
 
 public class LedgerRepository(MongoDbContext context) : ILedgerRepository
 {

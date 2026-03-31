@@ -38,7 +38,7 @@ public class ProcessPaymentCreatedUseCase(
 
                 var debit = LedgerEntry.CreateDebit(transaction.Id, payerId, amount);
 
-                var credit = LedgerEntry.CreateCreditt(transaction.Id, receiverId, amount);
+                var credit = LedgerEntry.CreateCredit(transaction.Id, receiverId, amount);
 
                 await ledgerRepository.AddRangeAsync([debit, credit]);
 
