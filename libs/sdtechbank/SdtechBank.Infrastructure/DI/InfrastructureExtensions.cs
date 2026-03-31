@@ -41,6 +41,7 @@ public static class InfrastructureExtensions
         AddValidators(services);
         services.AddScoped<IEventDispatcher, EventDispatcher>();
         services.AddScoped<IEventHandler<PaymentOrderCreatedEvent>, PaymentOrderCreatedHandler>();
+        services.AddSingleton<IEventTypeResolver, EventTypeResolver>();
         return services;
     }
 

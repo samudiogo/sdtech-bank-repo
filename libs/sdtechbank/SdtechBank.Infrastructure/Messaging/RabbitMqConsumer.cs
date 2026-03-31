@@ -69,6 +69,7 @@ public class RabbitMqConsumer(IOptions<RabbitMqSettings> settings, IServiceProvi
 
         var inbox = scope.ServiceProvider.GetRequiredService<IInboxRepository>();
         var dispatcher = scope.ServiceProvider.GetRequiredService<IEventDispatcher>();
+        var resolver = scope.ServiceProvider.GetRequiredService<IEventTypeResolver>();
 
         var messageId = props.MessageId;
 
@@ -88,15 +89,17 @@ public class RabbitMqConsumer(IOptions<RabbitMqSettings> settings, IServiceProvi
         await inbox.AddAsync(inboxMessage, ct);
 
 
-        switch (envelope.Type)
-        {
-            case nameof(PaymentOrderCreatedEvent):
-                var evt = JsonSerializer.Deserialize<PaymentCreatedEvent>(envelope.Payload)!;
-                await dispatcher.DispatchAsync(evt, ct);
-                break;
+        var eventType = resolver.Resolve(envelope.Type);
+        var @event = JsonSerializer.Deserialize(envelope.Payload, eventType);
 
-            default:
-                throw new InvalidOperationException($"Tipo desconhecido: {envelope.Type}");
-        }
+        if (@event is null)
+            throw new InvalidOperationException("falha ao desserializar evento");
+
+        var dispatchMethod = typeof(IEventDispatcher)
+            .GetMethod(nameof(IEventDispatcher.DispatchAsync))!
+            .MakeGenericMethod(eventType);
+
+        await (Task)dispatchMethod.Invoke(dispatcher, [@event, ct])!;
+
     }
 }
