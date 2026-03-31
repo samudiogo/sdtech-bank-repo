@@ -5,6 +5,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using SdtechBank.Application.Common.Contracts;
+using SdtechBank.Application.Messaging;
 using SdtechBank.Application.Payments.UseCases.CompletePayment;
 using SdtechBank.Application.Payments.UseCases.CreatePayment;
 using SdtechBank.Application.Payments.UseCases.FailPayment;
@@ -36,6 +37,7 @@ public static class InfrastructureExtensions
         AddRepositoriesConfig(services);
         AddServicesConfig(services);
         AddValidators(services);
+        services.AddScoped<IEventDispatcher, EventDispatcher>();
         return services;
     }
 
