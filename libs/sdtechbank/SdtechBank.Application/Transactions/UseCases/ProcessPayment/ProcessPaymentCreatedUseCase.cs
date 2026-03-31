@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using SdtechBank.Application.Common.Contracts;
+using SdtechBank.Application.Messaging;
 using SdtechBank.Application.Transactions.Contracts.Events;
 using SdtechBank.Application.Transactions.Exceptions;
 using SdtechBank.Domain.Accounts.Contracts;
@@ -16,10 +16,10 @@ public class ProcessPaymentCreatedUseCase(
                                           ILedgerRepository ledgerRepository,
                                           IAccountBalanceService balanceService,
                                           IAccountLockService lockService,
-                                          IEventPublisher eventPublisher,
+                                          IOutboxService outboxService,
                                           ILogger<ProcessPaymentCreatedUseCase> logger) : IProcessPaymentCreatedUseCase
 {
-    public async Task ExcecuteAsync(Guid paymentId, Guid payerId, Guid receiverId, Money amount, string idempotencyKey)
+    public async Task ExcecuteAsync(Guid paymentId, Guid payerId, Guid receiverId, Money amount, string idempotencyKey, CancellationToken cancellationToken)
     {
         using (await lockService.AcquireLockAsync(payerId))
         {
@@ -46,13 +46,13 @@ public class ProcessPaymentCreatedUseCase(
 
                 await transactionRepository.SaveAsync(transaction);
 
-                await eventPublisher.PublishAsync(new TransactionCompletedEvent()
+                await outboxService.AddEventAsync(new TransactionCompletedEvent()
                 {
                     TransactionId = transaction.Id,
                     PaymentId = paymentId,
                     Amount = amount.Value,
                     CorrelationId = idempotencyKey
-                });
+                }, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -62,13 +62,13 @@ public class ProcessPaymentCreatedUseCase(
                     transaction.MarkAsFailed();
                     await transactionRepository.SaveAsync(transaction);
 
-                    await eventPublisher.PublishAsync(new TransactionFailedEvent
+                    await outboxService.AddEventAsync(new TransactionFailedEvent
                     {
                         TransactionId = transaction.Id,
                         PaymentId = paymentId,
                         Reason = ex.Message,
                         CorrelationId = idempotencyKey
-                    });
+                    }, cancellationToken);
                 }
                 catch (Exception innerEx)
                 {

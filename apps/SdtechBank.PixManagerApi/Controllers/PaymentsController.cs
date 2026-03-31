@@ -7,13 +7,13 @@ namespace SdtechBank.PixManagerApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class PaymentsController (ICreatePaymentUseCase createPaymentUseCase) : ControllerBase
+public class PaymentsController(ICreatePaymentUseCase createPaymentUseCase) : ControllerBase
 {
 
     [HttpPost]
-    public async Task<ActionResult> CreatePaymentOrder(CreatePaymentRequest request)
+    public async Task<ActionResult> CreatePaymentOrder(CreatePaymentRequest request, CancellationToken cancellationToken)
     {
-        var result = await createPaymentUseCase.ExecuteAsync(request);
+        var result = await createPaymentUseCase.ExecuteAsync(request, cancellationToken);
 
         return result.ToActionResult();
     }

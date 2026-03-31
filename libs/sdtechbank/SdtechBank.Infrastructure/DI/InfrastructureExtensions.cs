@@ -9,6 +9,7 @@ using SdtechBank.Application.Messaging;
 using SdtechBank.Application.Payments.UseCases.CompletePayment;
 using SdtechBank.Application.Payments.UseCases.CreatePayment;
 using SdtechBank.Application.Payments.UseCases.FailPayment;
+using SdtechBank.Application.Transactions.EventHandlers;
 using SdtechBank.Application.Transactions.UseCases.ProcessPayment;
 using SdtechBank.Domain.Accounts.Contracts;
 using SdtechBank.Domain.Ledger.Contracts;
@@ -17,6 +18,7 @@ using SdtechBank.Domain.PaymentOrders.Contracts;
 using SdtechBank.Domain.PaymentOrders.Entities;
 using SdtechBank.Domain.Transactions.Contracts;
 using SdtechBank.Domain.Transactions.Entities;
+using SdtechBank.Domain.Transactions.Events;
 using SdtechBank.Infrastructure.Accounts.Services;
 using SdtechBank.Infrastructure.Ledger.Persistence;
 using SdtechBank.Infrastructure.Messaging;
@@ -38,6 +40,7 @@ public static class InfrastructureExtensions
         AddServicesConfig(services);
         AddValidators(services);
         services.AddScoped<IEventDispatcher, EventDispatcher>();
+        services.AddScoped<IEventHandler<PaymentOrderCreatedEvent>, PaymentOrderCreatedHandler>();
         return services;
     }
 
@@ -83,7 +86,7 @@ public static class InfrastructureExtensions
         services.Configure<RabbitMqQueueSettings>(opts => configuration.GetSection("RabbitMqQueues").Bind(opts));
 
         services.AddSingleton<IEventPublisher, RabbitMqEventPublisher>();
-        services.AddScoped<IMessageConsumer, RabbitMqConsumer>();
+        //TODO: revisar isso. services.AddScoped<IMessageConsumer, RabbitMqConsumer>();
     }
 
     private static void AddUseCasesConfig(IServiceCollection services)

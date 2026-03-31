@@ -2,5 +2,5 @@
 
 public interface IEventPublisher
 {
-    Task PublishAsync<T>(T @event) where T : IDomainIntegrationEvent;
+    Task PublishRawAsync(string messageId, string type, string payload);
 }

@@ -4,5 +4,5 @@ namespace SdtechBank.Application.Transactions.UseCases.ProcessPayment;
 
 public interface IProcessPaymentCreatedUseCase
 {
-    Task ExcecuteAsync(Guid paymentId, Guid payerId, Guid receiverId, Money amount, string idempotencyKey);
+    Task ExcecuteAsync(Guid paymentId, Guid payerId, Guid receiverId, Money amount, string idempotencyKey, CancellationToken cancellationToken);
 }

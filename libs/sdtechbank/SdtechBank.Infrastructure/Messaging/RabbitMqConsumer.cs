@@ -7,6 +7,7 @@ using RabbitMQ.Client.Events;
 using SdtechBank.Application.Common.Contracts;
 using SdtechBank.Application.Messaging;
 using SdtechBank.Application.Payments.Contracts.Events;
+using SdtechBank.Domain.Shared.Messaging;
 using SdtechBank.Domain.Transactions.Events;
 using System.Text;
 using System.Text.Json;
@@ -43,7 +44,7 @@ public class RabbitMqConsumer(IOptions<RabbitMqSettings> settings, IServiceProvi
 
                 var envelope = JsonSerializer.Deserialize<RabbitMqMessageEnvelope>(json)!;
 
-                await ProcessMessage(envelope, stoppingToken);
+                await ProcessMessage(envelope, (IBasicProperties)args.BasicProperties, stoppingToken);
 
                 await _channel.BasicAckAsync(args.DeliveryTag, multiple: false);
             }
@@ -62,11 +63,30 @@ public class RabbitMqConsumer(IOptions<RabbitMqSettings> settings, IServiceProvi
         await Task.CompletedTask;
     }
 
-    private async Task ProcessMessage(RabbitMqMessageEnvelope envelope, CancellationToken ct)
+    private async Task ProcessMessage(RabbitMqMessageEnvelope envelope, IBasicProperties props, CancellationToken ct)
     {
         using var scope = serviceProvider.CreateScope();
-        
+
+        var inbox = scope.ServiceProvider.GetRequiredService<IInboxRepository>();
         var dispatcher = scope.ServiceProvider.GetRequiredService<IEventDispatcher>();
+
+        var messageId = props.MessageId;
+
+        if (string.IsNullOrWhiteSpace(messageId))
+            throw new InvalidOperationException("MessageId é obrigatório");
+
+
+        var exists = await inbox.ExistsAsync(messageId, ct);
+
+        if (exists)
+        {
+            logger.LogInformation("Mensagem já processada: {messageId}", messageId);
+            return;
+        }
+
+        var inboxMessage = new InboxMessage(messageId, envelope.Type);
+        await inbox.AddAsync(inboxMessage, ct);
+
 
         switch (envelope.Type)
         {

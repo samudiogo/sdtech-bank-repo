@@ -6,5 +6,5 @@ namespace SdtechBank.Application.Payments.UseCases.CreatePayment;
 
 public interface ICreatePaymentUseCase
 {
-    Task<Result<PaymentResponse>> ExecuteAsync(CreatePaymentRequest request);
+    Task<Result<PaymentResponse>> ExecuteAsync(CreatePaymentRequest request, CancellationToken cancellationToken);
 }

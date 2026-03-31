@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿
+namespace SdtechBank.Infrastructure.Messaging;
 
-namespace SdtechBank.Infrastructure.Messaging
+public sealed class RabbitMqMessageEnvelope
 {
-    internal class RabbitMqMessageEnvelope
-    {
-    }
+    public string Type { get; set; } = default!;
+    public string Payload { get; set; } = default!;
 }

@@ -6,37 +6,24 @@ using System.Text.Json;
 
 namespace SdtechBank.Infrastructure.Messaging;
 
-public sealed class RabbitMqEventPublisher : IEventPublisher, IAsyncDisposable
+public sealed class RabbitMqEventPublisher(IOptions<RabbitMqSettings> settings) : IEventPublisher, IAsyncDisposable
 {
-    private readonly RabbitMqSettings _settings;
+    private readonly RabbitMqSettings _settings = settings.Value;
     private IConnection? _connection;
     private readonly SemaphoreSlim _lock = new(1, 1);
 
-    public RabbitMqEventPublisher(IOptions<RabbitMqSettings> settings)
-    {
-        _settings = settings.Value;
-    }
-
-    public async Task PublishAsync<T>(T @event) where T : IDomainIntegrationEvent
+    public async Task PublishRawAsync(string messageId, string type, string payload)
     {
         await EnsureChannelAsync();
+
         await using var channel = await _connection!.CreateChannelAsync();
 
-        await channel.ExchangeDeclareAsync(exchange: _settings.Exchange, type: ExchangeType.Direct, durable: true);
+        var envelope = new RabbitMqMessageEnvelope { Type = type, Payload = payload };
+        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(envelope));
 
-        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(@event));
+        var props = new BasicProperties { MessageId = messageId, ContentType = "application/json", DeliveryMode = DeliveryModes.Persistent };
 
-        var props = new BasicProperties
-        {
-            ContentType = "application/json",
-            DeliveryMode = DeliveryModes.Persistent, //abordagem para sobreviver a restarts do broker
-            MessageId = @event.EventId.ToString(),
-            Timestamp = new AmqpTimestamp(@event.OccurredAt.ToUnixTimeSeconds()),
-            CorrelationId = @event.CorrelationId,
-        };
-
-        await channel.BasicPublishAsync(exchange: _settings.Exchange, routingKey: @event.RoutingKey, mandatory: false, basicProperties: props, body: body);
-
+        await channel.BasicPublishAsync(exchange: _settings.Exchange, routingKey: type, mandatory: false, basicProperties: props, body: body);
     }
 
     public async ValueTask DisposeAsync()

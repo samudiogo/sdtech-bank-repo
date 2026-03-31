@@ -1,6 +1,7 @@
 ﻿using SdtechBank.Application.Common;
 using SdtechBank.Application.Common.Contracts;
 using SdtechBank.Application.Common.Errors;
+using SdtechBank.Application.Messaging;
 using SdtechBank.Application.Payments.Contracts.Events;
 using SdtechBank.Application.Payments.Extensions;
 using SdtechBank.Domain.PaymentOrders.Contracts;
@@ -9,9 +10,9 @@ using SdtechBank.Shared.DTOs.Payments.Responses;
 
 namespace SdtechBank.Application.Payments.UseCases.CreatePayment;
 
-public class CreatePaymentUseCase(IPaymentOrderRepository repository, IEventPublisher eventBus, CreatePaymentValidator validator) : ICreatePaymentUseCase
+public class CreatePaymentUseCase(IPaymentOrderRepository repository, IOutboxService outboxService, CreatePaymentValidator validator) : ICreatePaymentUseCase
 {
-    public async Task<Result<PaymentResponse>> ExecuteAsync(CreatePaymentRequest request)
+    public async Task<Result<PaymentResponse>> ExecuteAsync(CreatePaymentRequest request, CancellationToken cancellationToken)
     {
 
         var validation = ValidateRequest(request);
@@ -23,7 +24,7 @@ public class CreatePaymentUseCase(IPaymentOrderRepository repository, IEventPubl
 
         await repository.SaveAsync(payment);
 
-        await eventBus.PublishAsync(payment.ToPaymentCreatedEvent());
+        await outboxService.AddEventAsync(payment.ToPaymentCreatedEvent(), cancellationToken);
                 
         return Result<PaymentResponse>.Success(payment.ToResponse());
     }
