@@ -7,7 +7,7 @@ namespace SdtechBank.Infrastructure.Messaging.Persistence;
 
 public class OutboxRepository(MongoDbContext context) : IOutboxRepository
 {
-    private readonly IMongoCollection<OutboxMessage> _collection = context.GetCollection<OutboxMessage>("outbox");
+    private readonly IMongoCollection<OutboxMessage> _collection = context.GetCollection<OutboxMessage>("outbox-messages");
     public async Task AddAsync(OutboxMessage message, CancellationToken ct)
     {
         await _collection.InsertOneAsync(message, cancellationToken: ct);
@@ -17,7 +17,7 @@ public class OutboxRepository(MongoDbContext context) : IOutboxRepository
     {
         var filter = Builders<OutboxMessage>.Filter.Eq(x => x.ProcessedAt, null);
 
-        return await _collection.Find(filter).Limit(limit).ToListAsync();
+        return await _collection.Find(filter).Limit(limit).ToListAsync(ct);
     }
 
     public async Task MarkAsProcessedAsync(Guid id, CancellationToken ct)

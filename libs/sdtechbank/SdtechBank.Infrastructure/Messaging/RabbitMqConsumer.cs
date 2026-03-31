@@ -4,11 +4,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using SdtechBank.Application.Common.Contracts;
 using SdtechBank.Application.Messaging;
-using SdtechBank.Application.Payments.Contracts.Events;
 using SdtechBank.Domain.Shared.Messaging;
-using SdtechBank.Domain.Transactions.Events;
 using System.Text;
 using System.Text.Json;
 
@@ -30,8 +27,8 @@ public class RabbitMqConsumer(IOptions<RabbitMqSettings> settings, IServiceProvi
             VirtualHost = _settings.VirtualHost,
         };
 
-        _connection = await factory.CreateConnectionAsync();
-        _channel = await _connection.CreateChannelAsync();
+        _connection = await factory.CreateConnectionAsync(stoppingToken);
+        _channel = await _connection.CreateChannelAsync(cancellationToken: stoppingToken);
 
         var consumer = new AsyncEventingBasicConsumer(_channel);
 
@@ -56,7 +53,7 @@ public class RabbitMqConsumer(IOptions<RabbitMqSettings> settings, IServiceProvi
             }
         };
 
-        await _channel.BasicConsumeAsync(queue: _settings.DefaultQueue, autoAck: false, consumer: consumer);
+        await _channel.BasicConsumeAsync(queue: _settings.DefaultQueue, autoAck: false, consumer: consumer, cancellationToken: stoppingToken);
 
         logger.LogInformation("Consumer iniciado");
 
@@ -79,7 +76,7 @@ public class RabbitMqConsumer(IOptions<RabbitMqSettings> settings, IServiceProvi
 
         var exists = await inbox.ExistsAsync(messageId, ct);
 
-        if (exists)
+        if (exists && logger.IsEnabled(LogLevel.Information))
         {
             logger.LogInformation("Mensagem já processada: {messageId}", messageId);
             return;
@@ -90,10 +87,8 @@ public class RabbitMqConsumer(IOptions<RabbitMqSettings> settings, IServiceProvi
 
 
         var eventType = resolver.Resolve(envelope.Type);
-        var @event = JsonSerializer.Deserialize(envelope.Payload, eventType);
 
-        if (@event is null)
-            throw new InvalidOperationException("falha ao desserializar evento");
+        var @event = JsonSerializer.Deserialize(envelope.Payload, eventType) ?? throw new InvalidOperationException("falha ao desserializar evento");
 
         var dispatchMethod = typeof(IEventDispatcher)
             .GetMethod(nameof(IEventDispatcher.DispatchAsync))!

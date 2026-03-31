@@ -22,7 +22,7 @@ public sealed class PaymentOrder
     public Guid? TransactionId { get; private set; }
     public string IdempotencyKey { get; private set; } = default!;
 
-
+    private PaymentOrder() { }
     private PaymentOrder(Guid id, Guid payerId, PaymentDestination destination, Money amount, PaymentStatus paymentStatus, DateTime createdAt)
     {
         Id = id;
@@ -108,7 +108,7 @@ public sealed class PaymentOrder
         PaymentStatus = PaymentStatus.COMPLETED;
         CompletedAt = DateTime.UtcNow;
         TransactionId = transactionId;
-        
+
     }
 
     /// <summary>

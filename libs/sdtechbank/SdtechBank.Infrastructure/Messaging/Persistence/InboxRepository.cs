@@ -8,7 +8,7 @@ namespace SdtechBank.Infrastructure.Messaging.Persistence;
 
 public class InboxRepository(MongoDbContext context) : IInboxRepository
 {
-    private readonly IMongoCollection<InboxMessage> _collection = context.GetCollection<InboxMessage>("ledger-entries");
+    private readonly IMongoCollection<InboxMessage> _collection = context.GetCollection<InboxMessage>("inbox-messages");
     public async Task AddAsync(InboxMessage message, CancellationToken cancellationToken)
     {
         await _collection.InsertOneAsync(message, null, cancellationToken);

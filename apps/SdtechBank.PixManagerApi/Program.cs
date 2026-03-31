@@ -1,5 +1,7 @@
 using Scalar.AspNetCore;
+using SdtechBank.Application.Common.DI;
 using SdtechBank.Infrastructure.DI;
+using SdtechBank.Infrastructure.Shared.Mongo;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +16,9 @@ builder.Services.AddControllers()
 
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddInfraestructure(builder.Configuration);
+builder.Services.AddWebApiInfrastructure(builder.Configuration);
+builder.Services.AddWebApiApplication(builder.Configuration);
+
 
 
 var app = builder.Build();
@@ -27,6 +31,12 @@ app.MapScalarApiReference(opt =>
         .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
         .WithTheme(ScalarTheme.BluePlanet);
 });
+
+using (var scope = app.Services.CreateScope())
+{
+    var initializer = scope.ServiceProvider.GetRequiredService<MongoDbIndexInitializer>();
+    await initializer.InitializeAsync();
+}
 
 app.UseHttpsRedirection();
 

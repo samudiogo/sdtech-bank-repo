@@ -12,6 +12,7 @@ public sealed class LedgerEntry
     public LedgerEntryType Type { get; set; }
     public DateTime CreatedAt { get; set; }
 
+    private LedgerEntry() { }
     private LedgerEntry(Guid transactionId, Guid accountId, Money amount, LedgerEntryType type)
     {
         Id = Guid.NewGuid();
@@ -21,7 +22,7 @@ public sealed class LedgerEntry
         Type = type;
     }
 
-    public static LedgerEntry CreateDebit(Guid transactionId, Guid accountId, Money amount) => new(transactionId,accountId, amount, LedgerEntryType.DEBIT);
+    public static LedgerEntry CreateDebit(Guid transactionId, Guid accountId, Money amount) => new(transactionId, accountId, amount, LedgerEntryType.DEBIT);
 
     public static LedgerEntry CreateCredit(Guid transactionId, Guid accountId, Money amount) => new(transactionId, accountId, amount, LedgerEntryType.CREDIT);
 }
