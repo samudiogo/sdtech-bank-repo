@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using MongoDB.Driver;
+using RabbitMQ.Client;
 using Scalar.AspNetCore;
 using SdtechBank.Application.Common.DI;
 using SdtechBank.Infrastructure.DI;
@@ -16,10 +19,18 @@ builder.Services.AddControllers()
 
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
+
+
 builder.Services.AddHealthChecks()
-    .AddMongoDb(builder.Configuration["MongoDB:ConnectionString"]!, tags: new[] { "ready" })
-    .AddRabbitMQ(sp => builder.Configuration["RabbitMQ:ConnectionString"]!, tags: new[] { "ready" });
-;
+    .AddMongoDb(
+        sp => sp.GetRequiredService<IMongoDatabase>(),
+        name: "mongodb",
+        tags: ["ready"])
+    .AddRabbitMQ(
+        sp => sp.GetRequiredService<IConnection>(),
+        name: "rabbitmq",
+        tags: ["ready"]);
+
 builder.Services.AddWebApiInfrastructure(builder.Configuration);
 builder.Services.AddWebApiApplication(builder.Configuration);
 

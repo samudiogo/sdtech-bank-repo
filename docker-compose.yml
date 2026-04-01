@@ -8,7 +8,7 @@ services:
       target: api
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_HTTP_PORTS: 8080
+      ASPNETCORE_HTTP_PORTS: ${ASPNETCORE_HTTP_PORTS}
       MongoDB__ConnectionString: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/?authSource=admin
       MongoDB__DatabaseName: ${MONGO_DB_NAME}
     networks:

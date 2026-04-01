@@ -10,7 +10,7 @@ COPY libs/sdtechbank/SdtechBank.slnx libs/sdtechbank/
 # csproj (cache layer)
 COPY apps/SdtechBank.PixManagerApi/*.csproj apps/SdtechBank.PixManagerApi/
 COPY apps/SdtechBank.PixManagerWorker/*.csproj apps/SdtechBank.PixManagerWorker/
-COPY libs/sdtechbank/**/*.csproj libs/sdtechbank/
+COPY libs/sdtechbank/ libs/sdtechbank/
 
 RUN dotnet restore libs/sdtechbank/SdtechBank.slnx
 
