@@ -7,7 +7,7 @@ namespace SdtechBank.Infrastructure.Messaging.Persistence;
 
 public class OutboxRepository(MongoDbContext context) : IOutboxRepository
 {
-    private readonly IMongoCollection<OutboxMessage> _collection = context.GetCollection<OutboxMessage>("outbox-messages");
+    private readonly IMongoCollection<OutboxMessage> _collection = context.GetCollection<OutboxMessage>("outbox_messages");
     public async Task AddAsync(OutboxMessage message, CancellationToken ct)
     {
         await _collection.InsertOneAsync(message, cancellationToken: ct);

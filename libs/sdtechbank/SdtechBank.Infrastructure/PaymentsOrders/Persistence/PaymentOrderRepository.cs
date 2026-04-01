@@ -7,7 +7,7 @@ namespace SdtechBank.Infrastructure.PaymentsOrders.Persistence
 {
     public class PaymentOrderRepository(MongoDbContext context) : IPaymentOrderRepository
     {
-        private readonly IMongoCollection<PaymentOrder> _collection = context.GetCollection<PaymentOrder>("payment-orders");
+        private readonly IMongoCollection<PaymentOrder> _collection = context.GetCollection<PaymentOrder>("payment_orders");
 
         public async Task<PaymentOrder?> GetByIdAsync(Guid paymentId)
         {

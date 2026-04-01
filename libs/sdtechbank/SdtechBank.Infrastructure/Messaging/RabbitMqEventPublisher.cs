@@ -22,7 +22,7 @@ public sealed class RabbitMqEventPublisher(IOptions<RabbitMqSettings> settings, 
 
         var props = new BasicProperties { MessageId = messageId, ContentType = "application/json", DeliveryMode = DeliveryModes.Persistent };
 
-        await channel.BasicPublishAsync(exchange: _settings.Exchange, routingKey: type, mandatory: true, basicProperties: props, body: body);
+        await channel.BasicPublishAsync(exchange: _settings.Exchange, routingKey: type, mandatory: false, basicProperties: props, body: body);
     }
 
     public async ValueTask DisposeAsync()

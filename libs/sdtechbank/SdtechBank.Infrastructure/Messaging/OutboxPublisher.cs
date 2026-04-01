@@ -15,7 +15,7 @@ public class OutboxPublisher(IServiceProvider provider, ILogger<OutboxPublisher>
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            using var scope = provider.CreateScope();
+            await using var scope = provider.CreateAsyncScope();
 
             var repo = scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
             var publisher = scope.ServiceProvider.GetRequiredService<IEventPublisher>();

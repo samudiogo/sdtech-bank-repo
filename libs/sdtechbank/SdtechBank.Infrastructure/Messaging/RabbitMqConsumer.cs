@@ -11,7 +11,12 @@ using System.Text.Json;
 
 namespace SdtechBank.Infrastructure.Messaging;
 
-public class RabbitMqConsumer(IOptions<RabbitMqSettings> settings, IServiceProvider serviceProvider, ILogger<RabbitMqConsumer> logger) : BackgroundService
+public class RabbitMqConsumer(
+                            IOptions<RabbitMqSettings> settings,
+                            IServiceProvider serviceProvider,
+                            IRabbitMqConnection rabbitConnection,
+                            IEventTypeResolver eventTypeResolver,
+                             ILogger<RabbitMqConsumer> logger) : BackgroundService
 {
     private readonly RabbitMqSettings _settings = settings.Value;
     private IConnection? _connection;
@@ -27,8 +32,13 @@ public class RabbitMqConsumer(IOptions<RabbitMqSettings> settings, IServiceProvi
             VirtualHost = _settings.VirtualHost,
         };
 
-        _connection = await factory.CreateConnectionAsync(stoppingToken);
+        _connection = await rabbitConnection.GetConnectionAsync();
         _channel = await _connection.CreateChannelAsync(cancellationToken: stoppingToken);
+
+        if (_channel is null)
+            throw new Exception("Channel não foi criado");
+
+        logger.LogInformation("Channel criado com sucesso");
 
         var consumer = new AsyncEventingBasicConsumer(_channel);
 
@@ -52,17 +62,47 @@ public class RabbitMqConsumer(IOptions<RabbitMqSettings> settings, IServiceProvi
                 await _channel.BasicNackAsync(args.DeliveryTag, multiple: false, requeue: true);
             }
         };
+        
+        await _channel.ExchangeDeclareAsync(
+            exchange: _settings.Exchange,
+            type: ExchangeType.Direct,   // confirme o tipo nas suas settings
+            durable: true,
+            autoDelete: false,
+            cancellationToken: stoppingToken);
+
+        var arguments = new Dictionary<string, object?> { { "x-queue-type", _settings.QueueType }, { "x-message-ttl", _settings.MessageTtlMs } };
+
+        await _channel.QueueDeclareAsync(
+            queue: _settings.DefaultQueue,
+            durable: true,
+            exclusive: false,
+            autoDelete: false,
+            arguments: arguments,
+            cancellationToken: stoppingToken);
+
+
+        foreach (var eventType in eventTypeResolver.GetAllRegisteredTypes())
+        {
+            await _channel.QueueBindAsync(
+                queue: _settings.DefaultQueue,
+                exchange: _settings.Exchange,
+                routingKey: eventType.Name,
+                cancellationToken: stoppingToken);
+
+            logger.LogInformation("Bind registrado: {RoutingKey} -> {Queue}",
+                eventType.Name, _settings.DefaultQueue);
+        }
 
         await _channel.BasicConsumeAsync(queue: _settings.DefaultQueue, autoAck: false, consumer: consumer, cancellationToken: stoppingToken);
 
         logger.LogInformation("Consumer iniciado");
 
-        await Task.CompletedTask;
+        await Task.Delay(Timeout.Infinite, stoppingToken);
     }
 
     private async Task ProcessMessage(RabbitMqMessageEnvelope envelope, IBasicProperties props, CancellationToken ct)
     {
-        using var scope = serviceProvider.CreateScope();
+        await using var scope = serviceProvider.CreateAsyncScope();
 
         var inbox = scope.ServiceProvider.GetRequiredService<IInboxRepository>();
         var dispatcher = scope.ServiceProvider.GetRequiredService<IEventDispatcher>();
