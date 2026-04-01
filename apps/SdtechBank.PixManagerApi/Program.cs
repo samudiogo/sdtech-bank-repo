@@ -16,12 +16,28 @@ builder.Services.AddControllers()
 
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHealthChecks()
+    .AddMongoDb(builder.Configuration["MongoDB:ConnectionString"]!, tags: new[] { "ready" })
+    .AddRabbitMQ(sp => builder.Configuration["RabbitMQ:ConnectionString"]!, tags: new[] { "ready" });
+;
 builder.Services.AddWebApiInfrastructure(builder.Configuration);
 builder.Services.AddWebApiApplication(builder.Configuration);
 
 
 
 var app = builder.Build();
+
+// Liveness (app subiu)
+app.MapHealthChecks("/healthz", new HealthCheckOptions
+{
+    Predicate = _ => false // só verifica se app está rodando
+});
+
+// Readiness (infra OK)
+app.MapHealthChecks("/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+});
 
 app.MapOpenApi();
 app.MapScalarApiReference(opt =>

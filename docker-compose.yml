@@ -1,0 +1,56 @@
+services:
+  pixmanager_api:
+    container_name: sdtech-bank-pixmanager-api
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: apps/SdtechBank.PixManagerApi/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: 8080
+      MongoDB__ConnectionString: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/?authSource=admin
+      MongoDB__DatabaseName: ${MONGO_DB_NAME}
+    networks:
+      - pixmanager_network
+      - infra_net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:${ASPNETCORE_HTTP_PORTS}/ready || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+      
+  pixmanager_worker:
+    container_name: sdtech-bank-pixmanager-worker
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: apps/SdtechBank.PixManagerWorker/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      MongoDB__ConnectionString: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/?authSource=admin
+      MongoDB__DatabaseName: ${MONGO_DB_NAME}
+      RabbitMQ__Username: ${RABBITMQ_USER}
+      RabbitMQ__Password: ${RABBITMQ_PASS}
+      RabbitMQ__Port: ${RABBITMQ_PORT}
+      RabbitMQ__Host: ${RABBITMQ_HOST}
+      RabbitMQ__Queue: ${RABBITMQ_QUEUE}
+      RabbitMQ__Exchange: ${RABBITMQ_EXCHANGE}
+      RabbitMQ__QueueType: ${RABBITMQ_QUEUE_TYPE}
+      RabbitMQ__MessageTTL: ${RABBITMQ_MESSAGE_TTL_MS}
+      RabbitMQ__VirtualHost: ${RABBITMQ_VIRTUAL_HOST}
+    networks:
+      - pixmanager_network
+      - infra_net
+    healthcheck:
+      test: ["CMD", "pgrep", "dotnet"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s    
+
+networks:
+  infra_net:
+    external: true
+  pixmanager_network:
+    driver: bridge
