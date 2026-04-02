@@ -1,6 +1,6 @@
 ﻿namespace SdtechBank.Application.Common.Contracts;
 
-public interface IDomainIntegrationEvent
+public interface IIntegrationEvent
 {
     Guid EventId { get; }
     DateTimeOffset OccurredAt { get; }

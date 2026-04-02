@@ -1,6 +1,6 @@
 ﻿namespace SdtechBank.Application.Payments.Contracts.Events;
 
-public sealed record BankAccountEvent
+public sealed record BankAccountSnapshot
 {
     public required string FullName { get; init; }
     public required string Cpf { get; init; }

@@ -5,7 +5,7 @@ namespace SdtechBank.Application.Payments.Consumers;
 
 public sealed class PaymentCreatedConsumer(IProcessPaymentCreatedUseCase useCase)
 {
-    public async Task HandleAsync(PaymentCreatedEvent @event)
+    public async Task HandleAsync(PaymentCreatedIntegrationEvent @event)
     {
        // await useCase.ExcecuteAsync(@event.PaymentId, @event.CorrelationId);
     }

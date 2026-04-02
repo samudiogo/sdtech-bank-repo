@@ -5,30 +5,36 @@ namespace SdtechBank.Application.Payments.Contracts.Events;
 
 public static class PaymentOrderEventMappingExtensions
 {
-    public static PaymentCreatedEvent ToPaymentCreatedEvent(this PaymentOrder paymentOrder)
+    public static PaymentCreatedIntegrationEvent ToPaymentCreatedIntegrationEvent(this PaymentOrder paymentOrder)
     {
-        return new PaymentCreatedEvent
+        return new PaymentCreatedIntegrationEvent
         {
             PaymentId = paymentOrder.Id,
             Amount = paymentOrder.Amount.Value,
             Currency = paymentOrder.Amount.Currency.ToString(),
             PayerId = paymentOrder.PayerId,
-            Destination = paymentOrder.Destination.ToPaymentDestinationEvent()
+            Destination = paymentOrder.Destination.ToPaymentDestinationSnapshot()
         };
     }
 
-    public static PaymentDestinationEvent ToPaymentDestinationEvent(this PaymentDestination paymentDestination)
+    public static PaymentValidatedEventIntegrationEvent ToPaymentValidatedIntegrationEvent(this PaymentOrder paymentOrder) =>
+        new(paymentOrder.Id, paymentOrder.Destination.ToPaymentDestinationSnapshot());
+
+    public static PaymentNeedsAccountDataIntegrationEvent ToPaymentNeedsAccountDataIntegrationEvent(this PaymentOrder paymentOrder) =>
+        new(paymentOrder.Id, paymentOrder.Destination.PixKey!);
+
+    public static PaymentDestinationSnapshot ToPaymentDestinationSnapshot(this PaymentDestination paymentDestination)
     {
-        return new PaymentDestinationEvent
+        return new PaymentDestinationSnapshot
         {
             PixKey = paymentDestination.PixKey,
-            BankAccount = paymentDestination.BankAccount?.ToBankAccountEvent()
+            BankAccount = paymentDestination.BankAccount?.ToBankAccountSnapshot()
         };
     }
 
-    public static BankAccountEvent ToBankAccountEvent(this BankAccount bankAccount)
+    public static BankAccountSnapshot ToBankAccountSnapshot(this BankAccount bankAccount)
     {
-        return new BankAccountEvent
+        return new BankAccountSnapshot
         {
             FullName = bankAccount.FullName,
             Cpf = bankAccount.Cpf,

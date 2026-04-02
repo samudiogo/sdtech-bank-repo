@@ -24,7 +24,7 @@ public class CreatePaymentUseCase(IPaymentOrderRepository repository, IOutboxSer
 
         await repository.SaveAsync(payment);
 
-        await outboxService.AddEventAsync(payment.ToPaymentCreatedEvent(), cancellationToken);
+        await outboxService.AddEventAsync(payment.ToPaymentCreatedIntegrationEvent(), cancellationToken);
                 
         return Result<PaymentResponse>.Success(payment.ToResponse());
     }

@@ -17,10 +17,12 @@ public sealed class PaymentOrder
     public PaymentStatus PaymentStatus { get; private set; }
     public int Attempts { get; private set; }
     public DateTime CreatedAt { get; private set; }
+    public DateTime? UserConfirmedAt { get; private set; }
     public DateTime? CompletedAt { get; private set; }
     public DateTime? FailedAt { get; private set; }
     public Guid? TransactionId { get; private set; }
     public string IdempotencyKey { get; private set; } = default!;
+    public bool IsPaymentDestinationReadyToTransfer => Destination.BankAccount is not null;
 
     private PaymentOrder() { }
     private PaymentOrder(Guid id, Guid payerId, PaymentDestination destination, Money amount, PaymentStatus paymentStatus, DateTime createdAt)
@@ -32,7 +34,7 @@ public sealed class PaymentOrder
         PaymentStatus = paymentStatus;
         CreatedAt = createdAt;
         Attempts = 0;
-        IdempotencyKey= id.ToString();
+        IdempotencyKey = id.ToString();
     }
 
     /// <summary>
@@ -65,6 +67,20 @@ public sealed class PaymentOrder
     }
 
     /// <summary>
+    /// Atualiza o pagamento para o status de aguardando DICT.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// Lançada quando o status atual não é 'CREATED' e precisa consultar o sistema DICT para obter os dados bancários.
+    /// </exception>
+    public void MarkAsWaitingDict()
+    {
+        if (PaymentStatus != PaymentStatus.CREATED && Destination.BankAccount is null)
+            throw new InvalidOperationException("Transição para 'WAITING_FOR_DICT' permitida apenas para pagamentos com status 'CREATED' com apenas a chave pix.");
+
+        PaymentStatus = PaymentStatus.WAITING_FOR_DICT;
+    }
+
+    /// <summary>
     /// Atualiza o pagamento para o status de pronto para transferência.
     /// </summary>
     /// <exception cref="InvalidOperationException">
@@ -88,7 +104,8 @@ public sealed class PaymentOrder
     {
         if (PaymentStatus != PaymentStatus.READY_TO_TRANSFER)
             throw new InvalidOperationException("Transição para 'IN_TRANSFER' requer status 'READY_TO_TRANSFER'.");
-
+        
+        UserConfirmedAt = DateTime.UtcNow;
         PaymentStatus = PaymentStatus.IN_TRANSFER;
     }
 

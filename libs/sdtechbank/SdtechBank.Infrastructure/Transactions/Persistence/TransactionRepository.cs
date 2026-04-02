@@ -24,6 +24,8 @@ public class TransactionRepository(MongoDbContext context) : ITransactionReposit
 
     public async Task SaveAsync(Transaction transaction)
     {
-        await _collection.InsertOneAsync(transaction);
+        var filter = Builders<Transaction>.Filter.Eq(o => o.Id, transaction.Id);
+        var options = new ReplaceOptions { IsUpsert = true };
+        await _collection.ReplaceOneAsync(filter, transaction, options);
     }
 }

@@ -18,7 +18,9 @@ namespace SdtechBank.Infrastructure.PaymentsOrders.Persistence
 
         public async Task SaveAsync(PaymentOrder paymentOrder)
         {
-            await _collection.InsertOneAsync(paymentOrder);
+            var filter = Builders<PaymentOrder>.Filter.Eq(o => o.Id, paymentOrder.Id);
+            var options = new ReplaceOptions { IsUpsert = true };
+            await _collection.ReplaceOneAsync(filter, paymentOrder, options);
         }
     }
 }

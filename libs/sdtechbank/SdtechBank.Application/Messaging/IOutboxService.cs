@@ -12,6 +12,8 @@ public sealed class OutboxService(IOutboxRepository repository) : IOutboxService
 {
     public async Task AddEventAsync<T>(T @event, CancellationToken ct)
     {
+        //TODO: Acredito que Debito técnico aqui, não vejco como os eventos não estão sendo propagados
+
         var payload = JsonSerializer.Serialize(@event);
 
         var message = new OutboxMessage(type: typeof(T).Name, payload: payload);

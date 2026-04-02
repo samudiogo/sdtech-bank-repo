@@ -2,13 +2,9 @@
 
 namespace SdtechBank.Application.Transactions.Contracts.Events;
 
-public sealed record TransactionCompletedEvent : IDomainIntegrationEvent
+public sealed record TransactionCompletedEvent : IntegrationEvent
 {
-    public Guid EventId => Guid.NewGuid();
-    public DateTimeOffset OccurredAt => DateTime.UtcNow;
-    public string RoutingKey => "transaction.completed";
-    public string CorrelationId { get; init; } = default!;
-
+    public override string RoutingKey => "transaction.completed";
     public required Guid TransactionId { get; init; }
     public required Guid PaymentId { get; init; }
     public required decimal Amount { get; init; }

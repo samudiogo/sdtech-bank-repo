@@ -1,8 +1,8 @@
 ﻿namespace SdtechBank.Application.Payments.Contracts.Events;
 
-public sealed record PaymentDestinationEvent
+public sealed record PaymentDestinationSnapshot
 {
     public string? PixKey { get; init; }
-    public BankAccountEvent? BankAccount { get; init; }
+    public BankAccountSnapshot? BankAccount { get; init; }
 }
 
