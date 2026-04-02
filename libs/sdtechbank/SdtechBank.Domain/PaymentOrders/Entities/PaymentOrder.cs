@@ -32,6 +32,7 @@ public sealed class PaymentOrder
         PaymentStatus = paymentStatus;
         CreatedAt = createdAt;
         Attempts = 0;
+        IdempotencyKey= id.ToString();
     }
 
     /// <summary>
