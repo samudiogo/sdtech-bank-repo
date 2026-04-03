@@ -20,6 +20,7 @@ public sealed class LedgerEntry
         AccountId = accountId;
         Amount = amount;
         Type = type;
+        CreatedAt = DateTime.UtcNow;
     }
 
     public static LedgerEntry CreateDebit(Guid transactionId, Guid accountId, Money amount) => new(transactionId, accountId, amount, LedgerEntryType.DEBIT);

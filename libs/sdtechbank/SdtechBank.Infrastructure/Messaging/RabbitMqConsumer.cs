@@ -4,14 +4,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using SdtechBank.Application.Common.Contracts;
+using SdtechBank.Application.IntegrationEvents;
 using SdtechBank.Application.Messaging;
 using SdtechBank.Domain.Shared.Messaging;
 using System.Text;
 using System.Text.Json;
 
 namespace SdtechBank.Infrastructure.Messaging;
-
 public class RabbitMqConsumer(
                             IOptions<RabbitMqSettings> settings,
                             IServiceProvider serviceProvider,
@@ -51,6 +50,7 @@ public class RabbitMqConsumer(
                 var json = Encoding.UTF8.GetString(body);
 
                 var envelope = JsonSerializer.Deserialize<RabbitMqMessageEnvelope>(json)!;
+                logger.LogInformation("Mensagem recebida: {Type}", envelope.Type);
 
                 await ProcessMessage(envelope, args.BasicProperties, stoppingToken);
 
@@ -82,8 +82,9 @@ public class RabbitMqConsumer(
             cancellationToken: stoppingToken);
 
 
-        foreach (var (eventName, _) in registry.GetAll())
+        foreach (var (eventName, type) in registry.GetAll())
         {
+            logger.LogInformation("Evento registrado: {EventName} -> {Type}", eventName, type.Name);
             await _channel.QueueBindAsync(
                 queue: _settings.DefaultQueue,
                 exchange: _settings.Exchange,
@@ -105,7 +106,7 @@ public class RabbitMqConsumer(
         await using var scope = serviceProvider.CreateAsyncScope();
 
         var inbox = scope.ServiceProvider.GetRequiredService<IInboxRepository>();
-        var dispatcher = scope.ServiceProvider.GetRequiredService<IEventDispatcher>();
+        var dispatcher = scope.ServiceProvider.GetRequiredService<IIntegrationEventDispatcher>();
         var registry = scope.ServiceProvider.GetRequiredService<IIntegrationEventTypeRegistry>();
         var eventType = registry.Resolve(envelope.Type);
 
@@ -128,8 +129,8 @@ public class RabbitMqConsumer(
 
         var @event = JsonSerializer.Deserialize(envelope.Payload, eventType) ?? throw new InvalidOperationException("falha ao desserializar evento");
 
-        var dispatchMethod = typeof(IEventDispatcher)
-            .GetMethod(nameof(IEventDispatcher.DispatchAsync))!
+        var dispatchMethod = typeof(IIntegrationEventDispatcher)
+            .GetMethod(nameof(IIntegrationEventDispatcher.DispatchAsync))!
             .MakeGenericMethod(eventType);
 
         await (Task)dispatchMethod.Invoke(dispatcher, [@event, ct])!;

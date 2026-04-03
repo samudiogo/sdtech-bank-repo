@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Primitives;
 using SdtechBank.Domain.PaymentOrders.Entities;
 using SdtechBank.Domain.PaymentOrders.ValueObjects;
 
@@ -17,8 +18,16 @@ public static class PaymentOrderEventMappingExtensions
         };
     }
 
-    public static PaymentValidatedEventIntegrationEvent ToPaymentValidatedIntegrationEvent(this PaymentOrder paymentOrder) =>
-        new() { PaymentId = paymentOrder.Id, Destination = paymentOrder.Destination.ToPaymentDestinationSnapshot() };
+    public static PaymentValidatedIntegrationEvent ToPaymentValidatedIntegrationEvent(this PaymentOrder paymentOrder, string correlationId, Guid receiverId) => new()
+    {
+        PaymentId = paymentOrder.Id,
+        PayerId = paymentOrder.PayerId,
+        Amount = paymentOrder.Amount,
+        CorrelationId = correlationId,
+        IdempotencyKey = paymentOrder.IdempotencyKey,
+        ReceiverId = receiverId,
+        Destination = paymentOrder.Destination.ToPaymentDestinationSnapshot()
+    };
 
     public static PaymentNeedsAccountDataIntegrationEvent ToPaymentNeedsAccountDataIntegrationEvent(this PaymentOrder paymentOrder) =>
         new() { PaymentId = paymentOrder.Id, PixKey = paymentOrder.Destination.PixKey! };

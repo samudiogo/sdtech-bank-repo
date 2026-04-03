@@ -7,19 +7,12 @@ using MongoDB.Driver;
 using SdtechBank.Application.Common.Contracts;
 using SdtechBank.Application.Messaging;
 using SdtechBank.Application.Payments.Contracts.Events;
-using SdtechBank.Application.Payments.UseCases.CompletePayment;
 using SdtechBank.Application.Payments.UseCases.CreatePayment;
-using SdtechBank.Application.Payments.UseCases.FailPayment;
 using SdtechBank.Application.Transactions.Contracts.Events;
-using SdtechBank.Application.Transactions.UseCases.ProcessPayment;
 using SdtechBank.Domain.Accounts.Contracts;
 using SdtechBank.Domain.Ledger.Contracts;
-using SdtechBank.Domain.Ledger.Entities;
 using SdtechBank.Domain.PaymentOrders.Contracts;
-using SdtechBank.Domain.PaymentOrders.Entities;
-using SdtechBank.Domain.Shared.Messaging;
 using SdtechBank.Domain.Transactions.Contracts;
-using SdtechBank.Domain.Transactions.Entities;
 using SdtechBank.Infrastructure.Accounts.Services;
 using SdtechBank.Infrastructure.Ledger.Persistence;
 using SdtechBank.Infrastructure.Messaging;
@@ -39,7 +32,6 @@ public static class InfrastructureExtensions
         AddRabbitMqConfig(services, configuration);
         AddRepositoriesConfig(services);
         AddServicesConfig(services);
-        AddEventsConfig(services);
         return services;
     }
 
@@ -53,7 +45,6 @@ public static class InfrastructureExtensions
     public static IServiceCollection AddWorkerInfrastructureCore(this IServiceCollection services, IConfiguration configuration)
     {
         AddInfrastructureCore(services, configuration);
-        AddIntegrationEventsConfig(services);
         services.AddHostedService<RabbitMqConsumer>();
         services.AddHostedService<OutboxPublisher>();
         return services;
@@ -76,35 +67,7 @@ public static class InfrastructureExtensions
 
         // Inicialização de índices no startup
         services.AddSingleton<MongoDbIndexInitializer>();
-    }
-
-    private static void AddIntegrationEventsConfig(IServiceCollection services)
-    {
-        services.AddSingleton<IIntegrationEventTypeRegistry>(sp =>
-        {
-            var registry = new IntegrationEventTypeRegistry();
-
-            registry.Register<PaymentCreatedIntegrationEvent>("payment.created");
-            registry.Register<TransactionCompletedIntegrationEvent>("transaction.completed");
-            registry.Register<PaymentNeedsAccountDataIntegrationEvent>("payment.waiting_for_dict");
-            registry.Register<PaymentValidatedEventIntegrationEvent>("payment.validated");
-            registry.Register<TransactionFailedIntegrationEvent>("transaction.failed");
-
-            return registry;
-        });
-    }
-
-    private static void AddEventsConfig(IServiceCollection services)
-    {
-        services.AddScoped<IEventDispatcher, EventDispatcher>();
-        //services.AddSingleton<IIntegrationEventTypeResolver, IntegrationEventTypeResolver>();
-
-        services.Scan(scan => scan
-                .FromAssemblies(typeof(IEventHandler<>).Assembly)
-                .AddClasses(classes => classes.AssignableTo(typeof(IEventHandler<>)))
-                .AsImplementedInterfaces()
-                .WithScopedLifetime());
-    }
+    }        
 
     private static void AddRabbitMqConfig(IServiceCollection services, IConfiguration configuration)
     {

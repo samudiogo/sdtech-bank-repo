@@ -19,7 +19,7 @@ public class ProcessPaymentCreatedUseCase(
                                           IOutboxService outboxService,
                                           ILogger<ProcessPaymentCreatedUseCase> logger) : IProcessPaymentCreatedUseCase
 {
-    public async Task ExcecuteAsync(Guid paymentId, Guid payerId, Guid receiverId, Money amount, string idempotencyKey, CancellationToken cancellationToken)
+    public async Task ExecuteAsync(Guid paymentId, Guid payerId, Guid receiverId, Money amount, string idempotencyKey, CancellationToken cancellationToken)
     {
         using (await lockService.AcquireLockAsync(payerId))
         {

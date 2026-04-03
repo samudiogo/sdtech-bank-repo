@@ -8,11 +8,9 @@ public sealed record Money
     public decimal Value { get; init; }
     public CurrencyType Currency { get; init; }
 
-    public Money(decimal amount, CurrencyType currency)
-    {
-        if (amount <= 0)
-            throw new ArgumentException("Valor deve ser maior que zero");
-        Value = amount;
+    public Money(decimal value, CurrencyType currency)
+    {       
+        Value = value;
         Currency = currency;
     }
 

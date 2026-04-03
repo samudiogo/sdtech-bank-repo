@@ -29,36 +29,71 @@ internal sealed class PaymentDestinationSerializer : SerializerBase<PaymentDesti
 
     public override PaymentDestination Deserialize(BsonDeserializationContext ctx, BsonDeserializationArgs args)
     {
-        ctx.Reader.ReadStartDocument();
+        var reader = ctx.Reader;
+        
+        if (reader.GetCurrentBsonType() == BsonType.Null)
+        {
+            reader.ReadNull();
+            throw new InvalidOperationException("PaymentDestination não pode ser nulo.");
+        }
+
+        
+        if (reader.GetCurrentBsonType() == BsonType.String)
+        {
+            var legacyPixKey  = reader.ReadString();
+            return PaymentDestination.FromPixKey(legacyPixKey );
+        }
+
+        reader.ReadStartDocument();
 
         string? pixKey = null;
         BankAccount? bankAccount = null;
 
-        while (ctx.Reader.ReadBsonType() != BsonType.EndOfDocument)
+        while (reader.ReadBsonType() != BsonType.EndOfDocument)
         {
-            var field = ctx.Reader.ReadName();
+            var field = reader.ReadName();
+
             switch (field)
             {
                 case "PixKey":
-                    pixKey = ctx.Reader.CurrentBsonType == BsonType.Null
-                        ? null
-                        : ctx.Reader.ReadString();
+                    if (reader.CurrentBsonType == BsonType.Null)
+                    {
+                        reader.ReadNull();
+                        pixKey = null;
+                    }
+                    else
+                    {
+                        pixKey = reader.ReadString();
+                    }
                     break;
+
                 case "BankAccount":
-                    bankAccount = ctx.Reader.CurrentBsonType == BsonType.Null
-                        ? null
-                        : BsonSerializer.Deserialize<BankAccount>(ctx.Reader);
+                    if (reader.CurrentBsonType == BsonType.Null)
+                    {
+                        reader.ReadNull();
+                        bankAccount = null;
+                    }
+                    else
+                    {
+                        bankAccount = BsonSerializer.Deserialize<BankAccount>(reader);
+                    }
                     break;
+
                 default:
-                    ctx.Reader.SkipValue();
+                    reader.SkipValue();
                     break;
             }
         }
 
-        ctx.Reader.ReadEndDocument();
+        reader.ReadEndDocument();
 
-        return pixKey is not null
-            ? PaymentDestination.FromPixKey(pixKey)
-            : PaymentDestination.FromBankAccount(bankAccount!);
+        
+        if (pixKey is not null)
+            return PaymentDestination.FromPixKey(pixKey);
+
+        if (bankAccount is not null)
+            return PaymentDestination.FromBankAccount(bankAccount);
+
+        throw new InvalidOperationException("PaymentDestination inválido: nenhum valor preenchido.");
     }
 }
