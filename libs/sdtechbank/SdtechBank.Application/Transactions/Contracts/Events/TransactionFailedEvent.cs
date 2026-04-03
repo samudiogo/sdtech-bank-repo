@@ -2,9 +2,9 @@
 
 namespace SdtechBank.Application.Transactions.Contracts.Events;
 
-public sealed record TransactionFailedEvent : IntegrationEvent
+public sealed record TransactionFailedIntegrationEvent : IntegrationEvent
 {
-    public override string RoutingKey => "transaction.completed";
+    public override string RoutingKey => "transaction.failed";
 
     public required Guid TransactionId { get; init; }
     public required Guid PaymentId { get; init; }

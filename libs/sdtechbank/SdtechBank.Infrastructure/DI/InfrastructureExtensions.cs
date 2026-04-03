@@ -6,9 +6,11 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using SdtechBank.Application.Common.Contracts;
 using SdtechBank.Application.Messaging;
+using SdtechBank.Application.Payments.Contracts.Events;
 using SdtechBank.Application.Payments.UseCases.CompletePayment;
 using SdtechBank.Application.Payments.UseCases.CreatePayment;
 using SdtechBank.Application.Payments.UseCases.FailPayment;
+using SdtechBank.Application.Transactions.Contracts.Events;
 using SdtechBank.Application.Transactions.UseCases.ProcessPayment;
 using SdtechBank.Domain.Accounts.Contracts;
 using SdtechBank.Domain.Ledger.Contracts;
@@ -50,7 +52,8 @@ public static class InfrastructureExtensions
 
     public static IServiceCollection AddWorkerInfrastructureCore(this IServiceCollection services, IConfiguration configuration)
     {
-        AddInfrastructureCore(services, configuration);        
+        AddInfrastructureCore(services, configuration);
+        AddIntegrationEventsConfig(services);
         services.AddHostedService<RabbitMqConsumer>();
         services.AddHostedService<OutboxPublisher>();
         return services;
@@ -60,7 +63,7 @@ public static class InfrastructureExtensions
     private static void AddMongoDbConfig(IServiceCollection services, IConfiguration configuration)
     {
         BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
-        MongoDbClassMap.Register(); 
+        MongoDbClassMap.Register();
 
         var settings = configuration.GetSection("MongoDb").Get<MongoDbSettings>()!;
         services.Configure<MongoDbSettings>(opts => configuration.GetSection("MongoDb").Bind(opts));
@@ -75,10 +78,26 @@ public static class InfrastructureExtensions
         services.AddSingleton<MongoDbIndexInitializer>();
     }
 
+    private static void AddIntegrationEventsConfig(IServiceCollection services)
+    {
+        services.AddSingleton<IIntegrationEventTypeRegistry>(sp =>
+        {
+            var registry = new IntegrationEventTypeRegistry();
+
+            registry.Register<PaymentCreatedIntegrationEvent>("payment.created");
+            registry.Register<TransactionCompletedIntegrationEvent>("transaction.completed");
+            registry.Register<PaymentNeedsAccountDataIntegrationEvent>("payment.waiting_for_dict");
+            registry.Register<PaymentValidatedEventIntegrationEvent>("payment.validated");
+            registry.Register<TransactionFailedIntegrationEvent>("transaction.failed");
+
+            return registry;
+        });
+    }
+
     private static void AddEventsConfig(IServiceCollection services)
     {
         services.AddScoped<IEventDispatcher, EventDispatcher>();
-        services.AddSingleton<IEventTypeResolver, EventTypeResolver>();
+        //services.AddSingleton<IIntegrationEventTypeResolver, IntegrationEventTypeResolver>();
 
         services.Scan(scan => scan
                 .FromAssemblies(typeof(IEventHandler<>).Assembly)

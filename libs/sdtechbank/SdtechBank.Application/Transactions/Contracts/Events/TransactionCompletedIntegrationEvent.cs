@@ -2,7 +2,7 @@
 
 namespace SdtechBank.Application.Transactions.Contracts.Events;
 
-public sealed record TransactionCompletedEvent : IntegrationEvent
+public sealed record TransactionCompletedIntegrationEvent : IntegrationEvent
 {
     public override string RoutingKey => "transaction.completed";
     public required Guid TransactionId { get; init; }

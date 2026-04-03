@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using SdtechBank.Application.Common.Contracts;
 using SdtechBank.Application.Messaging;
 using SdtechBank.Domain.Shared.Messaging;
 using System.Text;
@@ -15,7 +16,7 @@ public class RabbitMqConsumer(
                             IOptions<RabbitMqSettings> settings,
                             IServiceProvider serviceProvider,
                             IRabbitMqConnection rabbitConnection,
-                            IEventTypeResolver eventTypeResolver,
+                            IIntegrationEventTypeRegistry registry,
                              ILogger<RabbitMqConsumer> logger) : BackgroundService
 {
     private readonly RabbitMqSettings _settings = settings.Value;
@@ -51,7 +52,7 @@ public class RabbitMqConsumer(
 
                 var envelope = JsonSerializer.Deserialize<RabbitMqMessageEnvelope>(json)!;
 
-                await ProcessMessage(envelope, (IBasicProperties)args.BasicProperties, stoppingToken);
+                await ProcessMessage(envelope, args.BasicProperties, stoppingToken);
 
                 await _channel.BasicAckAsync(args.DeliveryTag, multiple: false);
             }
@@ -62,7 +63,7 @@ public class RabbitMqConsumer(
                 await _channel.BasicNackAsync(args.DeliveryTag, multiple: false, requeue: true);
             }
         };
-        
+
         await _channel.ExchangeDeclareAsync(
             exchange: _settings.Exchange,
             type: ExchangeType.Direct,   // confirme o tipo nas suas settings
@@ -81,16 +82,15 @@ public class RabbitMqConsumer(
             cancellationToken: stoppingToken);
 
 
-        foreach (var eventType in eventTypeResolver.GetAllRegisteredTypes())
+        foreach (var (eventName, _) in registry.GetAll())
         {
             await _channel.QueueBindAsync(
                 queue: _settings.DefaultQueue,
                 exchange: _settings.Exchange,
-                routingKey: eventType.Name,
+                routingKey: eventName,
                 cancellationToken: stoppingToken);
 
-            logger.LogInformation("Bind registrado: {RoutingKey} -> {Queue}",
-                eventType.Name, _settings.DefaultQueue);
+            logger.LogInformation("Bind registrado: {RoutingKey} -> {Queue}", eventName, _settings.DefaultQueue);
         }
 
         await _channel.BasicConsumeAsync(queue: _settings.DefaultQueue, autoAck: false, consumer: consumer, cancellationToken: stoppingToken);
@@ -100,13 +100,14 @@ public class RabbitMqConsumer(
         await Task.Delay(Timeout.Infinite, stoppingToken);
     }
 
-    private async Task ProcessMessage(RabbitMqMessageEnvelope envelope, IBasicProperties props, CancellationToken ct)
+    private async Task ProcessMessage(RabbitMqMessageEnvelope envelope, IReadOnlyBasicProperties props, CancellationToken ct)
     {
         await using var scope = serviceProvider.CreateAsyncScope();
 
         var inbox = scope.ServiceProvider.GetRequiredService<IInboxRepository>();
         var dispatcher = scope.ServiceProvider.GetRequiredService<IEventDispatcher>();
-        var resolver = scope.ServiceProvider.GetRequiredService<IEventTypeResolver>();
+        var registry = scope.ServiceProvider.GetRequiredService<IIntegrationEventTypeRegistry>();
+        var eventType = registry.Resolve(envelope.Type);
 
         var messageId = props.MessageId;
 
@@ -124,9 +125,6 @@ public class RabbitMqConsumer(
 
         var inboxMessage = new InboxMessage(messageId, envelope.Type);
         await inbox.AddAsync(inboxMessage, ct);
-
-
-        var eventType = resolver.Resolve(envelope.Type);
 
         var @event = JsonSerializer.Deserialize(envelope.Payload, eventType) ?? throw new InvalidOperationException("falha ao desserializar evento");
 

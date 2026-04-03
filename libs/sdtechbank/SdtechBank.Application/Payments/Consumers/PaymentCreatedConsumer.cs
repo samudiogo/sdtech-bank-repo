@@ -1,12 +1,15 @@
-﻿using SdtechBank.Application.Payments.Contracts.Events;
-using SdtechBank.Application.Transactions.UseCases.ProcessPayment;
+﻿using Microsoft.Extensions.Logging;
+using SdtechBank.Application.Payments.Contracts.Events;
+using SdtechBank.Application.Payments.UseCases.ValidatePayment;
 
 namespace SdtechBank.Application.Payments.Consumers;
 
-public sealed class PaymentCreatedConsumer(IProcessPaymentCreatedUseCase useCase)
+public sealed class PaymentCreatedConsumer(IValidatePaymentUseCase useCase, ILogger<PaymentCreatedConsumer> logger)
 {
-    public async Task HandleAsync(PaymentCreatedIntegrationEvent @event)
+    public async Task HandleAsync(PaymentCreatedIntegrationEvent @event, CancellationToken cancellation)
     {
-       // await useCase.ExcecuteAsync(@event.PaymentId, @event.CorrelationId);
+        logger.LogInformation("entrei aqui no PaymentCreatedConsumer {event}", @event);
+
+        await useCase.ExecuteAsync(@event.PaymentId, cancellation);
     }
 }

@@ -5,7 +5,7 @@ namespace SdtechBank.Application.Transactions.Consumers;
 
 public sealed class TransactionCompletedConsumer(ICompletePaymentUseCase useCase)
 {
-    public async Task HandleAsync(TransactionCompletedEvent @event)
+    public async Task HandleAsync(TransactionCompletedIntegrationEvent @event)
     {
         await useCase.ExecuteAsync(@event.PaymentId, @event.TransactionId);
     }

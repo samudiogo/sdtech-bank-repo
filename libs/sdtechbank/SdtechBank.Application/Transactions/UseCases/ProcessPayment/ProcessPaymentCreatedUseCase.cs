@@ -46,7 +46,7 @@ public class ProcessPaymentCreatedUseCase(
 
                 await transactionRepository.SaveAsync(transaction);
 
-                await outboxService.AddEventAsync(new TransactionCompletedEvent()
+                await outboxService.AddEventAsync(new TransactionCompletedIntegrationEvent()
                 {
                     TransactionId = transaction.Id,
                     PaymentId = paymentId,
@@ -62,7 +62,7 @@ public class ProcessPaymentCreatedUseCase(
                     transaction.MarkAsFailed();
                     await transactionRepository.SaveAsync(transaction);
 
-                    await outboxService.AddEventAsync(new TransactionFailedEvent
+                    await outboxService.AddEventAsync(new TransactionFailedIntegrationEvent
                     {
                         TransactionId = transaction.Id,
                         PaymentId = paymentId,

@@ -26,7 +26,7 @@ public class OutboxPublisher(IServiceProvider provider, ILogger<OutboxPublisher>
             {
                 try
                 {
-                    await publisher.PublishRawAsync(message.Id.ToString(), message.Type, message.Payload);
+                    await publisher.PublishRawAsync(message.Id.ToString(), message.RoutingKey, message.Payload);
 
                     await repo.MarkAsProcessedAsync(message.Id, stoppingToken);
                 }

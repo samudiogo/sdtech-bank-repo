@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SdtechBank.Application.Payments.UseCases.CompletePayment;
 using SdtechBank.Application.Payments.UseCases.CreatePayment;
 using SdtechBank.Application.Payments.UseCases.FailPayment;
+using SdtechBank.Application.Payments.UseCases.ValidatePayment;
 using SdtechBank.Application.Transactions.UseCases.ProcessPayment;
 
 namespace SdtechBank.Application.Common.DI;
@@ -31,6 +32,7 @@ public static class ApplicationExtensions
     private static void AddProcessingUseCases(IServiceCollection services)
     {
         services.AddScoped<IProcessPaymentCreatedUseCase, ProcessPaymentCreatedUseCase>();
+        services.AddScoped<IValidatePaymentUseCase, ValidatePaymentUseCase>();
         services.AddScoped<ICompletePaymentUseCase, CompletePaymentUseCase>();
         services.AddScoped<IFailPaymentUseCase, FailPaymentUseCase>();
 

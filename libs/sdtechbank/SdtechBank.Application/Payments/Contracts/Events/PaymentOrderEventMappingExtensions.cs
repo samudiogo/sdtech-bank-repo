@@ -18,10 +18,10 @@ public static class PaymentOrderEventMappingExtensions
     }
 
     public static PaymentValidatedEventIntegrationEvent ToPaymentValidatedIntegrationEvent(this PaymentOrder paymentOrder) =>
-        new(paymentOrder.Id, paymentOrder.Destination.ToPaymentDestinationSnapshot());
+        new() { PaymentId = paymentOrder.Id, Destination = paymentOrder.Destination.ToPaymentDestinationSnapshot() };
 
     public static PaymentNeedsAccountDataIntegrationEvent ToPaymentNeedsAccountDataIntegrationEvent(this PaymentOrder paymentOrder) =>
-        new(paymentOrder.Id, paymentOrder.Destination.PixKey!);
+        new() { PaymentId = paymentOrder.Id, PixKey = paymentOrder.Destination.PixKey! };
 
     public static PaymentDestinationSnapshot ToPaymentDestinationSnapshot(this PaymentDestination paymentDestination)
     {
