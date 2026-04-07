@@ -11,7 +11,7 @@ public sealed class FailPaymentUseCase(IPaymentOrderRepository paymentOrderRepos
 
         if (payment is null)
         {
-            logger.LogWarning("Pagamento {paymentId} não encontrado", paymentId);
+            logger.LogWarning("Pagamento {PaymentId} não encontrado", paymentId);
             return;
         }
 

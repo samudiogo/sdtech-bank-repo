@@ -15,7 +15,7 @@ public class CreateDepositUseCase(
     {
         var validation = ValidateRequest(request);
 
-        if (validation.IsSuccess is false)
+        if (!validation.IsSuccess)
             return Result<CreateDepositResponse>.Failure(validation.Errors);
 
         var entity = request.ToEntity();

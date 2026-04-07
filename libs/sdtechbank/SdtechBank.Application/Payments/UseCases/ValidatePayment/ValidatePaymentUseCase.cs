@@ -20,7 +20,7 @@ public sealed class ValidatePaymentUseCase(IPaymentOrderRepository paymentOrderR
         Guid tempReceiverId = Guid.Parse("a0ea2495-7027-4695-9aa5-3dbe4f9cb868");
         if (payment is null)
         {
-            logger.LogWarning("Pagamento {paymentId} não encontrado para a validação", paymentId);
+            logger.LogWarning("Pagamento {PaymentId} não encontrado para a validação", paymentId);
             return;
         }
         if (payment.IsPaymentDestinationReadyToTransfer)

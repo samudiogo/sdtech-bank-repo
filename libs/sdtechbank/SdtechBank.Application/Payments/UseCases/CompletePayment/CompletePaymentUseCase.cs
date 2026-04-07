@@ -11,7 +11,7 @@ public class CompletePaymentUseCase(IPaymentOrderRepository paymentOrderReposito
 
         if(payment is null)
         {
-            logger.LogWarning("Pagamento {paymentId} não encontrado para a transação {transactionId}", paymentId, transactionId);
+            logger.LogWarning("Pagamento {PaymentId} não encontrado para a transação {TransactionId}", paymentId, transactionId);
             return;
         }
 

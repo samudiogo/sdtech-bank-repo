@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.Json;
 
 namespace SdtechBank.Infrastructure.Messaging;
+
 public class RabbitMqConsumer(
                             IOptions<RabbitMqSettings> settings,
                             IServiceProvider serviceProvider,
@@ -19,21 +20,13 @@ public class RabbitMqConsumer(
                              ILogger<RabbitMqConsumer> logger) : BackgroundService
 {
     private readonly RabbitMqSettings _settings = settings.Value;
-    private IConnection? _connection;
     private IChannel? _channel;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        var factory = new ConnectionFactory
-        {
-            HostName = _settings.Host,
-            UserName = _settings.Username,
-            Password = _settings.Password,
-            VirtualHost = _settings.VirtualHost,
-        };
+    {       
 
-        _connection = await rabbitConnection.GetConnectionAsync();
-        _channel = await _connection.CreateChannelAsync(cancellationToken: stoppingToken);
+       var connection = await rabbitConnection.GetConnectionAsync();
+        _channel = await connection.CreateChannelAsync(cancellationToken: stoppingToken);
 
         if (_channel is null)
             throw new InvalidOperationException("Channel não foi criado");
@@ -50,7 +43,7 @@ public class RabbitMqConsumer(
                 var json = Encoding.UTF8.GetString(body);
 
                 var envelope = JsonSerializer.Deserialize<RabbitMqMessageEnvelope>(json)!;
-                
+
 
                 await ProcessMessage(envelope, args.BasicProperties, stoppingToken);
 
@@ -66,7 +59,7 @@ public class RabbitMqConsumer(
 
         await _channel.ExchangeDeclareAsync(
             exchange: _settings.Exchange,
-            type: ExchangeType.Direct,   // confirme o tipo nas suas settings
+            type: ExchangeType.Direct,
             durable: true,
             autoDelete: false,
             cancellationToken: stoppingToken);
@@ -82,16 +75,16 @@ public class RabbitMqConsumer(
             cancellationToken: stoppingToken);
 
 
-        foreach (var (eventName, type) in registry.GetAll())
+        foreach (var (eventName, __) in registry.GetAll())
         {
-            
+
             await _channel.QueueBindAsync(
                 queue: _settings.DefaultQueue,
                 exchange: _settings.Exchange,
                 routingKey: eventName,
                 cancellationToken: stoppingToken);
 
-            
+
         }
 
         await _channel.BasicConsumeAsync(queue: _settings.DefaultQueue, autoAck: false, consumer: consumer, cancellationToken: stoppingToken);
@@ -119,7 +112,7 @@ public class RabbitMqConsumer(
 
         if (exists && logger.IsEnabled(LogLevel.Information))
         {
-            logger.LogInformation("Mensagem já processada: {messageId}", messageId);
+            logger.LogInformation("Mensagem já processada: {MessageId}", messageId);
             return;
         }
 

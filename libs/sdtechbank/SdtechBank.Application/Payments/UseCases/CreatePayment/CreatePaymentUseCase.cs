@@ -17,7 +17,7 @@ public class CreatePaymentUseCase(IPaymentOrderRepository repository, IOutboxSer
 
         var validation = ValidateRequest(request);
 
-        if (validation.IsSuccess is false)
+        if (!validation.IsSuccess)
             return Result<PaymentResponse>.Failure(validation.Errors);
 
         var payment = request.ToEntity();
