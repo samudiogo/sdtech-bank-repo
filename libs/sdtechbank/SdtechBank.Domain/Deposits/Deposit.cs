@@ -28,12 +28,22 @@ public sealed class Deposit
 
     public void MarkAsCompleted()
     {
+        IReadOnlyCollection<DepositStatus> validStatusForComplete = [DepositStatus.CREATED];
+        if (Status == DepositStatus.COMPLETED)
+            return;
+        
+        if (!validStatusForComplete.Any(s => s.Equals(Status)))
+            throw new InvalidOperationException($"Operação inválida: depósito com status '{Enum.GetName<DepositStatus>(Status)}' não pode ser marcado como 'COMPLETED'.");
+        
         CompletedAt = DateTime.UtcNow;
         Status = DepositStatus.COMPLETED;
     }
 
     public void MarkAsFailed()
     {
+        if (Status == DepositStatus.COMPLETED)
+            throw new InvalidOperationException("Operação inválida: depósito com status 'COMPLETED' não pode ser marcado como falha.");
+
         FailedAt = DateTime.UtcNow;
         Status = DepositStatus.FAILED;
     }
