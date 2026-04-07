@@ -29,7 +29,8 @@ public sealed class Transaction
 
     public void StartProcessing()
     {
-        if (Status != TransactionStatus.CREATED && Status != TransactionStatus.FAILED)
+        IReadOnlyCollection<TransactionStatus> validStatusForComplete = [TransactionStatus.CREATED, TransactionStatus.FAILED];
+        if (!validStatusForComplete.Any(s => s.Equals(Status)))
             throw new InvalidOperationException("Transição inválida para processamento.");
 
         Attempts++;
@@ -41,7 +42,7 @@ public sealed class Transaction
         if (Status == TransactionStatus.COMPLETED) return;
 
         if (Status != TransactionStatus.IN_PROGRESS)
-            throw new InvalidOperationException("Transição para 'COMPLETED' permitida apenas para transferênci com status 'IN_PROGRESS'.");
+            throw new InvalidOperationException("Transição para 'COMPLETED' permitida apenas para transferência com status 'IN_PROGRESS'.");
 
         Status = TransactionStatus.COMPLETED;
         CompletedAt = DateTime.UtcNow;
@@ -51,7 +52,7 @@ public sealed class Transaction
     {
         if (Status == TransactionStatus.FAILED) return;
 
-        if (Status != TransactionStatus.IN_PROGRESS)
+        if (Status == TransactionStatus.COMPLETED)
             throw new InvalidOperationException("Operação inválida: transferência com status 'COMPLETED' não pode ser marcado como falha.");
 
         Status = TransactionStatus.FAILED;
