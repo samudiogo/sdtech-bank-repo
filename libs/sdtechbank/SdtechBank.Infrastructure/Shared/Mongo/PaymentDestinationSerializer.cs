@@ -8,23 +8,23 @@ namespace SdtechBank.Infrastructure.Shared.Mongo;
 
 internal sealed class PaymentDestinationSerializer : SerializerBase<PaymentDestination>
 {
-    public override void Serialize(BsonSerializationContext ctx, BsonSerializationArgs args, PaymentDestination value)
+    public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, PaymentDestination value)
     {
-        ctx.Writer.WriteStartDocument();
+        context.Writer.WriteStartDocument();
 
-        ctx.Writer.WriteName("PixKey");
+        context.Writer.WriteName("PixKey");
         if (value.PixKey is not null)
-            ctx.Writer.WriteString(value.PixKey);
+            context.Writer.WriteString(value.PixKey);
         else
-            ctx.Writer.WriteNull();
+            context.Writer.WriteNull();
 
-        ctx.Writer.WriteName("BankAccount");
+        context.Writer.WriteName("BankAccount");
         if (value.BankAccount is not null)
-            BsonSerializer.Serialize(ctx.Writer, value.BankAccount);
+            BsonSerializer.Serialize(context.Writer, value.BankAccount);
         else
-            ctx.Writer.WriteNull();
+            context.Writer.WriteNull();
 
-        ctx.Writer.WriteEndDocument();
+        context.Writer.WriteEndDocument();
     }
 
     public override PaymentDestination Deserialize(BsonDeserializationContext ctx, BsonDeserializationArgs args)
