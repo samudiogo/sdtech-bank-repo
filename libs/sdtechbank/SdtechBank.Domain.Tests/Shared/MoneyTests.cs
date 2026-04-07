@@ -42,4 +42,37 @@ public class MoneyTests
 
         Assert.Equal(60, result.Value);
     }
+
+    [Fact]
+    public void MoneyToString_Should_ReturnSuccess()
+    {
+        var money = new Money(100, CurrencyType.BRL);
+        var expected = "R$ 100,00";
+
+        var result = money.ToString();
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void Money_BiggerOperator_ShouldReturn_True()
+    {
+        var moneyA = new Money(100, CurrencyType.BRL);
+        var moneyB = new Money(10, CurrencyType.BRL);
+
+        var result = moneyA > moneyB;
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void Money_LowerOperator_ShouldReturn_True()
+    {
+        var moneyA = new Money(100, CurrencyType.BRL);
+        var moneyB = new Money(10, CurrencyType.BRL);
+
+        var result = moneyB < moneyA;
+
+        Assert.True(result);
+    }
 }
