@@ -36,7 +36,7 @@ public class RabbitMqConsumer(
         _channel = await _connection.CreateChannelAsync(cancellationToken: stoppingToken);
 
         if (_channel is null)
-            throw new Exception("Channel não foi criado");
+            throw new InvalidOperationException("Channel não foi criado");
 
         logger.LogInformation("Channel criado com sucesso");
 
@@ -50,7 +50,7 @@ public class RabbitMqConsumer(
                 var json = Encoding.UTF8.GetString(body);
 
                 var envelope = JsonSerializer.Deserialize<RabbitMqMessageEnvelope>(json)!;
-                logger.LogInformation("Mensagem recebida: {Type}", envelope.Type);
+                
 
                 await ProcessMessage(envelope, args.BasicProperties, stoppingToken);
 
@@ -84,14 +84,14 @@ public class RabbitMqConsumer(
 
         foreach (var (eventName, type) in registry.GetAll())
         {
-            logger.LogInformation("Evento registrado: {EventName} -> {Type}", eventName, type.Name);
+            
             await _channel.QueueBindAsync(
                 queue: _settings.DefaultQueue,
                 exchange: _settings.Exchange,
                 routingKey: eventName,
                 cancellationToken: stoppingToken);
 
-            logger.LogInformation("Bind registrado: {RoutingKey} -> {Queue}", eventName, _settings.DefaultQueue);
+            
         }
 
         await _channel.BasicConsumeAsync(queue: _settings.DefaultQueue, autoAck: false, consumer: consumer, cancellationToken: stoppingToken);
@@ -107,7 +107,6 @@ public class RabbitMqConsumer(
 
         var inbox = scope.ServiceProvider.GetRequiredService<IInboxRepository>();
         var dispatcher = scope.ServiceProvider.GetRequiredService<IIntegrationEventDispatcher>();
-        var registry = scope.ServiceProvider.GetRequiredService<IIntegrationEventTypeRegistry>();
         var eventType = registry.Resolve(envelope.Type);
 
         var messageId = props.MessageId;

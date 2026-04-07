@@ -8,7 +8,7 @@ public sealed class LedgerEntry
     public Guid Id { get; private set; }
     public Guid TransactionId { get; private set; }
     public Guid AccountId { get; private set; }
-    public Money Amount { get; private set; }
+    public Money Amount { get; private set; } = default!;
     public LedgerEntryType Type { get; set; }
     public DateTime CreatedAt { get; set; }
 

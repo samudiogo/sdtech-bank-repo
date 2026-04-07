@@ -16,7 +16,7 @@ public class CreateDepositUseCaseTests
     private readonly Mock<ILedgerRepository> _ledgerRepositoryMock;
     private readonly CreateDepositRequestValidator _validator;
 
-    private readonly ICreateDepositUseCase _useCase;
+    private readonly CreateDepositUseCase _useCase;
 
     public CreateDepositUseCaseTests()
     {
@@ -27,7 +27,7 @@ public class CreateDepositUseCaseTests
         _useCase = new CreateDepositUseCase(_depositRepositoryMock.Object, _ledgerRepositoryMock.Object, _validator);
     }
 
-    private CreateDepositRequest CreateValidRequest() => new CreateDepositRequest(Guid.NewGuid().ToString(), 200, "1");
+    private static CreateDepositRequest CreateValidRequest() => new(Guid.NewGuid().ToString(), 200, "1");
 
 
     [Fact]

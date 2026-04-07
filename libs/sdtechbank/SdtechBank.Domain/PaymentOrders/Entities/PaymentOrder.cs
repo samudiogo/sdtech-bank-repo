@@ -12,8 +12,8 @@ public sealed class PaymentOrder
 {
     public Guid Id { get; private set; }
     public Guid PayerId { get; private set; }
-    public PaymentDestination Destination { get; private set; }
-    public Money Amount { get; private set; }
+    public PaymentDestination Destination { get; private set; } = default!;
+    public Money Amount { get; private set; } = default!;
     public PaymentStatus PaymentStatus { get; private set; }
     public int Attempts { get; private set; }
     public DateTime CreatedAt { get; private set; }
@@ -22,6 +22,8 @@ public sealed class PaymentOrder
     public DateTime? FailedAt { get; private set; }
     public Guid? TransactionId { get; private set; }
     public string IdempotencyKey { get; private set; } = default!;
+    public string? FailedReason { get; private set; }
+
     public bool IsPaymentDestinationReadyToTransfer => Destination.BankAccount is not null;
 
     private PaymentOrder() { }
@@ -139,7 +141,8 @@ public sealed class PaymentOrder
     {
         if (PaymentStatus == PaymentStatus.COMPLETED)
             throw new InvalidOperationException("Operação inválida: pagamento com status 'CONFIRMED' não pode ser marcado como falha.");
-
+        FailedAt = DateTime.UtcNow;
+        FailedReason = reason;
         PaymentStatus = PaymentStatus.FAILED;
     }
 

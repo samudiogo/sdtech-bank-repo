@@ -18,4 +18,5 @@ using (var scope = host.Services.CreateScope())
     var initializer = scope.ServiceProvider.GetRequiredService<MongoDbIndexInitializer>();
     await initializer.InitializeAsync();
 }
-host.Run();
+
+await host.RunAsync();

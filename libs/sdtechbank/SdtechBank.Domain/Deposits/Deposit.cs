@@ -8,7 +8,7 @@ public sealed class Deposit
 {
     public Guid Id { get; private set; }
     public Guid CreditAccountId { get; private set; }
-    public Money Amount { get; private set; }
+    public Money Amount { get; private set; } = default!;
 
     public DepositSource Source { get; private set; }
     public DepositStatus Status { get; private set; }
@@ -33,10 +33,10 @@ public sealed class Deposit
         IReadOnlyCollection<DepositStatus> validStatusForComplete = [DepositStatus.CREATED];
         if (Status == DepositStatus.COMPLETED)
             return;
-        
+
         if (!validStatusForComplete.Any(s => s.Equals(Status)))
             throw new InvalidOperationException($"Operação inválida: depósito com status '{Enum.GetName<DepositStatus>(Status)}' não pode ser marcado como 'COMPLETED'.");
-        
+
         CompletedAt = DateTime.UtcNow;
         Status = DepositStatus.COMPLETED;
     }
