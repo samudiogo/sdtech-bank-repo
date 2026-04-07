@@ -1,6 +1,7 @@
 ﻿
 using MongoDB.Bson.Serialization;
 using SdtechBank.Domain.Ledger.Entities;
+using SdtechBank.Domain.Deposits;
 using SdtechBank.Domain.PaymentOrders.Entities;
 using SdtechBank.Domain.PaymentOrders.ValueObjects;
 using SdtechBank.Domain.Shared.Messaging;
@@ -25,6 +26,7 @@ internal static class MongoDbClassMap
             BsonSerializer.RegisterSerializer(new PaymentDestinationSerializer());
 
             RegisterEntity<PaymentOrder>();
+            RegisterEntity<Deposit>();
             RegisterEntity<Transaction>();
             RegisterEntity<LedgerEntry>();
             RegisterEntity<InboxMessage>();

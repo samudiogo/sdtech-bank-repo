@@ -6,9 +6,16 @@ services:
       context: .
       dockerfile: Dockerfile
       target: api
+    ports:
+      - "${ASPNETCORE_HTTP_PORTS}:${ASPNETCORE_HTTP_PORTS}"
+      - "${ASPNETCORE_HTTPS_PORTS}:${ASPNETCORE_HTTPS_PORTS}"
+    volumes:
+      - ${HOME}/.aspnet/https:/https:ro  
     environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_HTTP_PORTS: ${ASPNETCORE_HTTP_PORTS}
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}      
+      ASPNETCORE_URLS: "https://+:${ASPNETCORE_HTTPS_PORTS};http://+:${ASPNETCORE_HTTP_PORTS}"
+      ASPNETCORE_Kestrel__Certificates__Default__Password: ${ASPNETCORE_Kestrel__Certificates__Default__Password}
+      ASPNETCORE_Kestrel__Certificates__Default__Path: ${ASPNETCORE_Kestrel__Certificates__Default__Path}      
       MongoDB__ConnectionString: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/?authSource=admin
       MongoDB__DatabaseName: ${MONGO_DB_NAME}
     networks:

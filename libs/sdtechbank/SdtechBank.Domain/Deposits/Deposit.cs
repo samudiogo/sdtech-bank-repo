@@ -16,6 +16,8 @@ public sealed class Deposit
     public DateTime? CompletedAt { get; private set; }
     public DateTime? FailedAt { get; private set; }
 
+    private Deposit() { }
+
     public static Deposit Create(Guid creditAccountId, Money amount, DepositSource source) => new()
     {
         Id = Guid.NewGuid(),

@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using RabbitMQ.Client;
 using Scalar.AspNetCore;
 using SdtechBank.Application.Common.DI;
 using SdtechBank.Infrastructure.DI;
 using SdtechBank.Infrastructure.Shared.Mongo;
+using SdtechBank.PixManagerApi;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,21 +21,28 @@ builder.Services.AddControllers()
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 
+builder.Services.AddWebApiInfrastructure(builder.Configuration);
+builder.Services.AddWebApiApplication(builder.Configuration);
+
+builder.Services.AddSingleton<IMongoDatabase>(sp =>
+{
+    var client = sp.GetRequiredService<IMongoClient>();
+    var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
+    return client.GetDatabase(settings.DatabaseName);
+});
+
 
 builder.Services.AddHealthChecks()
     .AddMongoDb(
         sp => sp.GetRequiredService<IMongoDatabase>(),
         name: "mongodb",
         tags: ["ready"])
-    .AddRabbitMQ(
-        sp => sp.GetRequiredService<IConnection>(),
-        name: "rabbitmq",
-        tags: ["ready"]);
+    .AddCheck<RabbitMqHealthCheck>("rabbitmq", tags: ["ready"]);
 
-builder.Services.AddWebApiInfrastructure(builder.Configuration);
-builder.Services.AddWebApiApplication(builder.Configuration);
-
-
+builder.Services.AddHttpsRedirection(options =>
+{
+    options.HttpsPort = int.Parse(builder.Configuration["ASPNETCORE_HTTPS_PORTS"] ?? "5001");
+});
 
 var app = builder.Build();
 
@@ -65,7 +73,7 @@ using (var scope = app.Services.CreateScope())
     await initializer.InitializeAsync();
 }
 
-app.UseHttpsRedirection();
+app.UseHttpsRedirection(); 
 
 app.UseAuthorization();
 

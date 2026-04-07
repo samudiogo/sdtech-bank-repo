@@ -51,7 +51,8 @@ COPY --from=build /app/api .
 RUN chown -R appuser:appuser /app
 USER appuser
 
-EXPOSE 8080
+EXPOSE 5000
+EXPOSE 5001
 ENTRYPOINT ["dotnet", "SdtechBank.PixManagerApi.dll"]
 
 

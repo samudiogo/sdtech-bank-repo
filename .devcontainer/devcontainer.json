@@ -5,7 +5,8 @@
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 	"mounts": [
 		"source=${localEnv:HOME}/.ssh,target=/home/codespace/.ssh,type=bind,consistency=cached",
-		"source=${localEnv:HOME}/.gitconfig,target=/home/codespace/.gitconfig,type=bind"
+		"source=${localEnv:HOME}/.gitconfig,target=/home/codespace/.gitconfig,type=bind",
+		"source=${localEnv:HOME}/.aspnet/https,target=/https,type=bind"
 	],
 	"features": {
 		"ghcr.io/stuartleeks/dev-container-features/shell-history:0": {},

@@ -7,6 +7,7 @@ namespace SdtechBank.Infrastructure.Messaging;
 public interface IRabbitMqConnection
 {
     Task<IConnection> GetConnectionAsync();
+    Task<bool> IsConnectedAsync();
 }
 
 public class RabbitMqConnection(IOptions<RabbitMqSettings> options) : IRabbitMqConnection, IAsyncDisposable
@@ -14,6 +15,19 @@ public class RabbitMqConnection(IOptions<RabbitMqSettings> options) : IRabbitMqC
     private readonly ConnectionFactory _factory = CreateFactory(options.Value);
 
     private IConnection? _connection;
+
+    public async Task<bool> IsConnectedAsync()
+    {
+        try
+        {
+            var connection = await GetConnectionAsync();
+            return connection?.IsOpen == true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 
     public async Task<IConnection> GetConnectionAsync()
     {
