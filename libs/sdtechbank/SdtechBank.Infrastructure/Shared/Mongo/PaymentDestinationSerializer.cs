@@ -27,9 +27,9 @@ internal sealed class PaymentDestinationSerializer : SerializerBase<PaymentDesti
         context.Writer.WriteEndDocument();
     }
 
-    public override PaymentDestination Deserialize(BsonDeserializationContext ctx, BsonDeserializationArgs args)
+    public override PaymentDestination Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
     {
-        var reader = ctx.Reader;
+        var reader = context.Reader;
         
         if (reader.GetCurrentBsonType() == BsonType.Null)
         {
