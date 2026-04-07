@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 namespace SdtechBank.Application.IntegrationEvents;
 
 public interface IIntegrationEventHandler<in TEvent>
@@ -11,12 +10,11 @@ public interface IIntegrationEventDispatcher
 {
     Task DispatchAsync<TEvent>(TEvent @event, CancellationToken cancellationToken);
 }
-public sealed class IntegrationEventDispatcher(IServiceProvider serviceProvider, ILogger<IntegrationEventDispatcher> logger) : IIntegrationEventDispatcher
+public sealed class IntegrationEventDispatcher(IServiceProvider serviceProvider) : IIntegrationEventDispatcher
 {
     public async Task DispatchAsync<TEvent>(TEvent @event, CancellationToken cancellationToken)
     {
-        var handlers = serviceProvider.GetServices<IIntegrationEventHandler<TEvent>>();
-        logger.LogInformation("Dispatching event {EventType} para {HandlersCount} handlers", typeof(TEvent).Name, handlers.Count());
+        var handlers = serviceProvider.GetServices<IIntegrationEventHandler<TEvent>>();       
 
         foreach (var handler in handlers)
         {
