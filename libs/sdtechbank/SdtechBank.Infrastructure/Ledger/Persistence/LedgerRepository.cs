@@ -8,7 +8,7 @@ namespace SdtechBank.Infrastructure.Ledger.Persistence;
 public class LedgerRepository(MongoDbContext context) : ILedgerRepository
 {
 
-    private readonly IMongoCollection<LedgerEntry> _collection = context.GetCollection<LedgerEntry>("ledger-entries");
+    private readonly IMongoCollection<LedgerEntry> _collection = context.GetCollection<LedgerEntry>("ledger_entries");
 
     public async Task AddRangeAsync(IEnumerable<LedgerEntry> entries)
     {

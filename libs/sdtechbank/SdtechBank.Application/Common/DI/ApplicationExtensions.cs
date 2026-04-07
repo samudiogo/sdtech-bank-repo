@@ -2,6 +2,7 @@
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SdtechBank.Application.Deposits.UseCases;
 using SdtechBank.Application.IntegrationEvents;
 using SdtechBank.Application.Messaging;
 using SdtechBank.Application.Payments.Contracts.Events;
@@ -22,6 +23,7 @@ public static class ApplicationExtensions
         AddEventsConfig(services);
         AddIntegrationEventsConfig(services);
         AddProcessingUseCases(services);
+        AddValidators(services);
         return services;
     }
 
@@ -63,6 +65,7 @@ public static class ApplicationExtensions
     private static void AddInboundUseCases(IServiceCollection services)
     {
         services.AddScoped<ICreatePaymentUseCase, CreatePaymentUseCase>();
+        services.AddScoped<ICreateDepositUseCase, CreateDepositUseCase>();
     }
 
     private static void AddProcessingUseCases(IServiceCollection services)
@@ -71,6 +74,11 @@ public static class ApplicationExtensions
         services.AddScoped<IValidatePaymentUseCase, ValidatePaymentUseCase>();
         services.AddScoped<ICompletePaymentUseCase, CompletePaymentUseCase>();
         services.AddScoped<IFailPaymentUseCase, FailPaymentUseCase>();
+    }
 
+    private static void AddValidators(IServiceCollection services)
+    {
+        services.AddScoped<CreatePaymentValidator>();
+        services.AddScoped<CreateDepositRequestValidator>();
     }
 }

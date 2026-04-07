@@ -11,7 +11,7 @@ public class PaymentsController(ICreatePaymentUseCase createPaymentUseCase) : Co
 {
 
     [HttpPost]
-    public async Task<ActionResult> CreatePaymentOrder(CreatePaymentRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreatePaymentOrder(CreatePaymentRequest request, CancellationToken cancellationToken)
     {
         var result = await createPaymentUseCase.ExecuteAsync(request, cancellationToken);
 

@@ -6,14 +6,13 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using SdtechBank.Application.Common.Contracts;
 using SdtechBank.Application.Messaging;
-using SdtechBank.Application.Payments.Contracts.Events;
-using SdtechBank.Application.Payments.UseCases.CreatePayment;
-using SdtechBank.Application.Transactions.Contracts.Events;
 using SdtechBank.Domain.Accounts.Contracts;
+using SdtechBank.Domain.Deposits;
 using SdtechBank.Domain.Ledger.Contracts;
 using SdtechBank.Domain.PaymentOrders.Contracts;
 using SdtechBank.Domain.Transactions.Contracts;
 using SdtechBank.Infrastructure.Accounts.Services;
+using SdtechBank.Infrastructure.Deposits;
 using SdtechBank.Infrastructure.Ledger.Persistence;
 using SdtechBank.Infrastructure.Messaging;
 using SdtechBank.Infrastructure.Messaging.Persistence;
@@ -38,7 +37,6 @@ public static class InfrastructureExtensions
     public static IServiceCollection AddWebApiInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         AddInfrastructureCore(services, configuration);
-        AddValidators(services);
         return services;
     }
 
@@ -81,6 +79,7 @@ public static class InfrastructureExtensions
     private static void AddRepositoriesConfig(IServiceCollection services)
     {
         services.AddScoped<IPaymentOrderRepository, PaymentOrderRepository>();
+        services.AddScoped<IDepositRepository, DepositRepository>();
         services.AddScoped<ITransactionRepository, TransactionRepository>();
         services.AddScoped<ILedgerRepository, LedgerRepository>();
 
@@ -94,10 +93,5 @@ public static class InfrastructureExtensions
         services.AddScoped<IAccountBalanceService, AccountBalanceService>();
         services.AddScoped<IAccountLockService, InMemoryAccountLockService>();
         services.AddScoped<IOutboxService, OutboxService>();
-    }
-
-    private static void AddValidators(IServiceCollection services)
-    {
-        services.AddScoped<CreatePaymentValidator>();
     }
 }

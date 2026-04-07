@@ -7,7 +7,7 @@ namespace SdtechBank.Infrastructure.Transactions.Persistence;
 
 public class TransactionRepository(MongoDbContext context) : ITransactionRepository
 {
-    private readonly IMongoCollection<Transaction> _collection = context.GetCollection<Transaction>("pix-transactions");
+    private readonly IMongoCollection<Transaction> _collection = context.GetCollection<Transaction>("transactions");
     public async Task<Transaction?> GetByIdAsync(Guid id)
     {
         var filter = Builders<Transaction>.Filter.Eq(o => o.Id, id);
