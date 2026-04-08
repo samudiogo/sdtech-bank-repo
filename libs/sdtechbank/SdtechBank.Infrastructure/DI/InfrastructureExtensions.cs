@@ -11,6 +11,7 @@ using SdtechBank.Domain.Deposits;
 using SdtechBank.Domain.Ledger.Contracts;
 using SdtechBank.Domain.PaymentOrders.Contracts;
 using SdtechBank.Domain.Transactions.Contracts;
+using SdtechBank.Infrastructure.Accounts;
 using SdtechBank.Infrastructure.Accounts.Services;
 using SdtechBank.Infrastructure.Deposits;
 using SdtechBank.Infrastructure.Ledger.Persistence;
@@ -85,6 +86,8 @@ public static class InfrastructureExtensions
 
         services.AddScoped<IInboxRepository, InboxRepository>();
         services.AddScoped<IOutboxRepository, OutboxRepository>();
+
+        services.AddScoped<IAccountRepository, AccountRepository>();
 
     }
 

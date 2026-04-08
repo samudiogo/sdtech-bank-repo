@@ -1,7 +1,6 @@
 ﻿using SdtechBank.Domain.PaymentOrders.Enums;
 using SdtechBank.Domain.PaymentOrders.ValueObjects;
 using SdtechBank.Domain.Shared.ValueObjects;
-using System.Net.NetworkInformation;
 
 namespace SdtechBank.Domain.PaymentOrders.Entities;
 
@@ -22,9 +21,7 @@ public sealed class PaymentOrder
     public DateTime? FailedAt { get; private set; }
     public Guid? TransactionId { get; private set; }
     public string IdempotencyKey { get; private set; } = default!;
-    public string? FailedReason { get; private set; }
-
-    public bool IsPaymentDestinationReadyToTransfer => Destination.BankAccount is not null;
+    public string? FailedReason { get; private set; }    
 
     private PaymentOrder() { }
     private PaymentOrder(Guid id, Guid payerId, PaymentDestination destination, Money amount, PaymentStatus paymentStatus, DateTime createdAt)
@@ -76,7 +73,7 @@ public sealed class PaymentOrder
     /// </exception>
     public void MarkAsWaitingDict()
     {
-        if (PaymentStatus != PaymentStatus.CREATED && Destination.BankAccount is null)
+        if (PaymentStatus != PaymentStatus.CREATED || Destination.BankAccount is not null)
             throw new InvalidOperationException("Transição para 'WAITING_FOR_DICT' permitida apenas para pagamentos com status 'CREATED' com apenas a chave pix.");
 
         PaymentStatus = PaymentStatus.WAITING_FOR_DICT;

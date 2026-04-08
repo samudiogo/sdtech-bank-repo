@@ -1,4 +1,5 @@
-﻿using SdtechBank.Domain.PaymentOrders.Entities;
+﻿using FluentAssertions;
+using SdtechBank.Domain.PaymentOrders.Entities;
 using SdtechBank.Domain.PaymentOrders.Enums;
 using SdtechBank.Domain.PaymentOrders.ValueObjects;
 using SdtechBank.Domain.Shared.Enums;
@@ -144,6 +145,31 @@ public class PaymentOrderTests
         order.MarkAsCompleted(transactionId);
 
         Assert.Throws<InvalidOperationException>(() => order.MarkAsFailed(string.Empty));
+    }
+
+    [Fact]
+    public void Should_Identify_Pix_Key_Destination()
+    {
+        var destination = PaymentDestination.FromPixKey("email@email.com");
+
+        destination.IsPix().Should().BeTrue();
+        destination.HasBankAccount().Should().BeFalse();
+    }
+
+    [Fact]
+    public void Should_Identify_Bank_Account_Destination()
+    {
+        var destination = PaymentDestination.FromBankAccount(new()
+        {
+            FullName = "Teste",
+            Cpf = "123",
+            BankCode = "001",
+            Branch = "0001",
+            Account = "12345"
+        });
+        
+        destination.IsPix().Should().BeFalse();
+        destination.HasBankAccount().Should().BeTrue();                
     }
 
 }

@@ -1,11 +1,11 @@
-﻿
-
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SdtechBank.Application.Deposits.UseCases;
 using SdtechBank.Application.IntegrationEvents;
 using SdtechBank.Application.Messaging;
+using SdtechBank.Application.Payments.Abstractions;
 using SdtechBank.Application.Payments.Contracts.Events;
+using SdtechBank.Application.Payments.Resolvers;
 using SdtechBank.Application.Payments.UseCases.CompletePayment;
 using SdtechBank.Application.Payments.UseCases.CreatePayment;
 using SdtechBank.Application.Payments.UseCases.FailPayment;
@@ -32,6 +32,7 @@ public static class ApplicationExtensions
         AddProcessingUseCases(services);
         AddEventsConfig(services);
         AddIntegrationEventsConfig(services);
+        AddResolversConfig(services);
         return services;
     }
     private static void AddIntegrationEventsConfig(IServiceCollection services)
@@ -66,6 +67,12 @@ public static class ApplicationExtensions
     {
         services.AddScoped<ICreatePaymentUseCase, CreatePaymentUseCase>();
         services.AddScoped<ICreateDepositUseCase, CreateDepositUseCase>();
+    }
+
+    private static void AddResolversConfig(IServiceCollection services)
+    {
+        services.AddScoped<IReceiverResolutionStep, InternalAccountReceiverResolver>();
+        services.AddScoped<IReceiverResolver, ReceiverResolverChain>();        
     }
 
     private static void AddProcessingUseCases(IServiceCollection services)
