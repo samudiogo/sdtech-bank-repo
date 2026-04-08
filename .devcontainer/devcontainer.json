@@ -32,7 +32,9 @@
 				"ms-dotnettools.csdevkit",
 				"nrwl.angular-console",
 				"redhat.vscode-yaml",
-				"Anthropic.claude-code"
+				"Anthropic.claude-code",
+				"SonarSource.sonarlint-vscode",
+				"ritwickdey.LiveServer"
 			]
 		}
 	}
