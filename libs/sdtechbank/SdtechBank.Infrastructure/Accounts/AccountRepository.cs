@@ -6,9 +6,9 @@ using SdtechBank.Infrastructure.Shared.Mongo;
 
 namespace SdtechBank.Infrastructure.Accounts;
 
-internal class AccountRepository(MongoDbContext context) : IAccountRepository
+public class AccountRepository(MongoDbContext context) : IAccountRepository
 {
-    private readonly IMongoCollection<Account> _collections = context.GetCollection<Account>("accounts");
+    private readonly IMongoCollection<Account> _collection = context.GetCollection<Account>("accounts");
     public async Task<Account?> GetByBankAccountAsync(BankAccount bankAccount, CancellationToken cancellationToken)
     {
         var builder = Builders<Account>.Filter;
@@ -18,6 +18,13 @@ internal class AccountRepository(MongoDbContext context) : IAccountRepository
             builder.Eq(a => a.Branch, bankAccount.Branch),
             builder.Eq(a => a.AccountCode, bankAccount.Account));
 
-        return await _collections.Find(filters).FirstOrDefaultAsync(cancellationToken);
+        return await _collection.Find(filters).FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task SaveAsync(Account account, CancellationToken cancellationToken)
+    {
+        var filter = Builders<Account>.Filter.Eq(o => o.Id, account.Id);
+        var options = new ReplaceOptions { IsUpsert = true };
+        await _collection.ReplaceOneAsync(filter, account, options, cancellationToken);
     }
 }

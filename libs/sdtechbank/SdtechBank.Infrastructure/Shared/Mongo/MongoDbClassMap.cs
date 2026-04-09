@@ -7,6 +7,7 @@ using SdtechBank.Domain.PaymentOrders.ValueObjects;
 using SdtechBank.Domain.Shared.Messaging;
 using SdtechBank.Domain.Shared.ValueObjects;
 using SdtechBank.Domain.Transactions.Entities;
+using SdtechBank.Domain.Accounts;
 
 namespace SdtechBank.Infrastructure.Shared.Mongo;
 
@@ -31,8 +32,9 @@ internal static class MongoDbClassMap
             RegisterEntity<LedgerEntry>();
             RegisterEntity<InboxMessage>();
             RegisterEntity<OutboxMessage>();
+            RegisterEntity<Account>();
 
-            
+
             RegisterValueObject<Money>();
             RegisterValueObject<BankAccount>();
 

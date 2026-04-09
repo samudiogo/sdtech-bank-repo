@@ -14,7 +14,7 @@ public interface IValidatePaymentUseCase
 public sealed class ValidatePaymentUseCase(IPaymentOrderRepository paymentOrderRepository,
                                            IOutboxService outboxService,
                                            IReceiverResolver receiverResolver,
-                                           ILogger<ValidatePaymentUseCase> logger) : IValidatePaymentUseCase
+                                           ILogger<ValidatePaymentUseCase> logger): IValidatePaymentUseCase
 {
     public async Task ExecuteAsync(Guid paymentId, CancellationToken cancellation)
     {

@@ -1,0 +1,2 @@
+﻿namespace SdtechBank.Application.Accounts.CreateAccount;
+public record CreateAccountResponse(Guid AccountId, string FullName, string Cpf, string BankCode, string Branch, string AccountCode, string Type, string Status, DateTime CreatedAt);
