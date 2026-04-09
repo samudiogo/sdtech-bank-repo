@@ -60,6 +60,11 @@ $RECYCLE.BIN/
 .env
 
 # =========================
+# Sensitive files
+# ========================
+*appsettings.json
+
+# =========================
 # .NET / Visual Studio
 # =========================
 bin/
@@ -159,3 +164,4 @@ _TeamCity*
 .claude/
 .github/instructions/
 libs/sdtechbank/coveragereport
+/apps/SdtechBank.PixManagerApi/appsettings.Development.json
