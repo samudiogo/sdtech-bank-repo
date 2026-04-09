@@ -18,5 +18,6 @@
   <Folder Name="/6 - Tests/">
     <Project Path="SdtechBank.Application.Tests/SdtechBank.Application.Tests.csproj" Id="e659f9a3-9d73-41bf-ba6a-484ed7ad90bb" />
     <Project Path="SdtechBank.Domain.Tests/SdtechBank.Domain.Tests.csproj" />
+    <Project Path="SdtechBank.PixManagerApi.Tests/SdtechBank.PixManagerApi.Tests.csproj" Id="45a3fb62-f1f6-4442-9fab-f258781ff356" />
   </Folder>  
 </Solution>
