@@ -15,7 +15,9 @@ COPY libs/sdtechbank/ libs/sdtechbank/
 RUN dotnet restore libs/sdtechbank/SdtechBank.slnx
 
 # código
-COPY . .
+COPY apps/SdtechBank.PixManagerApi/ apps/SdtechBank.PixManagerApi/
+COPY apps/SdtechBank.PixManagerWorker/ apps/SdtechBank.PixManagerWorker/
+COPY libs/sdtechbank/ libs/sdtechbank/
 
 # publish API
 RUN dotnet publish apps/SdtechBank.PixManagerApi/SdtechBank.PixManagerApi.csproj \

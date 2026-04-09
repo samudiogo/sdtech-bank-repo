@@ -39,6 +39,7 @@ jobs:
       - name: Begin SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+	  SONAR_EXCLUSIONS: ${{ secrets.SONAR_EXCLUSIONS }}
         run: |
           dotnet sonarscanner begin \
             /k:"samudiogo_sdtech-bank-repo" \
