@@ -46,8 +46,8 @@ jobs:
             /d:sonar.token="${SONAR_TOKEN}" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml" \
-            /d:sonar.exclusions="**/node_modules/**,**/bin/**,**/obj/**,**/TestResults/**,**/.github/**,**/.vscode/**,**/.devcontainer/**,**/*.Designer.cs" \
-            /d:sonar.cpd.exclusions="**/*MappingExtensions.cs,**/*Request.cs,**/*Response.cs,**/DTOs/**" \
+            /d:sonar.exclusions="${SONAR_EXCLUSIONS}" \
+            /d:sonar.cpd.exclusions="**/*MappingExtensions.cs,**/*Request.cs,**/*Response.cs,**/DTOs/**,**/InfrastructureExtensions.cs" \
             /d:sonar.scanner.skipJreProvisioning=true
 
       - name: Build solution
