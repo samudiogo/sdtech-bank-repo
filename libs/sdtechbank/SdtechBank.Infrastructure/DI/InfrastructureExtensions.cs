@@ -41,7 +41,7 @@ public static class InfrastructureExtensions
         return services;
     }
 
-    public static IServiceCollection AddWorkerInfrastructureCore(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddWorkerInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         AddInfrastructureCore(services, configuration);
         services.AddHostedService<RabbitMqConsumer>();
