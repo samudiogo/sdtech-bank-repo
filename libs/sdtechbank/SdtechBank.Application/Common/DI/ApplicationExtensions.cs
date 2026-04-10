@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SdtechBank.Application.Accounts.Contracts;
 using SdtechBank.Application.Accounts.CreateAccount;
+using SdtechBank.Application.Accounts.Services;
 using SdtechBank.Application.Deposits.UseCases;
 using SdtechBank.Application.IntegrationEvents;
 using SdtechBank.Application.Messaging;
@@ -18,23 +20,26 @@ namespace SdtechBank.Application.Common.DI;
 
 public static class ApplicationExtensions
 {
-    public static IServiceCollection AddWebApiApplication(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddDIApplicationCore(IServiceCollection services)
     {
-        AddInboundUseCases(services);
+        AddProcessingUseCases(services);
         AddEventsConfig(services);
         AddIntegrationEventsConfig(services);
-        AddProcessingUseCases(services);
-        AddValidators(services);
         AddResolversConfig(services);
+        AddServicesConfig(services);
+        return services;
+    }
+    public static IServiceCollection AddWebApiApplication(this IServiceCollection services)
+    {
+        AddDIApplicationCore(services);
+        AddInboundUseCases(services);
+        AddValidators(services);
         return services;
     }
 
-    public static IServiceCollection AddWorkerApplication(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddWorkerApplication(this IServiceCollection services)
     {
-        AddProcessingUseCases(services);
-        AddEventsConfig(services);
-        AddIntegrationEventsConfig(services);
-        AddResolversConfig(services);
+        AddDIApplicationCore(services);
         return services;
     }
     private static void AddIntegrationEventsConfig(IServiceCollection services)
@@ -91,5 +96,10 @@ public static class ApplicationExtensions
         services.AddScoped<CreatePaymentValidator>();
         services.AddScoped<CreateDepositRequestValidator>();
         services.AddScoped<CreateAccountValidator>();
+    }
+    private static void AddServicesConfig(IServiceCollection services)
+    {
+        services.AddScoped<IAccountBalanceService, AccountBalanceService>();
+        services.AddScoped<IOutboxService, OutboxService>();
     }
 }

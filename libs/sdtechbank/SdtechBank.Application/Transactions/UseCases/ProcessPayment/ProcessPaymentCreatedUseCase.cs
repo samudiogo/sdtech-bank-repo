@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SdtechBank.Application.Accounts.Contracts;
 using SdtechBank.Application.Messaging;
 using SdtechBank.Application.Transactions.Contracts.Events;
 using SdtechBank.Application.Transactions.Exceptions;

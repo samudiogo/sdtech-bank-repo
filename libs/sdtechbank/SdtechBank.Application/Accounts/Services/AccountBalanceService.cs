@@ -1,10 +1,10 @@
-﻿using SdtechBank.Domain.Accounts.Contracts;
+﻿using SdtechBank.Application.Accounts.Contracts;
 using SdtechBank.Domain.Ledger.Contracts;
 using SdtechBank.Domain.Ledger.Enums;
 using SdtechBank.Domain.Shared.Enums;
 using SdtechBank.Domain.Shared.ValueObjects;
 
-namespace SdtechBank.Infrastructure.Accounts.Services;
+namespace SdtechBank.Application.Accounts.Services;
 
 public class AccountBalanceService(ILedgerRepository ledgerRepository) : IAccountBalanceService
 {

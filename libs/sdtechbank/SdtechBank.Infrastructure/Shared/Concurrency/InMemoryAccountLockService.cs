@@ -1,4 +1,4 @@
-﻿using SdtechBank.Domain.Accounts.Contracts;
+﻿using SdtechBank.Application.Accounts.Contracts;
 
 namespace SdtechBank.Infrastructure.Shared.Concurrency;
 

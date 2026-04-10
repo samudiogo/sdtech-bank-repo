@@ -9,7 +9,7 @@ var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services.AddScoped<ProcessPaymentCreatedUseCase>();
 builder.Services.AddWorkerInfrastructureCore(builder.Configuration);
-builder.Services.AddWorkerApplication(builder.Configuration);
+builder.Services.AddWorkerApplication();
 
 var host = builder.Build();
 

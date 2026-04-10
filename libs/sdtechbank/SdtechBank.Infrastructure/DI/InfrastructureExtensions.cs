@@ -4,6 +4,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
+using SdtechBank.Application.Accounts.Contracts;
 using SdtechBank.Application.Common.Contracts;
 using SdtechBank.Application.Messaging;
 using SdtechBank.Domain.Accounts.Contracts;
@@ -12,7 +13,6 @@ using SdtechBank.Domain.Ledger.Contracts;
 using SdtechBank.Domain.PaymentOrders.Contracts;
 using SdtechBank.Domain.Transactions.Contracts;
 using SdtechBank.Infrastructure.Accounts;
-using SdtechBank.Infrastructure.Accounts.Services;
 using SdtechBank.Infrastructure.Deposits;
 using SdtechBank.Infrastructure.Ledger.Persistence;
 using SdtechBank.Infrastructure.Messaging;
@@ -92,9 +92,7 @@ public static class InfrastructureExtensions
     }
 
     private static void AddServicesConfig(IServiceCollection services)
-    {
-        services.AddScoped<IAccountBalanceService, AccountBalanceService>();
+    {        
         services.AddScoped<IAccountLockService, InMemoryAccountLockService>();
-        services.AddScoped<IOutboxService, OutboxService>();
     }
 }

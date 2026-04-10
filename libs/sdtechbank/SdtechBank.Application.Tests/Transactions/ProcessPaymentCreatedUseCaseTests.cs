@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
+using SdtechBank.Application.Accounts.Contracts;
 using SdtechBank.Application.Messaging;
 using SdtechBank.Application.Transactions.Contracts.Events;
 using SdtechBank.Application.Transactions.Exceptions;

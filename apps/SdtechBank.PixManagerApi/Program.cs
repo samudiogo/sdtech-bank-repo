@@ -22,7 +22,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddWebApiInfrastructure(builder.Configuration);
-builder.Services.AddWebApiApplication(builder.Configuration);
+builder.Services.AddWebApiApplication();
 
 builder.Services.AddSingleton<IMongoDatabase>(sp =>
 {

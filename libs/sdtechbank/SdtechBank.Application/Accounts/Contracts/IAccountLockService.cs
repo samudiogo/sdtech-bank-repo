@@ -1,4 +1,4 @@
-﻿namespace SdtechBank.Domain.Accounts.Contracts;
+﻿namespace SdtechBank.Application.Accounts.Contracts;
 
 public interface IAccountLockService
 {
