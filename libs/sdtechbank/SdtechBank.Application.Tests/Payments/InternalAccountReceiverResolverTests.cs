@@ -34,6 +34,7 @@ public class InternalAccountReceiverResolverTests
         };
 
         var payment = PaymentOrder.Create(
+           new IdempotencyKey(Guid.NewGuid().ToString()),
            Guid.NewGuid(),
            PaymentDestination.FromBankAccount(bankAccount),
            new Money(100, CurrencyType.BRL)
@@ -42,9 +43,9 @@ public class InternalAccountReceiverResolverTests
         var internalAccount = Account.Create(
                                             fullName: "Samuel",
                                             cpf: "00012345680",
-                                            bankCode:"001",
-                                            branch: "1234", 
-                                            accountCode: "12345-6", 
+                                            bankCode: "001",
+                                            branch: "1234",
+                                            accountCode: "12345-6",
                                             type: AccountType.PERSONAL);
 
 
@@ -75,6 +76,7 @@ public class InternalAccountReceiverResolverTests
         };
 
         var payment = PaymentOrder.Create(
+           new IdempotencyKey(Guid.NewGuid().ToString()),
            Guid.NewGuid(),
            PaymentDestination.FromBankAccount(bankAccount),
            new Money(100, CurrencyType.BRL)
@@ -102,6 +104,7 @@ public class InternalAccountReceiverResolverTests
         var pixKey = "pix@key.com";
 
         var payment = PaymentOrder.Create(
+           new IdempotencyKey(Guid.NewGuid().ToString()),
            Guid.NewGuid(),
            PaymentDestination.FromPixKey(pixKey),
            new Money(100, CurrencyType.BRL)

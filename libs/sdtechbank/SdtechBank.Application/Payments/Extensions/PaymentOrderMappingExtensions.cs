@@ -18,7 +18,8 @@ public static class PaymentOrderMappingExtensions
         var payerId = Guid.Parse(request.PayerId!);
         var destination = request.Receiver!.ToEntity();
         var amount = new Money(request.Amount!.Value, CurrencyType.BRL);
+        var idempotencyKey = new IdempotencyKey(request.IdempotencyKey!);
 
-        return PaymentOrder.Create(payerId: payerId, destination: destination, amount: amount);
+        return PaymentOrder.Create(key: idempotencyKey, payerId: payerId, destination: destination, amount: amount);
     }
 }

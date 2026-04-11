@@ -29,7 +29,7 @@ public class CompletePaymentUseCaseTests
     {
         //arrange:
         var transactionId = Guid.NewGuid();
-        var payment = PaymentOrder.Create(Guid.NewGuid(), PaymentDestination.FromBankAccount(new()
+        var payment = PaymentOrder.Create(new IdempotencyKey(Guid.NewGuid().ToString()), Guid.NewGuid(), PaymentDestination.FromBankAccount(new()
         {
             FullName = "Samuel",
             Cpf = "00012345680",

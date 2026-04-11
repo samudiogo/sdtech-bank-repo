@@ -17,6 +17,7 @@ public class ReceiverResolverChainTests
         //arrange
         var expectedReceiverId = Guid.NewGuid();
         var payment = PaymentOrder.Create(
+            new IdempotencyKey(Guid.NewGuid().ToString()),
             Guid.NewGuid(),
             PaymentDestination.FromPixKey("chave"),
             new Money(100, CurrencyType.BRL)
@@ -48,6 +49,7 @@ public class ReceiverResolverChainTests
         //arrange
         var expectedReceiverId = Guid.NewGuid();
         var payment = PaymentOrder.Create(
+            new IdempotencyKey(Guid.NewGuid().ToString()),
             Guid.NewGuid(),
             PaymentDestination.FromPixKey("chave"),
             new Money(100, CurrencyType.BRL)
@@ -78,6 +80,7 @@ public class ReceiverResolverChainTests
         //arrange
         Guid? expectedReceiverId = null;
         var payment = PaymentOrder.Create(
+            new IdempotencyKey(Guid.NewGuid().ToString()),
             Guid.NewGuid(),
             PaymentDestination.FromPixKey("chave"),
             new Money(100, CurrencyType.BRL)

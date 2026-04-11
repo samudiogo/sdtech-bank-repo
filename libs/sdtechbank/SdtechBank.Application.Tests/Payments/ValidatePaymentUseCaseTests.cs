@@ -30,7 +30,7 @@ public class ValidatePaymentUseCaseTests
     public async Task Should_Resolve_Receiver_And_Send_PaymentValidated_When_Destination_Has_BankAccount()
     {
         //arrange:
-        var payment = PaymentOrder.Create(Guid.NewGuid(), PaymentDestination.FromBankAccount(new()
+        var payment = PaymentOrder.Create(new IdempotencyKey(Guid.NewGuid().ToString()),Guid.NewGuid(), PaymentDestination.FromBankAccount(new()
         {
             FullName = "Samuel",
             Cpf = "00012345680",
@@ -65,6 +65,7 @@ public class ValidatePaymentUseCaseTests
     {
         // Arrange
         var payment = PaymentOrder.Create(
+            new IdempotencyKey(Guid.NewGuid().ToString()),
             Guid.NewGuid(),
             PaymentDestination.FromPixKey("chave-pix"),
             new Money(100, CurrencyType.BRL)
@@ -91,6 +92,7 @@ public class ValidatePaymentUseCaseTests
     {
         //arrange
         var payment = PaymentOrder.Create(
+                                        new IdempotencyKey(Guid.NewGuid().ToString()),
                                         Guid.NewGuid(),
                                         PaymentDestination.FromBankAccount(new BankAccount
                                         {
