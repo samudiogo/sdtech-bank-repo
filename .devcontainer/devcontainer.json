@@ -32,9 +32,12 @@
 				"ms-dotnettools.csdevkit",
 				"nrwl.angular-console",
 				"redhat.vscode-yaml",
-				"Anthropic.claude-code",
+				"openai.chatgpt",
+				"esbenp.prettier-vscode",
+				"ritwickdey.LiveServer",
 				"SonarSource.sonarlint-vscode",
-				"ritwickdey.LiveServer"
+				"ritwickdey.LiveServer",
+				"vscode-icons-team.vscode-icons"
 			]
 		}
 	}
