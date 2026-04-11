@@ -4,6 +4,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
+using SdtechBank.Application.Abstractions.Resilience;
 using SdtechBank.Application.Accounts.Contracts;
 using SdtechBank.Application.Common.Contracts;
 using SdtechBank.Application.Messaging;
@@ -18,6 +19,7 @@ using SdtechBank.Infrastructure.Ledger.Persistence;
 using SdtechBank.Infrastructure.Messaging;
 using SdtechBank.Infrastructure.Messaging.Persistence;
 using SdtechBank.Infrastructure.PaymentsOrders.Persistence;
+using SdtechBank.Infrastructure.Resilience;
 using SdtechBank.Infrastructure.Shared.Concurrency;
 using SdtechBank.Infrastructure.Shared.Mongo;
 using SdtechBank.Infrastructure.Transactions.Persistence;
@@ -46,6 +48,7 @@ public static class InfrastructureExtensions
         AddInfrastructureCore(services, configuration);
         services.AddHostedService<RabbitMqConsumer>();
         services.AddHostedService<OutboxPublisher>();
+        AddResilienceConfig(services);
         return services;
     }
 
@@ -75,6 +78,8 @@ public static class InfrastructureExtensions
 
         services.AddSingleton<IRabbitMqConnection, RabbitMqConnection>();
         services.AddTransient<IEventPublisher, RabbitMqEventPublisher>();
+
+        services.AddScoped<IDlqPublisher, DlqPublisher>();
     }
 
     private static void AddRepositoriesConfig(IServiceCollection services)
@@ -94,5 +99,11 @@ public static class InfrastructureExtensions
     private static void AddServicesConfig(IServiceCollection services)
     {        
         services.AddScoped<IAccountLockService, InMemoryAccountLockService>();
+    }
+
+    private static void AddResilienceConfig(IServiceCollection services)
+    {        
+        services.AddScoped<IErrorClassifier, ErrorClassifier>();
+        services.AddScoped<IRetryPolicy, RetryPolicy>();
     }
 }

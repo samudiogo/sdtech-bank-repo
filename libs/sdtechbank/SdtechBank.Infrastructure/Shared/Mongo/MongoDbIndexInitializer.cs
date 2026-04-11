@@ -1,5 +1,6 @@
 ﻿using MongoDB.Driver;
 using SdtechBank.Domain.Ledger.Entities;
+using SdtechBank.Domain.OutboxInbox;
 using SdtechBank.Domain.PaymentOrders.Entities;
 using SdtechBank.Domain.Shared.Messaging;
 using SdtechBank.Domain.Transactions.Entities;
@@ -90,7 +91,7 @@ public sealed class MongoDbIndexInitializer
         // Polling de mensagens não processadas
         new CreateIndexModel<InboxMessage>(
             Builders<InboxMessage>.IndexKeys
-                .Ascending(x => x.ProcessedAt)                )
+                .Ascending(x => x.CreatedAt)                )
     };
 
         await col.Indexes.CreateManyAsync(indexes, ct);
