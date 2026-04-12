@@ -15,7 +15,9 @@ public class OutboxRepository(MongoDbContext context) : IOutboxRepository
 
     public async Task<IList<OutboxMessage>> GetUnprocessedMessagesAsync(int limit, CancellationToken ct)
     {
-        var filter = Builders<OutboxMessage>.Filter.Eq(x => x.ProcessedAt, null);
+        var filter = Builders<OutboxMessage>.Filter.And(
+                Builders<OutboxMessage>.Filter.Eq(x => x.ProcessedAt, null),
+                Builders<OutboxMessage>.Filter.Ne(x => x.Status, OutboxStatus.Failed));
 
         return await _collection.Find(filter).Limit(limit).ToListAsync(ct);
     }
@@ -24,5 +26,12 @@ public class OutboxRepository(MongoDbContext context) : IOutboxRepository
     {
         var update = Builders<OutboxMessage>.Update.Set(x => x.ProcessedAt, DateTime.UtcNow);
         await _collection.UpdateOneAsync(x => x.Id == id, update, cancellationToken: ct);
+    }
+
+    public async Task SaveAsync(OutboxMessage message, CancellationToken ct)
+    {
+        var filter = Builders<OutboxMessage>.Filter.Eq(o => o.Id, message.Id);
+        var opts = new ReplaceOptions { IsUpsert = true };
+        await _collection.ReplaceOneAsync(filter, message, opts, ct);
     }
 }

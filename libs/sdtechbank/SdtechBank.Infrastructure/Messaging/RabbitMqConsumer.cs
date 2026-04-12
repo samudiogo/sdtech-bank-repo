@@ -27,17 +27,9 @@ public class RabbitMqConsumer(
     private readonly RabbitMqSettings _settings = settings.Value;
     private IChannel? _channel;
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken ct)
     {
-
-        var connection = await rabbitConnection.GetConnectionAsync();
-        _channel = await connection.CreateChannelAsync(cancellationToken: stoppingToken);
-
-        if (_channel is null)
-            throw new InvalidOperationException("Channel não foi criado");
-
-        logger.LogInformation("Channel criado com sucesso");
-
+        _channel = await GetChannelAsync(cancellationToken: ct);
         var consumer = new AsyncEventingBasicConsumer(_channel);
 
         consumer.ReceivedAsync += async (_, args) =>
@@ -60,8 +52,7 @@ public class RabbitMqConsumer(
             }
             try
             {
-                await ProcessMessage(envelope, args.BasicProperties, stoppingToken);
-
+                await ProcessMessage(envelope, args.BasicProperties, ct);
                 await _channel.BasicAckAsync(args.DeliveryTag, false);
             }
             catch (Exception ex)
@@ -77,56 +68,29 @@ public class RabbitMqConsumer(
                     logger.LogWarning("Retry agendado. Attempt: {NextAttempt}, Delay: {Delay}", nextAttempt, delay);
 
                     var retryEnvelope = envelope with { Attempt = nextAttempt };
-
-                    await PublishWithDelayAsync(retryEnvelope, args.RoutingKey, delay);
-
+                    await PublishWithDelayAsync(retryEnvelope, args.RoutingKey, delay, ct);
                     await _channel.BasicAckAsync(args.DeliveryTag, false);
                     return;
                 }
                 // DLQ
                 logger.LogError("Mensagem enviada para DLQ após {Attempts} tentativas", attempt);
-
                 await dlqPublisher.PublishAsync(json, ex.Message, args.BasicProperties);
-
                 await _channel.BasicAckAsync(args.DeliveryTag, false);
             }
         };
 
-        await _channel.ExchangeDeclareAsync(
-            exchange: _settings.Exchange,
-            type: ExchangeType.Direct,
-            durable: true,
-            autoDelete: false,
-            cancellationToken: stoppingToken);
-
         var arguments = new Dictionary<string, object?> { { "x-queue-type", _settings.QueueType }, { "x-message-ttl", _settings.MessageTtlMs } };
 
-        await _channel.QueueDeclareAsync(
-            queue: _settings.DefaultQueue,
-            durable: true,
-            exclusive: false,
-            autoDelete: false,
-            arguments: arguments,
-            cancellationToken: stoppingToken);
-
+        await _channel.QueueDeclareAsync(queue: _settings.DefaultQueue, durable: true, exclusive: false, autoDelete: false, arguments: arguments, cancellationToken: ct);
 
         foreach (var (eventName, __) in registry.GetAll())
         {
-
-            await _channel.QueueBindAsync(
-                queue: _settings.DefaultQueue,
-                exchange: _settings.Exchange,
-                routingKey: eventName,
-                cancellationToken: stoppingToken);
-
-
+            await _channel.QueueBindAsync(queue: _settings.DefaultQueue, exchange: _settings.Exchange, routingKey: eventName, cancellationToken: ct);
         }
 
-        await _channel.BasicConsumeAsync(queue: _settings.DefaultQueue, autoAck: false, consumer: consumer, cancellationToken: stoppingToken);
-
+        await _channel.BasicConsumeAsync(queue: _settings.DefaultQueue, autoAck: false, consumer: consumer, cancellationToken: ct);
         logger.LogInformation("Consumer iniciado");
-
-        await Task.Delay(Timeout.Infinite, stoppingToken);
+        await Task.Delay(Timeout.Infinite, ct);
     }
 
     private async Task ProcessMessage(RabbitMqMessageEnvelope envelope, IReadOnlyBasicProperties props, CancellationToken ct)
@@ -136,7 +100,6 @@ public class RabbitMqConsumer(
         var inbox = scope.ServiceProvider.GetRequiredService<IInboxRepository>();
         var dispatcher = scope.ServiceProvider.GetRequiredService<IIntegrationEventDispatcher>();
         var eventType = registry.Resolve(envelope.Type);
-
         var messageId = props.MessageId;
 
         if (string.IsNullOrWhiteSpace(messageId))
@@ -155,7 +118,7 @@ public class RabbitMqConsumer(
 
             if (inboxMessage.Status == InboxStatus.Processing)
             {
-                logger.LogInformation("Mensagem já está em processamento: {MessageId}", messageId);
+                logger.LogInformation("Processando mensagem {MessageId} Attempt {Attempt}", envelope.MessageId, envelope.Attempt);
                 return;
             }
 
@@ -171,14 +134,13 @@ public class RabbitMqConsumer(
         }
 
         try
-        {            
+        {
             var @event = JsonSerializer.Deserialize(envelope.Payload, eventType) ?? throw new InvalidOperationException("falha ao desserializar evento");
             var dispatchMethod = typeof(IIntegrationEventDispatcher)
-           .GetMethod(nameof(IIntegrationEventDispatcher.DispatchAsync))!
-           .MakeGenericMethod(eventType);
+                                        .GetMethod(nameof(IIntegrationEventDispatcher.DispatchAsync))!
+                                        .MakeGenericMethod(eventType);
 
             await (Task)dispatchMethod.Invoke(dispatcher, [@event, ct])!;
-
             await inbox.MarkAsProcessedAsync(messageId, ct);
         }
         catch
@@ -188,7 +150,7 @@ public class RabbitMqConsumer(
         }
     }
 
-    private async Task PublishWithDelayAsync(RabbitMqMessageEnvelope envelope, string routingKey, TimeSpan delay)
+    private async Task PublishWithDelayAsync(RabbitMqMessageEnvelope envelope, string routingKey, TimeSpan delay, CancellationToken ct)
     {
         var retryQueue = $"{_settings.DefaultQueue}.retry.{delay.TotalSeconds}s";
         Dictionary<string, object?> arguments = new()
@@ -197,10 +159,8 @@ public class RabbitMqConsumer(
             { "x-dead-letter-exchange", _settings.Exchange },
             { "x-dead-letter-routing-key", routingKey }
         };
-
-        //TODO: criar uma anternativa null safely para _channel. Atualemente o seu valor está sendo instanciado apenas no método ExecuteAsync(). Estou pensando em mover para o método construtor
-        // ou criar um método privado que valide e retorne uma instancia de _channel
-        await _channel!.QueueDeclareAsync(queue: retryQueue, durable: true, exclusive: false, autoDelete: false, arguments: arguments);
+        _channel = await GetChannelAsync(cancellationToken: ct);
+        await _channel.QueueDeclareAsync(queue: retryQueue, durable: true, exclusive: false, autoDelete: false, arguments: arguments);
 
         var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(envelope));
         var props = new BasicProperties
@@ -209,11 +169,22 @@ public class RabbitMqConsumer(
             MessageId = envelope.MessageId
         };
 
-        await _channel.BasicPublishAsync(
-            exchange: "",
-            routingKey: retryQueue,
-            mandatory: true,
-            basicProperties: props,
-            body: body);
+        await _channel.BasicPublishAsync(exchange: "", routingKey: retryQueue, mandatory: false, basicProperties: props, body: body);
+    }
+
+    private async Task<IChannel> GetChannelAsync(CancellationToken cancellationToken)
+    {
+        if (_channel is not null)
+            return _channel;
+
+        if (_channel is null)
+        {
+            var conn = await rabbitConnection.GetConnectionAsync();
+            _channel = await conn.CreateChannelAsync(cancellationToken: cancellationToken);
+            await _channel.ExchangeDeclareAsync(exchange: _settings.Exchange, type: ExchangeType.Direct, durable: true, autoDelete: false, cancellationToken: cancellationToken);
+
+            logger.LogInformation("Channel criado com sucesso");
+        }
+        return _channel;
     }
 }

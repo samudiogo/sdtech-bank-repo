@@ -80,6 +80,8 @@ public static class InfrastructureExtensions
         services.AddTransient<IEventPublisher, RabbitMqEventPublisher>();
 
         services.AddScoped<IDlqPublisher, DlqPublisher>();
+
+        services.Configure<OutboxPublisherSettings>(opts => configuration.GetSection("OutboxPublisher").Bind(opts));
     }
 
     private static void AddRepositoriesConfig(IServiceCollection services)

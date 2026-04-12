@@ -29,6 +29,7 @@ public class CreatePaymentUseCaseTests
         {
             Amount = 100,
             PayerId = Guid.NewGuid().ToString(),
+            IdempotencyKey = Guid.NewGuid().ToString(),
             Receiver = new PaymentReceiverRequest
             {
                 BankAccount = new BankAccountRequest

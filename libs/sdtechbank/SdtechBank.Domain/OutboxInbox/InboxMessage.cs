@@ -6,7 +6,6 @@ public enum InboxStatus
     Processing = 1,
     Processed = 2,
     Failed = 3
-
 }
 public sealed class InboxMessage
 {
@@ -15,6 +14,9 @@ public sealed class InboxMessage
     public string Type { get; private set; } = default!;
     public DateTime CreatedAt { get; private set; }
     public InboxStatus Status { get; private set; }
+    public DateTime? ProcessedAt { get; private set; }
+    public DateTime? FailedAt { get; private set; }
+
 
     private InboxMessage() { }
     public InboxMessage(string messageId, string type)
@@ -27,8 +29,14 @@ public sealed class InboxMessage
     }
 
     public void MarkAsProcessed()
-        => Status = InboxStatus.Processed;
+    {
+        Status = InboxStatus.Processed;
+        ProcessedAt = DateTime.UtcNow;
+    }
 
     public void MarkAsFailed()
-        => Status = InboxStatus.Failed;
+    {
+        Status = InboxStatus.Failed;
+        FailedAt = DateTime.UtcNow;
+    }
 }
