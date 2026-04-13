@@ -2,5 +2,5 @@
 
 public interface ICompletePaymentUseCase
 {
-    Task ExecuteAsync(Guid paymentId, Guid transactionId);
+    Task ExecuteAsync(Guid paymentId, Guid transactionId, CancellationToken cancellation);
 }

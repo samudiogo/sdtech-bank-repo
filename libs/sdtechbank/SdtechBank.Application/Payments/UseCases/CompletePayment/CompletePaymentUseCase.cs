@@ -5,7 +5,7 @@ namespace SdtechBank.Application.Payments.UseCases.CompletePayment;
 
 public class CompletePaymentUseCase(IPaymentOrderRepository paymentOrderRepository, ILogger<CompletePaymentUseCase> logger) : ICompletePaymentUseCase
 {
-    public async Task ExecuteAsync(Guid paymentId, Guid transactionId)
+    public async Task ExecuteAsync(Guid paymentId, Guid transactionId, CancellationToken cancellation)
     {
         var payment = await paymentOrderRepository.GetByIdAsync(paymentId);
 
@@ -17,6 +17,6 @@ public class CompletePaymentUseCase(IPaymentOrderRepository paymentOrderReposito
 
         payment.MarkAsCompleted(transactionId);
 
-        await paymentOrderRepository.SaveAsync(payment);
+        await paymentOrderRepository.SaveAsync(payment, cancellation);
     }
 }
