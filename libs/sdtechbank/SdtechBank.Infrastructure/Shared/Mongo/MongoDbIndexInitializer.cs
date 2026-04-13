@@ -40,7 +40,13 @@ public sealed class MongoDbIndexInitializer
         new CreateIndexModel<PaymentOrder>(
             Builders<PaymentOrder>.IndexKeys
                 .Ascending(x => x.IdempotencyKey),
-            new CreateIndexOptions { Unique = true, Sparse = true })
+            new CreateIndexOptions { Unique = true }),
+        
+        new CreateIndexModel<PaymentOrder>(
+            Builders<PaymentOrder>.IndexKeys
+                .Ascending(x => x.PayerId)
+                .Ascending(x => x.Amount.Value)
+                .Descending(x => x.CreatedAt))
     };
 
         await col.Indexes.CreateManyAsync(indexes, ct);
@@ -106,6 +112,7 @@ public sealed class MongoDbIndexInitializer
         new CreateIndexModel<OutboxMessage>(
             Builders<OutboxMessage>.IndexKeys
                 .Ascending(x => x.ProcessedAt)
+                .Ascending(x => x.Status)
                 .Ascending(x => x.OccurredAt)),
 
         // Correlação de rastreamento

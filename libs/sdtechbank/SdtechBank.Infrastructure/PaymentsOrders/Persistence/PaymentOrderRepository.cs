@@ -2,6 +2,7 @@
 using SdtechBank.Domain.PaymentOrders.Contracts;
 using SdtechBank.Domain.PaymentOrders.Entities;
 using SdtechBank.Domain.PaymentOrders.ValueObjects;
+using SdtechBank.Domain.Shared.Exceptions;
 using SdtechBank.Domain.Shared.ValueObjects;
 using SdtechBank.Infrastructure.Shared.Mongo;
 
@@ -25,11 +26,23 @@ namespace SdtechBank.Infrastructure.PaymentsOrders.Persistence
             return await _collection.Find(filter).FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task SaveAsync(PaymentOrder paymentOrder)
+        public async Task SaveAsync(PaymentOrder paymentOrder, CancellationToken cancellationToken)
         {
             var filter = Builders<PaymentOrder>.Filter.Eq(o => o.Id, paymentOrder.Id);
             var options = new ReplaceOptions { IsUpsert = true };
-            await _collection.ReplaceOneAsync(filter, paymentOrder, options);
+
+            try
+            {
+                if (context.Session is not null)
+                    await _collection.ReplaceOneAsync(context.Session, filter, paymentOrder, options, cancellationToken);
+                else
+                    await _collection.ReplaceOneAsync(filter, paymentOrder, options, cancellationToken);
+            }
+            catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
+            {
+
+                throw new DuplicateKeyException("Duplicate idempontency key", ex);
+            }
         }
 
         public async Task<bool> ExistsRecentSimilarAsync(Guid payerId, PaymentDestination destination, Money amount, TimeSpan window, CancellationToken cancellationToken)
@@ -45,7 +58,7 @@ namespace SdtechBank.Infrastructure.PaymentsOrders.Persistence
 
             if (destination.IsPix())
                 filterDefinition &= builder.Eq(d => d.Destination.PixKey, destination.PixKey);
-                
+
             if (destination.HasBankAccount())
                 filterDefinition &= builder.And(
                     builder.Eq(a => a.Destination.BankAccount!.Cpf, destination.BankAccount!.Cpf),

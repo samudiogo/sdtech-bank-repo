@@ -4,6 +4,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
+using SdtechBank.Application.Abstractions.Persistence;
 using SdtechBank.Application.Abstractions.Resilience;
 using SdtechBank.Application.Accounts.Contracts;
 using SdtechBank.Application.Common.Contracts;
@@ -19,6 +20,7 @@ using SdtechBank.Infrastructure.Ledger.Persistence;
 using SdtechBank.Infrastructure.Messaging;
 using SdtechBank.Infrastructure.Messaging.Persistence;
 using SdtechBank.Infrastructure.PaymentsOrders.Persistence;
+using SdtechBank.Infrastructure.Persistence;
 using SdtechBank.Infrastructure.Resilience;
 using SdtechBank.Infrastructure.Shared.Concurrency;
 using SdtechBank.Infrastructure.Shared.Mongo;
@@ -61,7 +63,7 @@ public static class InfrastructureExtensions
         var settings = configuration.GetSection("MongoDb").Get<MongoDbSettings>()!;
         services.Configure<MongoDbSettings>(opts => configuration.GetSection("MongoDb").Bind(opts));
         services.AddSingleton<IMongoClient>(_ => new MongoClient(settings.ConnectionString));
-        services.AddSingleton(sp =>
+        services.AddScoped(sp =>
         {
             var client = sp.GetRequiredService<IMongoClient>();
             return new MongoDbContext(client, settings.DatabaseName);
@@ -102,6 +104,11 @@ public static class InfrastructureExtensions
     {        
         services.AddScoped<IAccountLockService, InMemoryAccountLockService>();
     }
+    private static void AddUnitOfWorkConfig(IServiceCollection services)
+    {        
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+    }
+
 
     private static void AddResilienceConfig(IServiceCollection services)
     {        
