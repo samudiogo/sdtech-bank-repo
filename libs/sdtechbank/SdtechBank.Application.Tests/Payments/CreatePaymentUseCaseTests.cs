@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Moq;
+using SdtechBank.Application.Abstractions.Persistence;
 using SdtechBank.Application.Messaging;
 using SdtechBank.Application.Payments.UseCases.CreatePayment;
 using SdtechBank.Domain.PaymentOrders.Contracts;
@@ -10,6 +11,7 @@ namespace SdtechBank.Application.Tests.Payments;
 public class CreatePaymentUseCaseTests
 {
     private readonly Mock<IPaymentOrderRepository> _repositoryMock;
+    private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly Mock<IOutboxService> _outboxServiceMock;
     private readonly CreatePaymentValidator _validator;
     private readonly CreatePaymentUseCase _useCase;
@@ -17,10 +19,11 @@ public class CreatePaymentUseCaseTests
     public CreatePaymentUseCaseTests()
     {
         _repositoryMock = new Mock<IPaymentOrderRepository>();
+        _unitOfWorkMock = new Mock<IUnitOfWork>();
         _outboxServiceMock = new Mock<IOutboxService>();
         _validator = new CreatePaymentValidator();
 
-        _useCase = new CreatePaymentUseCase(_repositoryMock.Object, _outboxServiceMock.Object, _validator);
+        _useCase = new CreatePaymentUseCase(_repositoryMock.Object, _outboxServiceMock.Object, _unitOfWorkMock.Object, _validator);
     }
 
     private static CreatePaymentRequest CreateValidRequest()
@@ -29,6 +32,7 @@ public class CreatePaymentUseCaseTests
         {
             Amount = 100,
             PayerId = Guid.NewGuid().ToString(),
+            IdempotencyKey = Guid.NewGuid().ToString(),
             Receiver = new PaymentReceiverRequest
             {
                 BankAccount = new BankAccountRequest

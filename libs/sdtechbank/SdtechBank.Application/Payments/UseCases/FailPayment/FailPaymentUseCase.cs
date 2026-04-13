@@ -5,7 +5,7 @@ namespace SdtechBank.Application.Payments.UseCases.FailPayment;
 
 public sealed class FailPaymentUseCase(IPaymentOrderRepository paymentOrderRepository, ILogger<FailPaymentUseCase> logger) : IFailPaymentUseCase
 {
-    public async Task ExecuteAsync(Guid paymentId, string reason)
+    public async Task ExecuteAsync(Guid paymentId, string reason, CancellationToken cancellation)
     {
         var payment = await paymentOrderRepository.GetByIdAsync(paymentId);
 
@@ -17,7 +17,7 @@ public sealed class FailPaymentUseCase(IPaymentOrderRepository paymentOrderRepos
 
         payment.MarkAsFailed(reason);
 
-        await paymentOrderRepository.SaveAsync(payment);
+        await paymentOrderRepository.SaveAsync(payment, cancellation);
 
     }
 }

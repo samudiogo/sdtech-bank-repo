@@ -31,20 +31,20 @@ public sealed class ValidatePaymentUseCase(IPaymentOrderRepository paymentOrderR
             if (receiverId is null)
             {
                 payment.MarkAsFailed("Receiver not found");
-                await paymentOrderRepository.SaveAsync(payment);
+                await paymentOrderRepository.SaveAsync(payment, cancellation);
                 return;
             }
 
             payment.MarkAsWaitingConfirmation();
             payment.MarkAsReadyToTransfer();
-            await paymentOrderRepository.SaveAsync(payment);
+            await paymentOrderRepository.SaveAsync(payment, cancellation);
             await outboxService.AddEventAsync(payment.ToPaymentValidatedIntegrationEvent(receiverId: receiverId!.Value, correlationId: payment.IdempotencyKey.ToString()), cancellation);
         }
 
         else
         {
             payment.MarkAsWaitingDict();
-            await paymentOrderRepository.SaveAsync(payment);
+            await paymentOrderRepository.SaveAsync(payment, cancellation);
             await outboxService.AddEventAsync(payment.ToPaymentNeedsAccountDataIntegrationEvent(), cancellation);
 
         }

@@ -13,6 +13,9 @@ public class CreatePaymentValidator : AbstractValidator<CreatePaymentRequest>
 
         RuleFor(x => x.PayerId)
             .NotEmpty().WithMessage("PayerId é obrigatório");
+        
+        RuleFor(x => x.IdempotencyKey)
+            .NotEmpty().WithMessage("IdempotencyKey é obrigatório");
 
         RuleFor(x => x.Receiver)
             .NotNull().WithMessage("Receiver é obrigatório")

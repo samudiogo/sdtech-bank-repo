@@ -1,3 +1,4 @@
+using SdtechBank.Domain.OutboxInbox;
 using SdtechBank.Domain.Shared.Messaging;
 
 namespace SdtechBank.Domain.Tests.Shared;
@@ -26,6 +27,6 @@ public class InboxOutboxMessageTests
         Assert.NotEqual(default!, outboxmessage.Id);
         Assert.Equal(messageId, outboxmessage.MessageId);
         Assert.Equal(messageType, outboxmessage.Type);
-        Assert.NotEqual(default!, outboxmessage.ProcessedAt);
+        Assert.NotEqual(default!, outboxmessage.CreatedAt);
     }
 }

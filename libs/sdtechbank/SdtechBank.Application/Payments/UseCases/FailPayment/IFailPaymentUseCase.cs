@@ -2,5 +2,5 @@
 
 public interface IFailPaymentUseCase
 {
-    Task ExecuteAsync(Guid paymentId, string reason);
+    Task ExecuteAsync(Guid paymentId, string reason, CancellationToken cancellation);
 }

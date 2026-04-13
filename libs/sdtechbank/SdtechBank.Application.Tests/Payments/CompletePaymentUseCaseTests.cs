@@ -3,7 +3,6 @@ using FluentAssertions.Extensions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using SdtechBank.Application.Payments.UseCases.CompletePayment;
-using SdtechBank.Application.Payments.UseCases.FailPayment;
 using SdtechBank.Domain.PaymentOrders.Contracts;
 using SdtechBank.Domain.PaymentOrders.Entities;
 using SdtechBank.Domain.PaymentOrders.Enums;
@@ -29,7 +28,7 @@ public class CompletePaymentUseCaseTests
     {
         //arrange:
         var transactionId = Guid.NewGuid();
-        var payment = PaymentOrder.Create(Guid.NewGuid(), PaymentDestination.FromBankAccount(new()
+        var payment = PaymentOrder.Create(new IdempotencyKey(Guid.NewGuid().ToString()), Guid.NewGuid(), PaymentDestination.FromBankAccount(new()
         {
             FullName = "Samuel",
             Cpf = "00012345680",
@@ -47,7 +46,7 @@ public class CompletePaymentUseCaseTests
         var useCase = new CompletePaymentUseCase(_repositoryMock.Object, _logger.Object);
 
         //act
-        await useCase.ExecuteAsync(payment.Id, transactionId);
+        await useCase.ExecuteAsync(payment.Id, transactionId, CancellationToken.None);
 
         //assert
 
@@ -55,7 +54,7 @@ public class CompletePaymentUseCaseTests
         payment.CompletedAt.Should().BeCloseTo(DateTime.UtcNow, 1.Hours());
         payment.TransactionId.Should().Be(transactionId);
 
-        _repositoryMock.Verify(x => x.SaveAsync(It.IsAny<PaymentOrder>()), Times.Once);
+        _repositoryMock.Verify(x => x.SaveAsync(It.IsAny<PaymentOrder>(), It.IsAny<CancellationToken>()), Times.Once);
 
     }
 
@@ -73,13 +72,13 @@ public class CompletePaymentUseCaseTests
         var useCase = new CompletePaymentUseCase(_repositoryMock.Object, _logger.Object);
 
         //act
-        await useCase.ExecuteAsync(paymentId, transactionId);
+        await useCase.ExecuteAsync(paymentId, transactionId, CancellationToken.None);
 
         //assert
 
         payment.Should().BeNull();
         _repositoryMock.Verify(x => x.GetByIdAsync(paymentId), Times.Once);
-        _repositoryMock.Verify(x => x.SaveAsync(It.IsAny<PaymentOrder>()), Times.Never);
+        _repositoryMock.Verify(x => x.SaveAsync(It.IsAny<PaymentOrder>(), It.IsAny<CancellationToken>()), Times.Never);
 
     }
 }

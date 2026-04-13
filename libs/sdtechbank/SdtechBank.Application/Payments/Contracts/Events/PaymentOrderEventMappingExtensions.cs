@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Primitives;
 using SdtechBank.Domain.PaymentOrders.Entities;
 using SdtechBank.Domain.PaymentOrders.ValueObjects;
 
@@ -24,7 +23,7 @@ public static class PaymentOrderEventMappingExtensions
         PayerId = paymentOrder.PayerId,
         Amount = paymentOrder.Amount,
         CorrelationId = correlationId,
-        IdempotencyKey = paymentOrder.IdempotencyKey,
+        IdempotencyKey = paymentOrder.IdempotencyKey.Value,
         ReceiverId = receiverId,
         Destination = paymentOrder.Destination.ToPaymentDestinationSnapshot()
     };

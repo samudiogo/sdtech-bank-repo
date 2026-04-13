@@ -1,8 +1,15 @@
 ﻿
 namespace SdtechBank.Infrastructure.Messaging;
 
-public sealed class RabbitMqMessageEnvelope
+public sealed record RabbitMqMessageEnvelope
 {
-    public string Type { get; set; } = default!;
-    public string Payload { get; set; } = default!;
+    public string MessageId { get; init; } = Guid.NewGuid().ToString();
+    public string Type { get; init; } = default!;
+    public string Payload { get; init; } = default!;
+    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
+
+    public int Attempt { get; init; } = 1;
+
+    public RabbitMqMessageEnvelope IncrementAttempt()
+        => this with { Attempt = Attempt + 1 };
 }

@@ -165,3 +165,4 @@ _TeamCity*
 .github/instructions/
 libs/sdtechbank/coveragereport
 /apps/SdtechBank.PixManagerApi/appsettings.Development.json
+.codex

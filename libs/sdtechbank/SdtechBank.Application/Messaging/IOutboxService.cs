@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace SdtechBank.Application.Messaging;
+﻿namespace SdtechBank.Application.Messaging;
 
 public interface IOutboxService
 {

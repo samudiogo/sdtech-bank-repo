@@ -29,7 +29,7 @@ public class FailPaymentUseCaseTests
     {
         //arrange:
         var reason = "reason";
-        var payment = PaymentOrder.Create(Guid.NewGuid(), PaymentDestination.FromBankAccount(new()
+        var payment = PaymentOrder.Create(new IdempotencyKey(Guid.NewGuid().ToString()), Guid.NewGuid(), PaymentDestination.FromBankAccount(new()
         {
             FullName = "Samuel",
             Cpf = "00012345680",
@@ -44,7 +44,7 @@ public class FailPaymentUseCaseTests
         var useCase = new FailPaymentUseCase(_repositoryMock.Object, _logger.Object);
 
         //act
-        await useCase.ExecuteAsync(payment.Id, reason);
+        await useCase.ExecuteAsync(payment.Id, reason, CancellationToken.None);
 
         //assert
 
@@ -52,7 +52,7 @@ public class FailPaymentUseCaseTests
         payment.FailedAt.Should().BeCloseTo(DateTime.UtcNow, 1.Hours());
         payment.FailedReason.Should().Be(reason);
 
-        _repositoryMock.Verify(x => x.SaveAsync(It.IsAny<PaymentOrder>()), Times.Once);
+        _repositoryMock.Verify(x => x.SaveAsync(It.IsAny<PaymentOrder>(), It.IsAny<CancellationToken>()), Times.Once);
 
     }
 
@@ -70,13 +70,13 @@ public class FailPaymentUseCaseTests
         var useCase = new FailPaymentUseCase(_repositoryMock.Object, _logger.Object);
 
         //act
-        await useCase.ExecuteAsync(paymentId, reason);
+        await useCase.ExecuteAsync(paymentId, reason, CancellationToken.None);
 
         //assert
 
         payment.Should().BeNull();
         _repositoryMock.Verify(x => x.GetByIdAsync(paymentId), Times.Once);
-        _repositoryMock.Verify(x => x.SaveAsync(It.IsAny<PaymentOrder>()), Times.Never);
+        _repositoryMock.Verify(x => x.SaveAsync(It.IsAny<PaymentOrder>(), It.IsAny<CancellationToken>()), Times.Never);
 
     }
 }

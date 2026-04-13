@@ -48,6 +48,9 @@ services:
       RabbitMQ__QueueType: ${RABBITMQ_QUEUE_TYPE}
       RabbitMQ__MessageTTL: ${RABBITMQ_MESSAGE_TTL_MS}
       RabbitMQ__VirtualHost: ${RABBITMQ_VIRTUAL_HOST}
+      OutboxPublisher__MessagesLimit: ${OUTBOX_PUBLISHER_MessagesLimit}
+      OutboxPublisher__IntervalSeconds: ${OUTBOX_PUBLISHER_IntervalSeconds}
+      OutboxPublisher__MaxAttempts: ${OUTBOX_PUBLISHER_MaxAttempts}
     networks:
       - pixmanager_network
       - infra_net

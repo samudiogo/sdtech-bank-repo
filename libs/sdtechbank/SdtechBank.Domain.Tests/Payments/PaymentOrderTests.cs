@@ -13,6 +13,7 @@ public class PaymentOrderTests
     {
         var destination = PaymentDestination.FromPixKey("pixkey");
         return PaymentOrder.Create(
+            new IdempotencyKey(Guid.NewGuid().ToString()),
             Guid.NewGuid(),
             destination,
             new Money(100, CurrencyType.BRL)
@@ -23,7 +24,7 @@ public class PaymentOrderTests
     public void Create_WithBankAccountDestination_ShouldSetStatusCreated()
     {
         var destination = PaymentDestination.FromBankAccount(new BankAccount { FullName = "name", BankCode = "0436", Branch = "1818", Account = "16435-2", Cpf = "00012345678" });
-        var order = PaymentOrder.Create(Guid.NewGuid(), destination, new Money(100, CurrencyType.BRL));
+        var order = PaymentOrder.Create(new IdempotencyKey(Guid.NewGuid().ToString()), Guid.NewGuid(), destination, new Money(100, CurrencyType.BRL));
 
         Assert.Equal(PaymentStatus.CREATED, order.PaymentStatus);
     }
@@ -167,9 +168,9 @@ public class PaymentOrderTests
             Branch = "0001",
             Account = "12345"
         });
-        
+
         destination.IsPix().Should().BeFalse();
-        destination.HasBankAccount().Should().BeTrue();                
+        destination.HasBankAccount().Should().BeTrue();
     }
 
 }

@@ -2,6 +2,7 @@
 using SdtechBank.Domain.PaymentOrders.ValueObjects;
 using SdtechBank.Domain.Shared.ValueObjects;
 
+
 namespace SdtechBank.Domain.PaymentOrders.Entities;
 
 /// <summary>
@@ -19,12 +20,12 @@ public sealed class PaymentOrder
     public DateTime? UserConfirmedAt { get; private set; }
     public DateTime? CompletedAt { get; private set; }
     public DateTime? FailedAt { get; private set; }
-    public Guid? TransactionId { get; private set; }
-    public string IdempotencyKey { get; private set; } = default!;
-    public string? FailedReason { get; private set; }    
+    public Guid? TransactionId { get; private set; }    
+    public string? FailedReason { get; private set; }
+    public IdempotencyKey IdempotencyKey { get; private set; } = default!;    
 
     private PaymentOrder() { }
-    private PaymentOrder(Guid id, Guid payerId, PaymentDestination destination, Money amount, PaymentStatus paymentStatus, DateTime createdAt)
+    private PaymentOrder(Guid id, Guid payerId, PaymentDestination destination, Money amount, PaymentStatus paymentStatus, DateTime createdAt, IdempotencyKey key)
     {
         Id = id;
         PayerId = payerId;
@@ -33,7 +34,7 @@ public sealed class PaymentOrder
         PaymentStatus = paymentStatus;
         CreatedAt = createdAt;
         Attempts = 0;
-        IdempotencyKey = id.ToString();
+        IdempotencyKey = key;
     }
 
     /// <summary>
@@ -46,9 +47,9 @@ public sealed class PaymentOrder
     /// <param name="amount">O valor a ser transferido na ordem de pagamento.</param>
     /// <returns>Uma nova instância de <see cref="PaymentOrder"/> representando a ordem de pagamento criada.</returns>
     /// <exception cref="InvalidOperationException">Lançada se <paramref name="payerId"/> e <paramref name="receiverId"/> forem iguais.</exception>
-    public static PaymentOrder Create(Guid payerId, PaymentDestination destination, Money amount)
+    public static PaymentOrder Create(IdempotencyKey key, Guid payerId, PaymentDestination destination, Money amount)
     {
-        return new PaymentOrder(Guid.NewGuid(), payerId, destination, amount, PaymentStatus.CREATED, DateTime.UtcNow);
+        return new PaymentOrder(Guid.NewGuid(), payerId, destination, amount, PaymentStatus.CREATED, DateTime.UtcNow, key);
     }
 
     /// <summary>

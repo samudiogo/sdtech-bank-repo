@@ -2,41 +2,50 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SdtechBank.Application.Common.Contracts;
 using SdtechBank.Application.Messaging;
 
 namespace SdtechBank.Infrastructure.Messaging;
 
-public class OutboxPublisher(IServiceProvider provider, ILogger<OutboxPublisher> logger) : BackgroundService
+public class OutboxPublisher(IOptions<OutboxPublisherSettings> settings, IServiceProvider provider, ILogger<OutboxPublisher> logger) : BackgroundService
 {
-    private readonly int MessagesLimit = 50;
-    private readonly int IntervalBetweenMessages = 5;
+    private readonly OutboxPublisherSettings _settings = settings.Value;
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
             await using var scope = provider.CreateAsyncScope();
-
-            var repo = scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
+            var repository = scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
             var publisher = scope.ServiceProvider.GetRequiredService<IEventPublisher>();
-
-            var messages = await repo.GetUnprocessedMessagesAsync(MessagesLimit, stoppingToken);
+            var messages = await repository.GetUnprocessedMessagesAsync(_settings.MessagesLimit, stoppingToken);
 
             foreach (var message in messages)
             {
                 try
-                {                    
+                {
                     await publisher.PublishRawAsync(message.Id.ToString(), message.RoutingKey, message.Payload);
-
-                    await repo.MarkAsProcessedAsync(message.Id, stoppingToken);
+                    message.MarkAsProcessed();
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Erro ao publicar outboxMessage {Id}", message.Id);
+                    logger.LogError(ex, "Erro ao publicar outboxMessage {Id} (Attempt: {Attempt})", message.Id, message.Attempt);
+                    message.IncrementAttempt();
+
+                    if (message.Attempt >= _settings.MaxAttempts)
+                    {
+                        logger.LogError("Mensagem {Id} excedeu tentativas. Considerar DLQ", message.Id);
+                        message.MarkAsFailed();
+                    }
+                }
+                finally
+                {
+                    await repository.SaveAsync(message, stoppingToken);
                 }
             }
 
-            await Task.Delay(TimeSpan.FromSeconds(IntervalBetweenMessages), stoppingToken);
+            await Task.Delay(TimeSpan.FromSeconds(_settings.IntervalSeconds), stoppingToken);
         }
     }
 }
