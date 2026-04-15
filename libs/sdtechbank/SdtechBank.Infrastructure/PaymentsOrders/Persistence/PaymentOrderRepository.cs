@@ -41,7 +41,7 @@ namespace SdtechBank.Infrastructure.PaymentsOrders.Persistence
             catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
             {
 
-                throw new DuplicateKeyException("Duplicate idempontency key", ex);
+                throw new DuplicateKeyException("Duplicate idempotency key", ex);
             }
         }
 

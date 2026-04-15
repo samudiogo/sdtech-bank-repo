@@ -72,7 +72,7 @@ public class ProcessPaymentCreatedUseCaseTests
         var existingTransaction = Transaction.Create(paymentId, idempotencyKey);
 
         transactionRepository
-            .Setup(x => x.GetByIdempontencyKeyAsync(idempotencyKey))
+            .Setup(x => x.GetByIdempotencyKeyAsync(idempotencyKey))
             .ReturnsAsync(existingTransaction);
 
         // Act
@@ -296,7 +296,7 @@ public class ProcessPaymentCreatedUseCaseTests
 
     private void ArrangeNoExistingTransaction()
         => transactionRepository
-            .Setup(x => x.GetByIdempontencyKeyAsync(idempotencyKey))
+            .Setup(x => x.GetByIdempotencyKeyAsync(idempotencyKey))
             .ReturnsAsync((Transaction?)null);
 
     private void ArrangeSufficientBalance(decimal balanceValue)

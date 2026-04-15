@@ -24,7 +24,7 @@ public class ProcessPaymentCreatedUseCase(
     {
         using (await lockService.AcquireLockAsync(payerId))
         {
-            var existing = await transactionRepository.GetByIdempontencyKeyAsync(idempotencyKey);
+            var existing = await transactionRepository.GetByIdempotencyKeyAsync(idempotencyKey);
 
             if (existing is not null) return;
 

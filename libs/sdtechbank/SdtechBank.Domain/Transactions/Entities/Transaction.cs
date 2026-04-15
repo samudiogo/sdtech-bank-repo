@@ -25,7 +25,7 @@ public sealed class Transaction
         IdempotencyKey = idempotencyKey;
     }
 
-    public static Transaction Create(Guid paymentOrderId, string idempontencyKey) => new(Guid.NewGuid(), paymentOrderId, idempontencyKey);
+    public static Transaction Create(Guid paymentOrderId, string idempotencyKey) => new(Guid.NewGuid(), paymentOrderId, idempotencyKey);
 
     public void StartProcessing()
     {

@@ -15,9 +15,9 @@ public class TransactionRepository(MongoDbContext context) : ITransactionReposit
         return await _collection.Find(filter).FirstOrDefaultAsync();
     }
 
-    public async Task<Transaction?> GetByIdempontencyKeyAsync(string idempontencyKey)
+    public async Task<Transaction?> GetByIdempotencyKeyAsync(string idempotencyKey)
     {
-        var filter = Builders<Transaction>.Filter.Eq(o => o.IdempotencyKey, idempontencyKey);
+        var filter = Builders<Transaction>.Filter.Eq(o => o.IdempotencyKey, idempotencyKey);
 
         return await _collection.Find(filter).FirstOrDefaultAsync();
     }

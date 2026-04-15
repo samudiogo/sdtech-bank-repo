@@ -7,7 +7,7 @@ public class TransactionTests
 {
     private static Transaction CreateValidTransaction()
     {
-        return Transaction.Create(Guid.NewGuid(), "IdempontencyKey");
+        return Transaction.Create(Guid.NewGuid(), "IdempotencyKey");
     }
 
     [Fact]
@@ -16,7 +16,7 @@ public class TransactionTests
         var transaction = CreateValidTransaction();
         Assert.Equal(TransactionStatus.CREATED, transaction.Status);
         Assert.Equal(0, transaction.Attempts);
-        Assert.Equal("IdempontencyKey", transaction.IdempotencyKey);
+        Assert.Equal("IdempotencyKey", transaction.IdempotencyKey);
         Assert.Null(transaction.CompletedAt);
         Assert.Null(transaction.FailedAt);
         Assert.NotEqual(default, transaction.CreatedAt);
@@ -32,7 +32,7 @@ public class TransactionTests
 
         Assert.Equal(TransactionStatus.COMPLETED, transaction.Status);
         Assert.Equal(1, transaction.Attempts);
-        Assert.Equal("IdempontencyKey", transaction.IdempotencyKey);
+        Assert.Equal("IdempotencyKey", transaction.IdempotencyKey);
         Assert.NotEqual(default, transaction.CompletedAt);
         Assert.NotNull(transaction.CompletedAt);
         Assert.Null(transaction.FailedAt);
@@ -48,7 +48,7 @@ public class TransactionTests
 
         Assert.Equal(TransactionStatus.IN_PROGRESS, transaction.Status);
         Assert.Equal(1, transaction.Attempts);
-        Assert.Equal("IdempontencyKey", transaction.IdempotencyKey);
+        Assert.Equal("IdempotencyKey", transaction.IdempotencyKey);
         Assert.Null(transaction.CompletedAt);
         Assert.Null(transaction.FailedAt); ;
         Assert.NotEqual(default, transaction.CreatedAt);
@@ -65,7 +65,7 @@ public class TransactionTests
 
         Assert.Equal(TransactionStatus.IN_PROGRESS, transaction.Status);
         Assert.Equal(2, transaction.Attempts);
-        Assert.Equal("IdempontencyKey", transaction.IdempotencyKey);
+        Assert.Equal("IdempotencyKey", transaction.IdempotencyKey);
         Assert.Null(transaction.CompletedAt);
         Assert.NotNull(transaction.FailedAt); ;
         Assert.NotEqual(default, transaction.CreatedAt);
@@ -90,7 +90,7 @@ public class TransactionTests
 
         Assert.Equal(TransactionStatus.FAILED, transaction.Status);
         Assert.Equal(1, transaction.Attempts);
-        Assert.Equal("IdempontencyKey", transaction.IdempotencyKey);
+        Assert.Equal("IdempotencyKey", transaction.IdempotencyKey);
         Assert.Null(transaction.CompletedAt);
         Assert.NotNull(transaction.FailedAt);
         Assert.NotEqual(default, transaction.FailedAt);
