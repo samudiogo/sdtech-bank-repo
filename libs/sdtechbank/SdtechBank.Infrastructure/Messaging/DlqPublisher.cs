@@ -26,7 +26,9 @@ public class DlqPublisher(IRabbitMqConnection connection, IOptions<RabbitMqSetti
             Headers = new Dictionary<string, object?>
             {
                 { "x-error-reason", reason },
-                { "x-original-message-id", originalProps?.MessageId }
+                { "x-original-message-id", originalProps?.MessageId },
+                { "x-original-routing-key", originalProps?.Headers?["routing-key"] },
+                { "x-dead-lettered-at", DateTime.UtcNow.ToString("O") }
             }
         };
 

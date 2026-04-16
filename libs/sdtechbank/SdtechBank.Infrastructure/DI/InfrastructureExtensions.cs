@@ -36,6 +36,7 @@ public static class InfrastructureExtensions
         AddRabbitMqConfig(services, configuration);
         AddRepositoriesConfig(services);
         AddServicesConfig(services);
+        AddUnitOfWorkConfig(services);
         return services;
     }
 
@@ -70,7 +71,7 @@ public static class InfrastructureExtensions
         });
 
         // Inicialização de índices no startup
-        services.AddSingleton<MongoDbIndexInitializer>();
+        services.AddScoped<MongoDbIndexInitializer>();
     }        
 
     private static void AddRabbitMqConfig(IServiceCollection services, IConfiguration configuration)

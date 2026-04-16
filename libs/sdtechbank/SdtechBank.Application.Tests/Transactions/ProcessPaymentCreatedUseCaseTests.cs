@@ -1,15 +1,18 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
+using SdtechBank.Application.Abstractions.Persistence;
 using SdtechBank.Application.Accounts.Contracts;
 using SdtechBank.Application.Messaging;
 using SdtechBank.Application.Transactions.Contracts.Events;
 using SdtechBank.Application.Transactions.Exceptions;
 using SdtechBank.Application.Transactions.UseCases.ProcessPayment;
-using SdtechBank.Domain.Accounts.Contracts;
 using SdtechBank.Domain.Ledger.Contracts;
 using SdtechBank.Domain.Ledger.Entities;
 using SdtechBank.Domain.Ledger.Enums;
+using SdtechBank.Domain.PaymentOrders.Contracts;
+using SdtechBank.Domain.PaymentOrders.Entities;
+using SdtechBank.Domain.PaymentOrders.ValueObjects;
 using SdtechBank.Domain.Shared.Enums;
 using SdtechBank.Domain.Shared.ValueObjects;
 using SdtechBank.Domain.Transactions.Contracts;
@@ -20,18 +23,28 @@ namespace SdtechBank.Application.Tests.Transactions;
 
 public class ProcessPaymentCreatedUseCaseTests
 {
-    private readonly Mock<ITransactionRepository> transactionRepository;
-    private readonly Mock<ILedgerRepository> ledgerRepository;
-    private readonly Mock<IAccountBalanceService> balanceService;
-    private readonly Mock<IAccountLockService> lockService;
-    private readonly Mock<IOutboxService> outboxService;
-    private readonly Mock<ILogger<ProcessPaymentCreatedUseCase>> logger;
-    private readonly Mock<IDisposable> lockHandle;
+    private readonly Mock<ITransactionRepository> _transactionRepository;
+    private readonly Mock<IPaymentOrderRepository> _paymentOrderRepository;
+    private readonly Mock<IUnitOfWork> _unitOfWorkMock;
+    private readonly Mock<ILedgerRepository> _ledgerRepository;
+    private readonly Mock<IAccountBalanceService> _balanceService;
+    private readonly Mock<IAccountLockService> _lockService;
+    private readonly Mock<IOutboxService> _outboxService;
+    private readonly Mock<ILogger<ProcessPaymentCreatedUseCase>> _logger;
+    private readonly Mock<IDisposable> _lockHandle;
 
-    private readonly ProcessPaymentCreatedUseCase sut;
+    private readonly ProcessPaymentCreatedUseCase _sut;
 
     // Fixtures compartilhados
-    private readonly Guid paymentId = Guid.NewGuid();
+    private PaymentOrder ValidPaymentOrder = PaymentOrder.Create(new IdempotencyKey(Guid.NewGuid().ToString()), Guid.NewGuid(), PaymentDestination.FromBankAccount(new()
+    {
+        FullName = "Samuel",
+        Cpf = "00012345680",
+        BankCode = "001",
+        Branch = "1234",
+        Account = "123456"
+    }), new Money(100, CurrencyType.BRL));
+
     private readonly Guid payerId = Guid.NewGuid();
     private readonly Guid receiverId = Guid.NewGuid();
     private readonly Money amount = new(150m, CurrencyType.BRL);
@@ -39,26 +52,30 @@ public class ProcessPaymentCreatedUseCaseTests
 
     public ProcessPaymentCreatedUseCaseTests()
     {
-        transactionRepository = new Mock<ITransactionRepository>();
-        ledgerRepository = new Mock<ILedgerRepository>();
-        balanceService = new Mock<IAccountBalanceService>();
-        lockService = new Mock<IAccountLockService>();
-        outboxService = new Mock<IOutboxService>();
-        logger = new Mock<ILogger<ProcessPaymentCreatedUseCase>>();
-        lockHandle = new Mock<IDisposable>();
+        _transactionRepository = new Mock<ITransactionRepository>();
+        _paymentOrderRepository = new Mock<IPaymentOrderRepository>();
+        _ledgerRepository = new Mock<ILedgerRepository>();
+        _balanceService = new Mock<IAccountBalanceService>();
+        _lockService = new Mock<IAccountLockService>();
+        _outboxService = new Mock<IOutboxService>();
+        _logger = new Mock<ILogger<ProcessPaymentCreatedUseCase>>();
+        _lockHandle = new Mock<IDisposable>();
+        _unitOfWorkMock = new Mock<IUnitOfWork>();
 
         // Lock sempre adquirido com sucesso por padrão
-        lockService
+        _lockService
             .Setup(x => x.AcquireLockAsync(It.IsAny<Guid>()))
-            .ReturnsAsync(lockHandle.Object);
+            .ReturnsAsync(_lockHandle.Object);
 
-        sut = new ProcessPaymentCreatedUseCase(
-            transactionRepository.Object,
-            ledgerRepository.Object,
-            balanceService.Object,
-            lockService.Object,
-            outboxService.Object,
-            logger.Object);
+        _sut = new ProcessPaymentCreatedUseCase(
+            _unitOfWorkMock.Object,
+            _transactionRepository.Object,
+            _paymentOrderRepository.Object,
+            _ledgerRepository.Object,
+            _balanceService.Object,
+            _lockService.Object,
+            _outboxService.Object,
+            _logger.Object);
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -69,19 +86,19 @@ public class ProcessPaymentCreatedUseCaseTests
     public async Task ExecuteAsync_WhenTransactionAlreadyExists_ShouldReturnImmediately()
     {
         // Arrange
-        var existingTransaction = Transaction.Create(paymentId, idempotencyKey);
+        var existingTransaction = Transaction.Create(ValidPaymentOrder.Id, idempotencyKey);
 
-        transactionRepository
+        _transactionRepository
             .Setup(x => x.GetByIdempotencyKeyAsync(idempotencyKey))
             .ReturnsAsync(existingTransaction);
 
         // Act
-        await sut.ExecuteAsync(paymentId, payerId, receiverId, amount, idempotencyKey, CancellationToken.None);
+        await _sut.ExecuteAsync(ValidPaymentOrder.Id, payerId, receiverId, amount, idempotencyKey, CancellationToken.None);
 
         // Assert
-        transactionRepository.Verify(x => x.SaveAsync(It.IsAny<Transaction>()), Times.Never);
-        ledgerRepository.Verify(x => x.AddRangeAsync(It.IsAny<IEnumerable<LedgerEntry>>()), Times.Never);
-        outboxService.Verify(x => x.AddEventAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Never);
+        _transactionRepository.Verify(x => x.SaveAsync(It.IsAny<Transaction>()), Times.Never);
+        _ledgerRepository.Verify(x => x.AddRangeAsync(It.IsAny<IEnumerable<LedgerEntry>>()), Times.Never);
+        _outboxService.Verify(x => x.AddEventAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -94,12 +111,13 @@ public class ProcessPaymentCreatedUseCaseTests
         // Arrange
         ArrangeNoExistingTransaction();
         ArrangeSufficientBalance(200m);
+        ArrangeExisitingPaymentOrder();
 
         // Act
-        await sut.ExecuteAsync(paymentId, payerId, receiverId, amount, idempotencyKey, CancellationToken.None);
+        await _sut.ExecuteAsync(ValidPaymentOrder.Id, payerId, receiverId, amount, idempotencyKey, CancellationToken.None);
 
         // Assert — SaveAsync chamado duas vezes: StartProcessing e MarkAsCompleted
-        transactionRepository.Verify(x => x.SaveAsync(It.Is<Transaction>(t =>
+        _transactionRepository.Verify(x => x.SaveAsync(It.Is<Transaction>(t =>
             t.Status == TransactionStatus.COMPLETED)), Times.AtLeastOnce);
     }
 
@@ -109,12 +127,13 @@ public class ProcessPaymentCreatedUseCaseTests
         // Arrange
         ArrangeNoExistingTransaction();
         ArrangeSufficientBalance(200m);
+        ArrangeExisitingPaymentOrder();
 
         // Act
-        await sut.ExecuteAsync(paymentId, payerId, receiverId, amount, idempotencyKey, CancellationToken.None);
+        await _sut.ExecuteAsync(ValidPaymentOrder.Id, payerId, receiverId, amount, idempotencyKey, CancellationToken.None);
 
         // Assert — um débito (payer) e um crédito (receiver)
-        ledgerRepository.Verify(x => x.AddRangeAsync(It.Is<IEnumerable<LedgerEntry>>(entries =>
+        _ledgerRepository.Verify(x => x.AddRangeAsync(It.Is<IEnumerable<LedgerEntry>>(entries =>
             entries.Count() == 2 &&
             entries.Any(e => e.AccountId == payerId && e.Type == LedgerEntryType.DEBIT) &&
             entries.Any(e => e.AccountId == receiverId && e.Type == LedgerEntryType.CREDIT)
@@ -127,14 +146,15 @@ public class ProcessPaymentCreatedUseCaseTests
         // Arrange
         ArrangeNoExistingTransaction();
         ArrangeSufficientBalance(200m);
+        ArrangeExisitingPaymentOrder();
 
         // Act
-        await sut.ExecuteAsync(paymentId, payerId, receiverId, amount, idempotencyKey, CancellationToken.None);
+        await _sut.ExecuteAsync(ValidPaymentOrder.Id, payerId, receiverId, amount, idempotencyKey, CancellationToken.None);
 
         // Assert
-        outboxService.Verify(x => x.AddEventAsync(
+        _outboxService.Verify(x => x.AddEventAsync(
             It.Is<TransactionCompletedIntegrationEvent>(e =>
-                e.PaymentId == paymentId &&
+                e.PaymentId == ValidPaymentOrder.Id &&
                 e.Amount == amount.Value &&
                 e.CorrelationId == idempotencyKey),
             It.IsAny<CancellationToken>()),
@@ -151,9 +171,10 @@ public class ProcessPaymentCreatedUseCaseTests
         // Arrange
         ArrangeNoExistingTransaction();
         ArrangeInsufficientBalance(50m);
+        ArrangeExisitingPaymentOrder();
 
         // Act
-        var act = () => sut.ExecuteAsync(paymentId, payerId, receiverId, amount, idempotencyKey, CancellationToken.None);
+        var act = () => _sut.ExecuteAsync(ValidPaymentOrder.Id, payerId, receiverId, amount, idempotencyKey, CancellationToken.None);
 
         // Assert
         await act.Should().ThrowAsync<InsufficientFundsException>();
@@ -165,13 +186,14 @@ public class ProcessPaymentCreatedUseCaseTests
         // Arrange
         ArrangeNoExistingTransaction();
         ArrangeInsufficientBalance(50m);
+        ArrangeExisitingPaymentOrder();
 
         // Act
         await Assert.ThrowsAsync<InsufficientFundsException>(() =>
-            sut.ExecuteAsync(paymentId, payerId, receiverId, amount, idempotencyKey, CancellationToken.None));
+            _sut.ExecuteAsync(ValidPaymentOrder.Id, payerId, receiverId, amount, idempotencyKey, CancellationToken.None));
 
         // Assert
-        transactionRepository.Verify(x => x.SaveAsync(It.Is<Transaction>(t =>
+        _transactionRepository.Verify(x => x.SaveAsync(It.Is<Transaction>(t =>
             t.Status == TransactionStatus.FAILED)), Times.AtLeastOnce);
     }
 
@@ -181,15 +203,16 @@ public class ProcessPaymentCreatedUseCaseTests
         // Arrange
         ArrangeNoExistingTransaction();
         ArrangeInsufficientBalance(50m);
+        ArrangeExisitingPaymentOrder();
 
         // Act
         await Assert.ThrowsAsync<InsufficientFundsException>(() =>
-            sut.ExecuteAsync(paymentId, payerId, receiverId, amount, idempotencyKey, CancellationToken.None));
+            _sut.ExecuteAsync(ValidPaymentOrder.Id, payerId, receiverId, amount, idempotencyKey, CancellationToken.None));
 
         // Assert
-        outboxService.Verify(x => x.AddEventAsync(
+        _outboxService.Verify(x => x.AddEventAsync(
             It.Is<TransactionFailedIntegrationEvent>(e =>
-                e.PaymentId == paymentId &&
+                e.PaymentId == ValidPaymentOrder.Id &&
                 e.CorrelationId == idempotencyKey &&
                 !string.IsNullOrEmpty(e.Reason)),
             It.IsAny<CancellationToken>()),
@@ -202,13 +225,14 @@ public class ProcessPaymentCreatedUseCaseTests
         // Arrange
         ArrangeNoExistingTransaction();
         ArrangeInsufficientBalance(50m);
+        ArrangeExisitingPaymentOrder();
 
         // Act
         await Assert.ThrowsAsync<InsufficientFundsException>(() =>
-            sut.ExecuteAsync(paymentId, payerId, receiverId, amount, idempotencyKey, CancellationToken.None));
+            _sut.ExecuteAsync(ValidPaymentOrder.Id, payerId, receiverId, amount, idempotencyKey, CancellationToken.None));
 
         // Assert — nenhuma entrada de ledger pode ser gravada se o saldo falhou
-        ledgerRepository.Verify(x => x.AddRangeAsync(It.IsAny<IEnumerable<LedgerEntry>>()), Times.Never);
+        _ledgerRepository.Verify(x => x.AddRangeAsync(It.IsAny<IEnumerable<LedgerEntry>>()), Times.Never);
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -220,14 +244,15 @@ public class ProcessPaymentCreatedUseCaseTests
     {
         // Arrange
         ArrangeNoExistingTransaction();
+        ArrangeExisitingPaymentOrder();
 
         var unexpectedException = new InvalidOperationException("DB fora do ar");
-        balanceService
+        _balanceService
             .Setup(x => x.GetBalanceAsync(payerId))
             .ThrowsAsync(unexpectedException);
 
         // Act
-        var act = () => sut.ExecuteAsync(paymentId, payerId, receiverId, amount, idempotencyKey, CancellationToken.None);
+        var act = () => _sut.ExecuteAsync(ValidPaymentOrder.Id, payerId, receiverId, amount, idempotencyKey, CancellationToken.None);
 
         // Assert — exceção original preservada (não swallowed pelo catch interno)
         await act.Should().ThrowAsync<InvalidOperationException>()
@@ -244,14 +269,15 @@ public class ProcessPaymentCreatedUseCaseTests
         // Arrange
         ArrangeNoExistingTransaction();
         ArrangeInsufficientBalance(50m);
+        ArrangeExisitingPaymentOrder();
 
         // SaveAsync falha quando tentamos salvar a transação como Failed
-        transactionRepository
+        _transactionRepository
             .Setup(x => x.SaveAsync(It.Is<Transaction>(t => t.Status == TransactionStatus.FAILED)))
             .ThrowsAsync(new Exception("Erro ao persistir Failed"));
 
         // Act
-        var act = () => sut.ExecuteAsync(paymentId, payerId, receiverId, amount, idempotencyKey, CancellationToken.None);
+        var act = () => _sut.ExecuteAsync(ValidPaymentOrder.Id, payerId, receiverId, amount, idempotencyKey, CancellationToken.None);
 
         // Assert — exceção original (InsufficientFunds) ainda propagada
         await act.Should().ThrowAsync<InsufficientFundsException>();
@@ -267,12 +293,13 @@ public class ProcessPaymentCreatedUseCaseTests
         // Arrange
         ArrangeNoExistingTransaction();
         ArrangeSufficientBalance(200m);
+        ArrangeExisitingPaymentOrder();
 
         // Act
-        await sut.ExecuteAsync(paymentId, payerId, receiverId, amount, idempotencyKey, CancellationToken.None);
+        await _sut.ExecuteAsync(ValidPaymentOrder.Id, payerId, receiverId, amount, idempotencyKey, CancellationToken.None);
 
         // Assert
-        lockService.Verify(x => x.AcquireLockAsync(payerId), Times.Once);
+        _lockService.Verify(x => x.AcquireLockAsync(payerId), Times.Once);
     }
 
     [Fact]
@@ -281,13 +308,14 @@ public class ProcessPaymentCreatedUseCaseTests
         // Arrange
         ArrangeNoExistingTransaction();
         ArrangeInsufficientBalance(50m);
+        ArrangeExisitingPaymentOrder();
 
         // Act
         await Assert.ThrowsAsync<InsufficientFundsException>(() =>
-            sut.ExecuteAsync(paymentId, payerId, receiverId, amount, idempotencyKey, CancellationToken.None));
+            _sut.ExecuteAsync(ValidPaymentOrder.Id, payerId, receiverId, amount, idempotencyKey, CancellationToken.None));
 
         // Assert — using garante o Dispose independente de exceção
-        lockHandle.Verify(x => x.Dispose(), Times.Once);
+        _lockHandle.Verify(x => x.Dispose(), Times.Once);
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -295,17 +323,25 @@ public class ProcessPaymentCreatedUseCaseTests
     // ─────────────────────────────────────────────────────────────
 
     private void ArrangeNoExistingTransaction()
-        => transactionRepository
+        => _transactionRepository
             .Setup(x => x.GetByIdempotencyKeyAsync(idempotencyKey))
             .ReturnsAsync((Transaction?)null);
 
     private void ArrangeSufficientBalance(decimal balanceValue)
-        => balanceService
+        => _balanceService
             .Setup(x => x.GetBalanceAsync(payerId))
             .ReturnsAsync(new Money(balanceValue, CurrencyType.BRL));
 
     private void ArrangeInsufficientBalance(decimal balanceValue)
-        => balanceService
+        => _balanceService
             .Setup(x => x.GetBalanceAsync(payerId))
             .ReturnsAsync(new Money(balanceValue, CurrencyType.BRL));
+
+    private void ArrangeExisitingPaymentOrder()
+    {
+        ValidPaymentOrder.MarkAsWaitingConfirmation();
+        ValidPaymentOrder.MarkAsReadyToTransfer();
+        _paymentOrderRepository.Setup(r => r.GetByIdAsync(ValidPaymentOrder.Id))
+                   .ReturnsAsync(ValidPaymentOrder);
+    }
 }

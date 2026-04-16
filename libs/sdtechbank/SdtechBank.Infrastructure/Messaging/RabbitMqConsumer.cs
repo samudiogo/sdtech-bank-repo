@@ -182,6 +182,9 @@ public class RabbitMqConsumer(
             var conn = await rabbitConnection.GetConnectionAsync();
             _channel = await conn.CreateChannelAsync(cancellationToken: cancellationToken);
             await _channel.ExchangeDeclareAsync(exchange: _settings.Exchange, type: ExchangeType.Direct, durable: true, autoDelete: false, cancellationToken: cancellationToken);
+            await _channel.ExchangeDeclareAsync(exchange: _settings.DlqExchange, type: ExchangeType.Fanout, durable: true, autoDelete: false, cancellationToken: cancellationToken);
+            await _channel.QueueDeclareAsync(queue: _settings.DlqQueue, durable: true, exclusive: false, autoDelete: false, arguments: null, cancellationToken: cancellationToken);
+            await _channel.QueueBindAsync(queue: _settings.DlqQueue, exchange: _settings.DlqExchange, routingKey: "", cancellationToken: cancellationToken);
 
             logger.LogInformation("Channel criado com sucesso");
         }

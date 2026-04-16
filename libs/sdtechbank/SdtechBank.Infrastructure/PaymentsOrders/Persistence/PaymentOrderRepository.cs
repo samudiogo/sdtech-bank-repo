@@ -53,18 +53,18 @@ namespace SdtechBank.Infrastructure.PaymentsOrders.Persistence
 
             filterDefinition &= builder.And(
                 builder.Eq(a => a.PayerId, payerId),
-                builder.Eq(a => a.Amount.Value, amount.Value),
+                builder.Eq("Amount.Value", amount.Value),
                 builder.Gte(a => a.CreatedAt, cutoff));
 
             if (destination.IsPix())
-                filterDefinition &= builder.Eq(d => d.Destination.PixKey, destination.PixKey);
+                filterDefinition &= builder.Eq("Destination.PixKey", destination.PixKey);
 
             if (destination.HasBankAccount())
                 filterDefinition &= builder.And(
-                    builder.Eq(a => a.Destination.BankAccount!.Cpf, destination.BankAccount!.Cpf),
-                    builder.Eq(a => a.Destination.BankAccount!.BankCode, destination.BankAccount!.BankCode),
-                    builder.Eq(a => a.Destination.BankAccount!.Branch, destination.BankAccount!.Branch),
-                    builder.Eq(a => a.Destination.BankAccount!.Account, destination.BankAccount!.Account));
+                    builder.Eq("Destination.BankAccount.Cpf", destination.BankAccount!.Cpf),
+                    builder.Eq("Destination.BankAccount.BankCode", destination.BankAccount!.BankCode),
+                    builder.Eq("Destination.BankAccount.Branch", destination.BankAccount!.Branch),
+                    builder.Eq("Destination.BankAccount.Account", destination.BankAccount!.Account));
 
             return await _collection.Find(filterDefinition).AnyAsync(cancellationToken);
         }
