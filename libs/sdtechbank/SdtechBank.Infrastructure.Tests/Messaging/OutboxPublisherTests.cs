@@ -7,6 +7,7 @@ using SdtechBank.Application.Common.Contracts;
 using SdtechBank.Application.Messaging;
 using SdtechBank.Domain.Shared.Messaging;
 using SdtechBank.Infrastructure.Messaging;
+using System.Xml.Xsl;
 
 namespace SdtechBank.Infrastructure.Tests.Messaging;
 
@@ -88,7 +89,7 @@ public class OutboxPublisherTests
 
         // Act
         await _sut.StartAsync(cts.Token);
-        await Task.Delay(100);
+        await Task.Delay(100, TestContext.Current.CancellationToken);
         await _sut.StopAsync(CancellationToken.None);
 
         // Assert
@@ -116,7 +117,7 @@ public class OutboxPublisherTests
 
         // Act
         await _sut.StartAsync(cts.Token);
-        await Task.Delay(100);
+        await Task.Delay(100, TestContext.Current.CancellationToken);
         await _sut.StopAsync(CancellationToken.None);
 
         // Assert
@@ -142,7 +143,7 @@ public class OutboxPublisherTests
 
         // Act
         await _sut.StartAsync(cts.Token);
-        await Task.Delay(100);
+        await Task.Delay(100, TestContext.Current.CancellationToken);
         await _sut.StopAsync(CancellationToken.None);
 
         // Assert — SaveAsync deve ser chamado mesmo quando publish tem sucesso (bloco finally)
@@ -176,7 +177,7 @@ public class OutboxPublisherTests
 
         // Act
         await _sut.StartAsync(cts.Token);
-        await Task.Delay(100);
+        await Task.Delay(100, TestContext.Current.CancellationToken);
         await _sut.StopAsync(CancellationToken.None);
 
         // Assert — IncrementAttempt é um método de domínio; verificamos o efeito colateral via log de erro
@@ -213,7 +214,7 @@ public class OutboxPublisherTests
 
         // Act
         await _sut.StartAsync(cts.Token);
-        await Task.Delay(100);
+        await Task.Delay(100, TestContext.Current.CancellationToken);
         await _sut.StopAsync(CancellationToken.None);
 
         // Assert — bloco finally garante que SaveAsync sempre é chamado
@@ -253,7 +254,7 @@ public class OutboxPublisherTests
 
         // Act
         await _sut.StartAsync(cts.Token);
-        await Task.Delay(100);
+        await Task.Delay(100, TestContext.Current.CancellationToken);
         await _sut.StopAsync(CancellationToken.None);
 
         // Assert
@@ -288,7 +289,7 @@ public class OutboxPublisherTests
 
         // Act
         await _sut.StartAsync(cts.Token);
-        await Task.Delay(50);
+        await Task.Delay(50, TestContext.Current.CancellationToken);
         await _sut.StopAsync(CancellationToken.None);
 
         // Assert
@@ -318,7 +319,7 @@ public class OutboxPublisherTests
 
         // Act
         await _sut.StartAsync(cts.Token);
-        await Task.Delay(50);
+        await Task.Delay(50, TestContext.Current.CancellationToken);
         await _sut.StopAsync(CancellationToken.None);
 
         // Assert
@@ -377,7 +378,7 @@ public class OutboxPublisherTests
 
         // Act
         await _sut.StartAsync(cts.Token);
-        await Task.Delay(150);
+        await Task.Delay(150, TestContext.Current.CancellationToken);
         await _sut.StopAsync(CancellationToken.None);
 
         // Assert — finally garante Save para cada mensagem, independente de sucesso ou falha
