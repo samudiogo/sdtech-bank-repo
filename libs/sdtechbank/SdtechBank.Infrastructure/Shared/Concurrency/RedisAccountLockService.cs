@@ -103,7 +103,7 @@ public sealed class RedisAccountLockService(IConnectionMultiplexer redis) : IAcc
 
             _disposed = true;
 
-            _cts.Cancel();
+           await _cts.CancelAsync();
 
             try
             {
