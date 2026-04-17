@@ -31,12 +31,12 @@ public class ProcessPaymentCreatedUseCaseTests
     private readonly Mock<IAccountLockService> _lockService;
     private readonly Mock<IOutboxService> _outboxService;
     private readonly Mock<ILogger<ProcessPaymentCreatedUseCase>> _logger;
-    private readonly Mock<IDisposable> _lockHandle;
+    private readonly Mock<IAsyncDisposable> _lockHandle;
 
     private readonly ProcessPaymentCreatedUseCase _sut;
 
     // Fixtures compartilhados
-    private PaymentOrder ValidPaymentOrder = PaymentOrder.Create(new IdempotencyKey(Guid.NewGuid().ToString()), Guid.NewGuid(), PaymentDestination.FromBankAccount(new()
+    private readonly PaymentOrder ValidPaymentOrder = PaymentOrder.Create(new IdempotencyKey(Guid.NewGuid().ToString()), Guid.NewGuid(), PaymentDestination.FromBankAccount(new()
     {
         FullName = "Samuel",
         Cpf = "00012345680",
@@ -59,12 +59,16 @@ public class ProcessPaymentCreatedUseCaseTests
         _lockService = new Mock<IAccountLockService>();
         _outboxService = new Mock<IOutboxService>();
         _logger = new Mock<ILogger<ProcessPaymentCreatedUseCase>>();
-        _lockHandle = new Mock<IDisposable>();
+        _lockHandle = new Mock<IAsyncDisposable>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
 
         // Lock sempre adquirido com sucesso por padrão
+        _lockHandle.Setup(x => x.DisposeAsync()).Returns(ValueTask.CompletedTask);
+
         _lockService
-            .Setup(x => x.AcquireLockAsync(It.IsAny<Guid>()))
+            .Setup(x => x.AcquireLockAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(_lockHandle.Object);
 
         _sut = new ProcessPaymentCreatedUseCase(
@@ -299,7 +303,7 @@ public class ProcessPaymentCreatedUseCaseTests
         await _sut.ExecuteAsync(ValidPaymentOrder.Id, payerId, receiverId, amount, idempotencyKey, CancellationToken.None);
 
         // Assert
-        _lockService.Verify(x => x.AcquireLockAsync(payerId), Times.Once);
+        _lockService.Verify(x => x.AcquireLockAsync(payerId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -315,7 +319,7 @@ public class ProcessPaymentCreatedUseCaseTests
             _sut.ExecuteAsync(ValidPaymentOrder.Id, payerId, receiverId, amount, idempotencyKey, CancellationToken.None));
 
         // Assert — using garante o Dispose independente de exceção
-        _lockHandle.Verify(x => x.Dispose(), Times.Once);
+        _lockHandle.Verify(x => x.DisposeAsync(), Times.Once);
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -345,3 +349,4 @@ public class ProcessPaymentCreatedUseCaseTests
                    .ReturnsAsync(ValidPaymentOrder);
     }
 }
+

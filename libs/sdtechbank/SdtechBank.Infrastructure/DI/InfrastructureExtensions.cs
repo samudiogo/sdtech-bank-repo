@@ -25,6 +25,7 @@ using SdtechBank.Infrastructure.Resilience;
 using SdtechBank.Infrastructure.Shared.Concurrency;
 using SdtechBank.Infrastructure.Shared.Mongo;
 using SdtechBank.Infrastructure.Transactions.Persistence;
+using StackExchange.Redis;
 
 namespace SdtechBank.Infrastructure.DI;
 
@@ -34,8 +35,9 @@ public static class InfrastructureExtensions
     {
         AddMongoDbConfig(services, configuration);
         AddRabbitMqConfig(services, configuration);
+        AddRedisConfig(services, configuration);
         AddRepositoriesConfig(services);
-        AddServicesConfig(services);
+        AddLockServicesConfig(services);
         AddUnitOfWorkConfig(services);
         return services;
     }
@@ -101,9 +103,25 @@ public static class InfrastructureExtensions
 
     }
 
-    private static void AddServicesConfig(IServiceCollection services)
-    {        
-        services.AddScoped<IAccountLockService, InMemoryAccountLockService>();
+    private static void AddRedisConfig(IServiceCollection services, IConfiguration configuration)
+    {
+        var connectionString = configuration["Redis:ConnectionString"];
+
+        services.AddSingleton<IConnectionMultiplexer>(_ =>
+        {
+            var options = ConfigurationOptions.Parse(connectionString!);
+            options.AbortOnConnectFail = false;
+            options.ConnectRetry = 3;
+            options.ReconnectRetryPolicy = new ExponentialRetry(5000);
+
+            return ConnectionMultiplexer.Connect(options);
+        });
+        
+    }
+
+    private static void AddLockServicesConfig(IServiceCollection services)
+    {
+        services.AddSingleton<IAccountLockService, RedisAccountLockService>();
     }
     private static void AddUnitOfWorkConfig(IServiceCollection services)
     {        

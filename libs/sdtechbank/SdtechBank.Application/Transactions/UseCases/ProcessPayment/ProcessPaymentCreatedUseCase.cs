@@ -25,23 +25,22 @@ public class ProcessPaymentCreatedUseCase(
 {
     public async Task ExecuteAsync(Guid paymentId, Guid payerId, Guid receiverId, Money amount, string idempotencyKey, CancellationToken cancellationToken)
     {
-        using (await lockService.AcquireLockAsync(payerId))
+        await using var accountLock = await lockService.AcquireLockAsync(payerId, cancellationToken);
+
+        var alreadyProcessed = await transactionRepository.GetByIdempotencyKeyAsync(idempotencyKey);
+
+        if (alreadyProcessed is not null) return;
+
+        try
         {
-            var alreadyProcessed = await transactionRepository.GetByIdempotencyKeyAsync(idempotencyKey);
+            await ProcessSuccessFlow(paymentId, payerId, receiverId, amount, idempotencyKey, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Erro ao processar PaymentId {PaymentId}", paymentId);
 
-            if (alreadyProcessed is not null) return;
-
-            try
-            {
-                await ProcessSuccessFlow(paymentId, payerId, receiverId, amount, idempotencyKey, cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Erro ao processar PaymentId {PaymentId}", paymentId);
-
-                await HandleFailureFlow(paymentId, idempotencyKey, ex, cancellationToken);
-                throw;
-            }
+            await HandleFailureFlow(paymentId, idempotencyKey, ex, cancellationToken);
+            throw;
         }
     }
 
@@ -57,7 +56,7 @@ public class ProcessPaymentCreatedUseCase(
                 throw new InvalidOperationException($"PaymentOrder {paymentId} não encontrada.");
 
             var transaction = Transaction.Create(paymentId, idempotencyKey);
-             
+
             transaction.StartProcessing();
             paymentOrder.MarkAsInTransfer();
 
@@ -110,17 +109,9 @@ public class ProcessPaymentCreatedUseCase(
                     ct);
             }
 
-            var transaction =
-                await transactionRepository
-                    .GetByIdempotencyKeyAsync(idempotencyKey);
+            var transaction = await transactionRepository.GetByIdempotencyKeyAsync(idempotencyKey);
 
-            if (transaction is null)
-            {
-                transaction =
-                    Transaction.Create(
-                        paymentId,
-                        idempotencyKey);
-            }
+            transaction ??= Transaction.Create(paymentId, idempotencyKey);
 
             transaction.MarkAsFailed();
 
