@@ -25,7 +25,7 @@ public class ProcessPaymentCreatedUseCase(
 {
     public async Task ExecuteAsync(Guid paymentId, Guid payerId, Guid receiverId, Money amount, string idempotencyKey, CancellationToken cancellationToken)
     {
-        using (await lockService.AcquireLockAsync(payerId))
+        using (await lockService.AcquireLockAsync(payerId, cancellationToken))
         {
             var alreadyProcessed = await transactionRepository.GetByIdempotencyKeyAsync(idempotencyKey);
 
@@ -57,7 +57,7 @@ public class ProcessPaymentCreatedUseCase(
                 throw new InvalidOperationException($"PaymentOrder {paymentId} não encontrada.");
 
             var transaction = Transaction.Create(paymentId, idempotencyKey);
-             
+
             transaction.StartProcessing();
             paymentOrder.MarkAsInTransfer();
 
@@ -110,17 +110,9 @@ public class ProcessPaymentCreatedUseCase(
                     ct);
             }
 
-            var transaction =
-                await transactionRepository
-                    .GetByIdempotencyKeyAsync(idempotencyKey);
+            var transaction = await transactionRepository.GetByIdempotencyKeyAsync(idempotencyKey);
 
-            if (transaction is null)
-            {
-                transaction =
-                    Transaction.Create(
-                        paymentId,
-                        idempotencyKey);
-            }
+            transaction ??= Transaction.Create(paymentId, idempotencyKey);
 
             transaction.MarkAsFailed();
 

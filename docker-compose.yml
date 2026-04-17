@@ -18,6 +18,7 @@ services:
       ASPNETCORE_Kestrel__Certificates__Default__Path: ${ASPNETCORE_Kestrel__Certificates__Default__Path}      
       MongoDB__ConnectionString: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/?authSource=admin
       MongoDB__DatabaseName: ${MONGO_DB_NAME}
+      REDIS__ConnectionString: ${REDIS_ConnectionString}
     networks:
       - pixmanager_network
       - infra_net
@@ -50,6 +51,7 @@ services:
       RabbitMQ__QueueType: ${RABBITMQ_QUEUE_TYPE}
       RabbitMQ__MessageTTL: ${RABBITMQ_MESSAGE_TTL_MS}
       RabbitMQ__VirtualHost: ${RABBITMQ_VIRTUAL_HOST}
+      REDIS__ConnectionString: ${REDIS_ConnectionString}
       OutboxPublisher__MessagesLimit: ${OUTBOX_PUBLISHER_MessagesLimit}
       OutboxPublisher__IntervalSeconds: ${OUTBOX_PUBLISHER_IntervalSeconds}
       OutboxPublisher__MaxAttempts: ${OUTBOX_PUBLISHER_MaxAttempts}

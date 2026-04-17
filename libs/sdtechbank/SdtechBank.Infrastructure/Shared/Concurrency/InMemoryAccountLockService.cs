@@ -5,7 +5,7 @@ namespace SdtechBank.Infrastructure.Shared.Concurrency;
 public class InMemoryAccountLockService : IAccountLockService
 {
     private static readonly Dictionary<Guid, SemaphoreSlim> _locks = [];
-    public async Task<IDisposable> AcquireLockAsync(Guid accountId)
+    public async Task<IDisposable> AcquireLockAsync(Guid accountId, CancellationToken ct)
     {
         SemaphoreSlim semaphore;
         lock (_locks)
@@ -16,7 +16,7 @@ public class InMemoryAccountLockService : IAccountLockService
                 _locks[accountId] = semaphore;
             }
         }
-        await semaphore.WaitAsync();
+        await semaphore.WaitAsync(ct);
 
         return new Releaser(() => semaphore.Release());
     }
