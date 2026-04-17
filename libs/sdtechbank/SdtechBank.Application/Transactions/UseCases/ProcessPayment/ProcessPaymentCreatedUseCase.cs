@@ -25,7 +25,7 @@ public class ProcessPaymentCreatedUseCase(
 {
     public async Task ExecuteAsync(Guid paymentId, Guid payerId, Guid receiverId, Money amount, string idempotencyKey, CancellationToken cancellationToken)
     {
-        using (await lockService.AcquireLockAsync(payerId, cancellationToken))
+        await using (await lockService.AcquireLockAsync(payerId, cancellationToken))
         {
             var alreadyProcessed = await transactionRepository.GetByIdempotencyKeyAsync(idempotencyKey);
 

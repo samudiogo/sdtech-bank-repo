@@ -2,5 +2,5 @@
 
 public interface IAccountLockService
 {
-    Task<IDisposable> AcquireLockAsync(Guid accountId, CancellationToken ct);
+    Task<IAsyncDisposable> AcquireLockAsync(Guid accountId, CancellationToken ct);
 }
