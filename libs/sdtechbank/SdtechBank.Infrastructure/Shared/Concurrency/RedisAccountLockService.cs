@@ -27,7 +27,7 @@ public class RedisAccountLockService(IConnectionMultiplexer redis) : IAccountLoc
             if (acquired)
                 return new RedisLock(_db, key, token, RenewInterval, LockTtl);
 
-            await Task.Delay(50,ct);
+            await Task.Delay(RetryDelay, timeoutCts.Token);
         }
         throw new TimeoutException($"Timeout acquiring lock for account {accountId}");
     }
