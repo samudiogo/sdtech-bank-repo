@@ -20,12 +20,17 @@ public sealed class RedisAccountLockService(IConnectionMultiplexer redis) : IAcc
         var key = $"lock:account:{accountId}";
         var token = Guid.NewGuid().ToString();
 
-        using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        using var timeoutCts = new CancellationTokenSource(AcquireTimeout);
 
-        timeoutCts.CancelAfter(AcquireTimeout);
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct, timeoutCts.Token);
 
-        while (!timeoutCts.Token.IsCancellationRequested)
+        while (true)
         {
+            ct.ThrowIfCancellationRequested();
+
+            if (timeoutCts.IsCancellationRequested)
+                throw new TimeoutException($"Timeout acquiring lock for account {accountId}");
+
             var acquired =
                 await _db.StringSetAsync(key, token, LockTtl, When.NotExists);
 
@@ -34,10 +39,18 @@ public sealed class RedisAccountLockService(IConnectionMultiplexer redis) : IAcc
                 return new RedisLock(_db, key, token, RenewInterval, LockTtl);
             }
 
-            await Task.Delay(RetryDelay, timeoutCts.Token);
-        }
+            try
+            {
+                await Task.Delay(RetryDelay, linkedCts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                if (ct.IsCancellationRequested)
+                    throw;
 
-        throw new TimeoutException($"Timeout acquiring lock for account {accountId}");
+                throw new TimeoutException($"Timeout acquiring lock for account {accountId}");
+            }
+        }
     }
 
     private sealed class RedisLock : IAsyncDisposable

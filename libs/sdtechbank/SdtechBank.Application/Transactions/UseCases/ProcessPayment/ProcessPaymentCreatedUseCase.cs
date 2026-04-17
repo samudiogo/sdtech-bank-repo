@@ -25,23 +25,22 @@ public class ProcessPaymentCreatedUseCase(
 {
     public async Task ExecuteAsync(Guid paymentId, Guid payerId, Guid receiverId, Money amount, string idempotencyKey, CancellationToken cancellationToken)
     {
-        await using (await lockService.AcquireLockAsync(payerId, cancellationToken))
+        await using var accountLock = await lockService.AcquireLockAsync(payerId, cancellationToken);
+
+        var alreadyProcessed = await transactionRepository.GetByIdempotencyKeyAsync(idempotencyKey);
+
+        if (alreadyProcessed is not null) return;
+
+        try
         {
-            var alreadyProcessed = await transactionRepository.GetByIdempotencyKeyAsync(idempotencyKey);
+            await ProcessSuccessFlow(paymentId, payerId, receiverId, amount, idempotencyKey, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Erro ao processar PaymentId {PaymentId}", paymentId);
 
-            if (alreadyProcessed is not null) return;
-
-            try
-            {
-                await ProcessSuccessFlow(paymentId, payerId, receiverId, amount, idempotencyKey, cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Erro ao processar PaymentId {PaymentId}", paymentId);
-
-                await HandleFailureFlow(paymentId, idempotencyKey, ex, cancellationToken);
-                throw;
-            }
+            await HandleFailureFlow(paymentId, idempotencyKey, ex, cancellationToken);
+            throw;
         }
     }
 
