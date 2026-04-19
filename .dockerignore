@@ -3,7 +3,6 @@
 .gitignore
 
 # Docker
-Dockerfile
 docker-compose.yml
 
 # Node
@@ -34,3 +33,16 @@ README.md
 SdtechBank.Application.Tests/
 SdtechBank.Domain.Tests/
 SdtechBank.PixManagerApi.Tests/
+
+# Python
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/.venv/
+**/venv/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/.coverage
+**/htmlcov/
+**/*.egg-info/

@@ -64,7 +64,33 @@ services:
       timeout: 5s
       retries: 3
       start_period: 20s    
-
+  dict_service:
+    container_name: sdtech-bank-dict-service
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dict_service
+    ports:
+    - "8000:8000"
+    environment:
+      MONGO_URL: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/?authSource=admin
+    networks:
+      - pixmanager_network
+      - infra_net
+    healthcheck:
+      test: 
+        [
+        "CMD",
+        "python",
+        "-c",
+        "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
+      ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+      
 networks:
   infra_net:
     external: true
