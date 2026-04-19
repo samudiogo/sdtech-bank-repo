@@ -17,7 +17,7 @@ public class RabbitMqPublisherTests(RabbitMqFixture fixture)
         var settings = Options.Create(new RabbitMqSettings
         {
             Host = fixture.Host,
-            Port = fixture.Port,
+            Port = fixture.Port.ToString(),
             Username = fixture.Username,
             Password = fixture.Password,
             Exchange = "sdtech.exchange",
