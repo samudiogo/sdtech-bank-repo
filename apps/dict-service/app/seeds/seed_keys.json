@@ -1,0 +1,86 @@
+[
+  {
+    "key": "21980701947",
+    "key_normalized": "5521980701947",
+    "key_type": "PHONE",
+    "status": "ACTIVE",
+    "owner": {
+      "name": "Samuel Diogo de Jesus",
+      "document": "12345678900",
+      "document_type": "CPF"
+    },
+    "account": {
+      "ispb": "12345678",
+      "bank_code": "260",
+      "bank_name": "Nu Pagamentos S.A.",
+      "branch": "0001",
+      "number": "12345678",
+      "digit": "9",
+      "account_type": "CHECKING"
+    },
+    "metadata": { "version": 1 }
+  },
+  {
+    "key": "samuel@email.com",
+    "key_normalized": "samuel@email.com",
+    "key_type": "EMAIL",
+    "status": "ACTIVE",
+    "owner": {
+      "name": "Samuel",
+      "document": "98765432100",
+      "document_type": "CPF"
+    },
+    "account": {
+      "ispb": "11111111",
+      "bank_code": "001",
+      "bank_name": "Banco do Brasil",
+      "branch": "1234",
+      "number": "998877",
+      "digit": "1",
+      "account_type": "CHECKING"
+    },
+    "metadata": { "version": 1 }
+  },
+  {
+    "key": "123.456.789-00",
+    "key_normalized": "12345678900",
+    "key_type": "CPF",
+    "status": "ACTIVE",
+    "owner": {
+      "name": "Maria Souza",
+      "document": "12345678900",
+      "document_type": "CPF"
+    },
+    "account": {
+      "ispb": "22222222",
+      "bank_code": "341",
+      "bank_name": "Itaú",
+      "branch": "0001",
+      "number": "123123",
+      "digit": "5",
+      "account_type": "SAVINGS"
+    },
+    "metadata": { "version": 1 }
+  },
+  {
+    "key": "33.607.877.0001-36",
+    "key_normalized": "33607877000136",
+    "key_type": "CNPJ",
+    "status": "ACTIVE",
+    "owner": {
+      "name": "SDTECH consultoria em TI",
+      "document": "33607877000136",
+      "document_type": "CNPJ"
+    },
+    "account": {
+      "ispb": "22222222",
+      "bank_code": "341",
+      "bank_name": "Itaú",
+      "branch": "1808",
+      "number": "11127",
+      "digit": "6",
+      "account_type": "SAVINGS"
+    },
+    "metadata": { "version": 1 }
+  }
+]

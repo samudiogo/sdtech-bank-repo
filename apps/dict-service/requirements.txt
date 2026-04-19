@@ -1,0 +1,6 @@
+fastapi
+scalar-fastapi
+uvicorn
+pytest
+httpx
+pymongo
