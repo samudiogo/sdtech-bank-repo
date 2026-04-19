@@ -14,7 +14,7 @@ internal sealed class PaymentDestinationSerializer : SerializerBase<PaymentDesti
 
         context.Writer.WriteName("PixKey");
         if (value.PixKey is not null)
-            context.Writer.WriteString(value.PixKey);
+            context.Writer.WriteString(value.PixKey.Value);
         else
             context.Writer.WriteNull();
 

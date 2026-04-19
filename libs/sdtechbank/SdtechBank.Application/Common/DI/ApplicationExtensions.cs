@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using SdtechBank.Application.Accounts.Contracts;
 using SdtechBank.Application.Accounts.CreateAccount;
 using SdtechBank.Application.Accounts.Services;

@@ -32,7 +32,7 @@ public class FailPaymentUseCaseTests
         var payment = PaymentOrder.Create(new IdempotencyKey(Guid.NewGuid().ToString()), Guid.NewGuid(), PaymentDestination.FromBankAccount(new()
         {
             FullName = "Samuel",
-            Cpf = "00012345680",
+            Document = "00012345680",
             BankCode = "001",
             Branch = "1234",
             Account = "123456"
