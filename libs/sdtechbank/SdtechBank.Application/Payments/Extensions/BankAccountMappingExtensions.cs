@@ -7,6 +7,6 @@ public static class BankAccountMappingExtensions
 {
     public static BankAccount ToEntity(this BankAccountRequest request)
     {
-        return new BankAccount { FullName = request.FullName!, Cpf = request.Cpf!, BankCode = request.BankCode!, Account = request.Account!, Branch = request.Branch! };
+        return new BankAccount { FullName = request.FullName!, Document = request.Cpf!, BankCode = request.BankCode!, Account = request.Account!, Branch = request.Branch! };
     }
 }
