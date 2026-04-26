@@ -11,7 +11,7 @@ public class PaymentOrderTests
 {
     private static PaymentOrder CreateValidOrder()
     {
-        var destination = PaymentDestination.FromPixKey("pixkey");
+        var destination = PaymentDestination.FromPixKey("pixkey@pixkey.com");
         return PaymentOrder.Create(
             new IdempotencyKey(Guid.NewGuid().ToString()),
             Guid.NewGuid(),

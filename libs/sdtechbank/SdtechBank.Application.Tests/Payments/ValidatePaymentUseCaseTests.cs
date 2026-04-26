@@ -67,7 +67,7 @@ public class ValidatePaymentUseCaseTests
         var payment = PaymentOrder.Create(
             new IdempotencyKey(Guid.NewGuid().ToString()),
             Guid.NewGuid(),
-            PaymentDestination.FromPixKey("chave-pix"),
+            PaymentDestination.FromPixKey("pixkey@pixkey.com"),
             new Money(100, CurrencyType.BRL)
         );
 

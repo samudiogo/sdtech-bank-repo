@@ -35,7 +35,7 @@ public static class PaymentOrderEventMappingExtensions
     {
         return new PaymentDestinationSnapshot
         {
-            PixKey = paymentDestination.PixKey!.Value,
+            PixKey = paymentDestination.PixKey?.Value,
             BankAccount = paymentDestination.BankAccount?.ToBankAccountSnapshot()
         };
     }
