@@ -29,7 +29,7 @@ public partial class DictKeyResponse
 public partial class AccountResponse
 {
     [JsonPropertyName("ispb")]    
-    public long Ispb { get; init; } = default!;
+    public string Ispb { get; init; } = default!;
 
     [JsonPropertyName("bank_code")]    
     public string BankCode { get; init; } = default!;

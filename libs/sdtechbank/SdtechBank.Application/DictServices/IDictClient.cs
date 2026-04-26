@@ -1,4 +1,4 @@
-using SdtechBank.Domain.Shared.ValueObjects;
+using SdtechBank.Domain.PaymentOrders.ValueObjects;
 
 namespace SdtechBank.Application.DictServices;
 

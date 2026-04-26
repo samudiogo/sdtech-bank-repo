@@ -1,6 +1,6 @@
 using System.Net;
-using System.Net.Http.Json;
-using SdtechBank.Domain.Shared.ValueObjects;
+using System.Text.Json;
+using SdtechBank.Domain.PaymentOrders.ValueObjects;
 
 namespace SdtechBank.Application.DictServices;
 
@@ -17,6 +17,9 @@ public sealed class DictClient(HttpClient httpClient) : IDictClient
 
         response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadFromJsonAsync<DictKeyResponse>(ct);
+        var res = await response.Content.ReadAsStringAsync(ct);       
+
+        return JsonSerializer.Deserialize<DictKeyResponse>(res);
+        
     }
 }
