@@ -9,11 +9,19 @@ namespace SdtechBank.Infrastructure.Accounts;
 public class AccountRepository(MongoDbContext context) : IAccountRepository
 {
     private readonly IMongoCollection<Account> _collection = context.GetCollection<Account>("accounts");
+
+    public async Task<Account?> GetByAccountCodeAsync(string accountCode, CancellationToken cancellationToken)
+    {
+        var filter = Builders<Account>.Filter.Eq(o => o.AccountCode, accountCode);
+
+        return await _collection.Find(filter).FirstOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<Account?> GetByBankAccountAsync(BankAccount bankAccount, CancellationToken cancellationToken)
     {
         var builder = Builders<Account>.Filter;
         var filters = builder.And(
-            builder.Eq(a => a.Cpf, bankAccount.Cpf),
+            builder.Eq(a => a.Cpf, bankAccount.Document),
             builder.Eq(a => a.BankCode, bankAccount.BankCode),
             builder.Eq(a => a.Branch, bankAccount.Branch),
             builder.Eq(a => a.AccountCode, bankAccount.Account));
