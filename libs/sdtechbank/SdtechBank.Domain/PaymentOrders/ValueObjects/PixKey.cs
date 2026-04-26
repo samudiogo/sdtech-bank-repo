@@ -18,5 +18,17 @@ public sealed record PixKey
         Value = handler.Normalize(key);
 
         Type = handler.Type;
+    }
+
+    public PixKey(string key, PixKeyType type)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+            throw new InvalidOperationException("Chave pix não pode ser vazia ou nula");
+
+        var handler = PixKeyResolver.Resolve(key);
+
+        Value = handler.Normalize(key);
+
+        Type = type;
     }    
 }
