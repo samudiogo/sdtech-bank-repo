@@ -19,6 +19,8 @@ services:
       MongoDB__ConnectionString: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/?authSource=admin
       MongoDB__DatabaseName: ${MONGO_DB_NAME}
       REDIS__ConnectionString: ${REDIS_ConnectionString}
+      Services__DictApi__Host: ${DICT_API_HOST}
+      Services__DictApi__Port: ${DICT_API_PORT}
     networks:
       - pixmanager_network
       - infra_net
@@ -55,6 +57,8 @@ services:
       OutboxPublisher__MessagesLimit: ${OUTBOX_PUBLISHER_MessagesLimit}
       OutboxPublisher__IntervalSeconds: ${OUTBOX_PUBLISHER_IntervalSeconds}
       OutboxPublisher__MaxAttempts: ${OUTBOX_PUBLISHER_MaxAttempts}
+      Services__DictApi__Host: ${DICT_API_HOST}
+      Services__DictApi__Port: ${DICT_API_PORT}
     networks:
       - pixmanager_network
       - infra_net
