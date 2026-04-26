@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using SdtechBank.Application.DictServices;
 using SdtechBank.Application.Messaging;
 using SdtechBank.Application.Payments.Abstractions;
@@ -15,19 +14,15 @@ public interface IResolvePaymentDictUseCase
 public class ResolvePaymentDictUseCase(IPaymentOrderRepository repository,
                                        IOutboxService outboxService,
                                        IDictClient dictClient,
-                                       IReceiverResolver receiverResolver,
-                                       ILogger<ResolvePaymentDictUseCase> logger) : IResolvePaymentDictUseCase
+                                       IReceiverResolver receiverResolver) : IResolvePaymentDictUseCase
 {
     public async Task ExecuteAsync(Guid paymentId, CancellationToken cancellation)
     {
-        logger.LogInformation("iniciando o processamento para a ordem de pagamento {PaymentId}", paymentId);
-
         var paymmentOrder = await repository.GetByIdAsync(paymentId);
         if (paymmentOrder is null)
             return;
 
         var pixKey = paymmentOrder.Destination.PixKey!;
-        logger.LogInformation("chave pix: {PixKey}", pixKey);
 
         var dict = await dictClient.GetKeyAsync(pixKey, cancellation);
 
@@ -64,6 +59,5 @@ public class ResolvePaymentDictUseCase(IPaymentOrderRepository repository,
         await repository.SaveAsync(paymmentOrder, cancellation);
 
         await outboxService.AddEventAsync(paymmentOrder.ToPaymentValidatedIntegrationEvent(receiverId: receiverId!.Value, correlationId: paymmentOrder.IdempotencyKey.ToString()), cancellation);
-
     }
 }

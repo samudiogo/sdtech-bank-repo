@@ -1,6 +1,7 @@
 namespace SdtechBank.Domain.PaymentOrders.Services;
 public sealed class PixKeyResolver
 {
+    private PixKeyResolver() { }
     private static readonly IPixKeyHandler[] handlers =
     [
         new EmailPixKeyHandler(),
