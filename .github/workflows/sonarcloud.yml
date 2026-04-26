@@ -17,25 +17,49 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # necessário para o blame/history do Sonar
+          fetch-depth: 0
 
+      # -----------------------------
+      # Runtime Setup
+      # -----------------------------
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.x'
 
-      - name: Setup Java 25
+      - name: Setup Java
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '25'
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # -----------------------------
+      # Global Tools
+      # -----------------------------
       - name: Install SonarCloud scanner
         run: dotnet tool install --global dotnet-sonarscanner
 
       - name: Install dotnet-coverage
         run: dotnet tool install --global dotnet-coverage
 
+      # -----------------------------
+      # Python Dependencies
+      # -----------------------------
+      - name: Install Python dependencies
+        run: |
+          cd apps/dict-service
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+
+      # -----------------------------
+      # Sonar Begin
+      # -----------------------------
       - name: Begin SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -46,22 +70,44 @@ jobs:
             /o:"samudiogo" \
             /d:sonar.token="${SONAR_TOKEN}" \
             /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.sources="apps,libs" \
             /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml" \
+            /d:sonar.python.coverage.reportPaths="apps/dict-service/coverage.xml" \
             /d:sonar.exclusions="${SONAR_EXCLUSIONS}" \
             /d:sonar.cpd.exclusions="**/*MappingExtensions.cs,**/*Request.cs,**/*Response.cs,**/DTOs/**,**/InfrastructureExtensions.cs" \
             /d:sonar.scanner.skipJreProvisioning=true
 
+      # -----------------------------
+      # Build .NET
+      # -----------------------------
       - name: Build solution
         run: dotnet build libs/sdtechbank/SdtechBank.slnx --no-incremental
 
-      - name: Run tests with coverage
+      # -----------------------------
+      # Test .NET + Coverage
+      # -----------------------------
+      - name: Run .NET tests with coverage
         run: |
           dotnet test libs/sdtechbank/SdtechBank.slnx \
             --collect:"XPlat Code Coverage" \
             --results-directory TestResults \
             -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
+      # -----------------------------
+      # Test Python + Coverage
+      # -----------------------------
+      - name: Run Python tests with coverage
+        run: |
+          cd apps/dict-service
+          pytest tests \
+            --cov=app \
+            --cov-report=xml:coverage.xml
+
+      # -----------------------------
+      # Sonar End
+      # -----------------------------
       - name: End SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
+
