@@ -76,13 +76,17 @@ ENTRYPOINT ["dotnet", "SdtechBank.PixManagerWorker.dll"]
 
 FROM python:3.12-slim AS dict_service
 
+RUN addgroup --system app && adduser --system --group app
+
 WORKDIR /apps/dict-service
 
 COPY apps/dict-service/requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY apps/dict-service/app ./app
+COPY --chown=app:app apps/dict-service/app ./app
+
+USER app
 
 EXPOSE 8000
 
