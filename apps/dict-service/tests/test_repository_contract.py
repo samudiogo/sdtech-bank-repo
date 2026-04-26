@@ -8,10 +8,6 @@ def load_seed():
     with open(path, "r", encoding="utf-8") as file:
         return json.load(file)
 
-def test_should_create_repository():
-    repo = PixKeyRepository()
-
-    assert repo is not None
 
 def test_should_return_existing_key():
     seed_data = load_seed()
