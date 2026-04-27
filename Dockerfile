@@ -89,10 +89,13 @@ COPY apps/dict-service/requirements.txt .
 
 RUN pip install -r requirements.txt
 
-COPY --chown=app:app apps/dict-service/app ./app
+# 1. Copia como root (sem permissões de escrita atribuídas ao app)
+COPY apps/dict-service/app ./app
 
+# 2. Remove escrita e transfere ownership num único layer
 RUN find ./app -type d -exec chmod 555 {} \; && \
-    find ./app -type f -exec chmod 444 {} \;
+    find ./app -type f -exec chmod 444 {} \; && \
+    chown -R app:app ./app
 
 USER app
 
