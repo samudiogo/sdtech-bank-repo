@@ -21,7 +21,7 @@ public class AccountRepository(MongoDbContext context) : IAccountRepository
     {
         var builder = Builders<Account>.Filter;
         var filters = builder.And(
-            builder.Eq(a => a.Cpf, bankAccount.Document),
+            builder.Eq(a => a.Document, bankAccount.Document),
             builder.Eq(a => a.BankCode, bankAccount.BankCode),
             builder.Eq(a => a.Branch, bankAccount.Branch),
             builder.Eq(a => a.AccountCode, bankAccount.Account));

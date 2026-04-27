@@ -8,7 +8,7 @@ public class AccountTests
 {
     private static Account CreateValidAccount() => Account.Create(
                                             fullName: "Samuel",
-                                            cpf: "00012345680",
+                                            document: "00012345680",
                                             bankCode: "001",
                                             branch: "1234",
                                             accountCode: "12345-6",
@@ -23,7 +23,7 @@ public class AccountTests
         //assert:
         account.Status.Should().Be(AccountStatus.ACTIVE);
         account.FullName.Should().Be("Samuel");
-        account.Cpf.Should().Be("00012345680");
+        account.Document.Should().Be("00012345680");
         account.BankCode.Should().Be("001");
         account.Branch.Should().Be("1234");
         account.AccountCode.Should().Be("12345-6");
