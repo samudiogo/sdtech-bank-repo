@@ -1,4 +1,6 @@
 # 🏦 SDTECH Bank — Pix Payment System (Event-Driven)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=samudiogo_sdtech-bank-repo&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=samudiogo_sdtech-bank-repo) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=samudiogo_sdtech-bank-repo&metric=coverage)](https://sonarcloud.io/summary/new_code?id=samudiogo_sdtech-bank-repo) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=samudiogo_sdtech-bank-repo&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=samudiogo_sdtech-bank-repo)
+
 
 Sistema distribuído para simulação de transferências Pix ponta a ponta, inspirado no fluxo oficial do Banco Central.
 
@@ -139,15 +141,35 @@ PaymentRequested → PixKeyResolved → PaymentValidated → PaymentConfirmed �
 # 📩 Eventos
 
 ## PaymentRequested
-
+### Ordem de pagamento para conta bancária (PIX TED)
+```
 {
-  "transactionId": "uuid",
+  "idempotencyKey":"bank-dlq-corrected-20260415-1735",
   "amount": 100,
-  "payerPixKey": "from@bank.com",
-  "receiverPixKey": "to@bank.com",
-  "correlationId": "abc-123"
+  "payerId": "605207fb-a326-4c49-9254-6aa293b05df2",
+  "receiver": {
+    "pixKey": null,
+    "bankAccount": {
+        "fullName": "Um Nome Completo",
+        "bankCode": "999",
+        "branch": "9999",
+        "account": "99999-9",
+        "cpf": "1234567890"
+    }
+  }
 }
-
+```
+### Ordem de pagamento para chave pix (PIX)
+```
+{
+  "idempotencyKey":"bank-dlq-corrected-20260415-1735",
+  "amount": 150,
+  "payerId": "c8a55ba7-adb2-4f53-96af-10863ee14cb9",
+  "receiver": {
+    "pixKey": "pix@email.com"
+  }
+}
+```
 ---
 
 ## PixKeyResolved
