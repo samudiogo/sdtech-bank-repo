@@ -84,7 +84,7 @@ COPY apps/dict-service/requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY --chown=app:app apps/dict-service/app ./app
+COPY --chown=app:app --chmod=555 apps/dict-service/app ./app
 
 USER app
 
