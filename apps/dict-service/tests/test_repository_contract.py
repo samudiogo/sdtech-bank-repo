@@ -4,7 +4,9 @@ from app.infra.repositories import PixKeyRepository
 from unittest.mock import patch
 
 def load_seed():
-    path = Path("app/seeds/seed_keys.json")
+    base_dir = Path(__file__).resolve().parents[1]
+    path = base_dir / "app" / "seeds" / "seed_keys.json"
+
     with open(path, "r", encoding="utf-8") as file:
         return json.load(file)
 
