@@ -24,20 +24,24 @@ internal static class MongoDbClassMap
         {
             if (_registered) return;
 
-            // Serializer para o VO com construtor privado
-            BsonSerializer.RegisterSerializer(new PaymentDestinationSerializer());
-
-            RegisterEntity<PaymentOrder>();
+            BsonClassMap.RegisterClassMap<PaymentOrder>(cm =>
+            {
+                cm.AutoMap();
+                cm.MapIdMember(x => x.Id);
+                cm.SetIgnoreExtraElements(true);
+            });
+            BsonClassMap.RegisterClassMap<PaymentDestination>(cm =>
+            {
+                cm.AutoMap();
+                cm.MapMember(x => x.PixKey);
+                cm.MapMember(x => x.BankAccount);
+            });
             RegisterEntity<Deposit>();
             RegisterEntity<Transaction>();
             RegisterEntity<LedgerEntry>();
             RegisterEntity<InboxMessage>();
             RegisterEntity<OutboxMessage>();
-            RegisterEntity<Account>();
-
-
-            RegisterValueObject<Money>();
-            RegisterValueObject<BankAccount>();
+            RegisterEntity<Account>();        
 
             _registered = true;
         }
