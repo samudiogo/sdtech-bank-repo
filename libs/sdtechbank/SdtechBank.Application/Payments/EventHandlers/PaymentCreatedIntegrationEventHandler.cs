@@ -2,7 +2,7 @@ using SdtechBank.Application.IntegrationEvents;
 using SdtechBank.Application.Payments.Contracts.Events;
 using SdtechBank.Application.Payments.UseCases.ValidatePayment;
 
-namespace SdtechBank.Application.Transactions.EventHandlers;
+namespace SdtechBank.Application.Payments.EventHandlers;
 
 public sealed class PaymentCreatedIntegrationEventHandler(IValidatePaymentUseCase useCase) : IIntegrationEventHandler<PaymentCreatedIntegrationEvent>
 {

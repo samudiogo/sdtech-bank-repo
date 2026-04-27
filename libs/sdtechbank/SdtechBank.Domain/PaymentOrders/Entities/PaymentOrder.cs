@@ -20,9 +20,9 @@ public sealed class PaymentOrder
     public DateTime? UserConfirmedAt { get; private set; }
     public DateTime? CompletedAt { get; private set; }
     public DateTime? FailedAt { get; private set; }
-    public Guid? TransactionId { get; private set; }    
+    public Guid? TransactionId { get; private set; }
     public string? FailedReason { get; private set; }
-    public IdempotencyKey IdempotencyKey { get; private set; } = default!;    
+    public IdempotencyKey IdempotencyKey { get; private set; } = default!;
 
     private PaymentOrder() { }
     private PaymentOrder(Guid id, Guid payerId, PaymentDestination destination, Money amount, PaymentStatus paymentStatus, DateTime createdAt, IdempotencyKey key)
@@ -52,6 +52,12 @@ public sealed class PaymentOrder
         return new PaymentOrder(Guid.NewGuid(), payerId, destination, amount, PaymentStatus.CREATED, DateTime.UtcNow, key);
     }
 
+    public void UpdatePaymentDestination(PaymentDestination destination) => Destination = destination;
+    public void DefineDestinationBankAccount(BankAccount bankAccount)
+    {
+        Destination = Destination.SetDestinationBankAccount(bankAccount);
+    }
+
     /// <summary>
     /// Atualiza o pagamento para o status de aguardando confirmação.
     /// </summary>
@@ -60,8 +66,8 @@ public sealed class PaymentOrder
     /// </exception>
     public void MarkAsWaitingConfirmation()
     {
-        if (PaymentStatus != PaymentStatus.CREATED)
-            throw new InvalidOperationException("Transição para 'WAITING_CONFIRMATION' permitida apenas para pagamentos com status 'CREATED'.");
+        if (PaymentStatus is not (PaymentStatus.CREATED or PaymentStatus.WAITING_FOR_DICT))
+            throw new InvalidOperationException($"Transição para 'WAITING_CONFIRMATION' permitida apenas para pagamentos com status 'CREATED' ou 'WAITING_FOR_DICT'. ({PaymentStatus})");
 
         PaymentStatus = PaymentStatus.WAITING_CONFIRMATION;
     }
@@ -104,7 +110,7 @@ public sealed class PaymentOrder
     {
         if (PaymentStatus != PaymentStatus.READY_TO_TRANSFER)
             throw new InvalidOperationException("Transição para 'IN_TRANSFER' requer status 'READY_TO_TRANSFER'.");
-        
+
         UserConfirmedAt = DateTime.UtcNow;
         PaymentStatus = PaymentStatus.IN_TRANSFER;
     }

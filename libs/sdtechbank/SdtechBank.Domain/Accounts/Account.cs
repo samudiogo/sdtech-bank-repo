@@ -5,7 +5,7 @@ public class Account
 {
     public Guid Id { get; set; }
     public string FullName { get; private set; } = default!;
-    public string Cpf { get; private set; } = default!;
+    public string Document { get; private set; } = default!;
     public string BankCode { get; private set; } = default!;
     public string Branch { get; private set; } = default!;
     public string AccountCode { get; private set; } = default!;
@@ -17,10 +17,10 @@ public class Account
 
     public string? InactiveReason { get; private set; }
 
-    public static Account Create(string fullName, string cpf, string bankCode, string branch, string accountCode, AccountType type) => new()
+    public static Account Create(string fullName, string document, string bankCode, string branch, string accountCode, AccountType type) => new()
     {
         FullName = fullName,
-        Cpf = cpf,
+        Document = document,
         BankCode = bankCode,
         Branch = branch,
         AccountCode = accountCode,

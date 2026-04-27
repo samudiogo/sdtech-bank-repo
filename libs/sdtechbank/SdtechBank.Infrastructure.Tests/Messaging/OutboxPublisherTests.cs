@@ -7,7 +7,6 @@ using SdtechBank.Application.Common.Contracts;
 using SdtechBank.Application.Messaging;
 using SdtechBank.Domain.Shared.Messaging;
 using SdtechBank.Infrastructure.Messaging;
-using System.Xml.Xsl;
 
 namespace SdtechBank.Infrastructure.Tests.Messaging;
 

@@ -29,13 +29,13 @@ public static class PaymentOrderEventMappingExtensions
     };
 
     public static PaymentNeedsAccountDataIntegrationEvent ToPaymentNeedsAccountDataIntegrationEvent(this PaymentOrder paymentOrder) =>
-        new() { PaymentId = paymentOrder.Id, PixKey = paymentOrder.Destination.PixKey! };
+        new() { PaymentId = paymentOrder.Id, PixKey = paymentOrder.Destination.PixKey!.Value };
 
     public static PaymentDestinationSnapshot ToPaymentDestinationSnapshot(this PaymentDestination paymentDestination)
     {
         return new PaymentDestinationSnapshot
         {
-            PixKey = paymentDestination.PixKey,
+            PixKey = paymentDestination.PixKey?.Value,
             BankAccount = paymentDestination.BankAccount?.ToBankAccountSnapshot()
         };
     }
@@ -45,7 +45,7 @@ public static class PaymentOrderEventMappingExtensions
         return new BankAccountSnapshot
         {
             FullName = bankAccount.FullName,
-            Cpf = bankAccount.Cpf,
+            Cpf = bankAccount.Document,
             BankCode = bankAccount.BankCode,
             Branch = bankAccount.Branch,
             Account = bankAccount.Account

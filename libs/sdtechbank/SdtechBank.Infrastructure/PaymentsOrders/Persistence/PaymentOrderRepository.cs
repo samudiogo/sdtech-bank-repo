@@ -61,7 +61,7 @@ namespace SdtechBank.Infrastructure.PaymentsOrders.Persistence
 
             if (destination.HasBankAccount())
                 filterDefinition &= builder.And(
-                    builder.Eq("Destination.BankAccount.Cpf", destination.BankAccount!.Cpf),
+                    builder.Eq("Destination.BankAccount.Cpf", destination.BankAccount!.Document),
                     builder.Eq("Destination.BankAccount.BankCode", destination.BankAccount!.BankCode),
                     builder.Eq("Destination.BankAccount.Branch", destination.BankAccount!.Branch),
                     builder.Eq("Destination.BankAccount.Account", destination.BankAccount!.Account));

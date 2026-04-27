@@ -69,3 +69,36 @@ RUN chown -R appuser:appuser /app
 USER appuser
 
 ENTRYPOINT ["dotnet", "SdtechBank.PixManagerWorker.dll"]
+
+# =========================
+# DICT SERVICE
+# =========================
+
+FROM python:3.12-slim AS dict_service
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+RUN addgroup --system app && adduser --system --group app
+
+WORKDIR /apps/dict-service
+
+COPY apps/dict-service/requirements.txt .
+
+RUN pip install -r requirements.txt
+
+# 1. Copia como root (sem permissões de escrita atribuídas ao app)
+COPY apps/dict-service/app ./app
+
+# 2. Remove escrita e transfere ownership num único layer
+RUN find ./app -type d -exec chmod 555 {} \; && \
+    find ./app -type f -exec chmod 444 {} \; && \
+    chown -R app:app ./app
+
+USER app
+
+EXPOSE 8000
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -37,7 +37,8 @@
 				"ritwickdey.LiveServer",
 				"SonarSource.sonarlint-vscode",
 				"ritwickdey.LiveServer",
-				"vscode-icons-team.vscode-icons"
+				"vscode-icons-team.vscode-icons",
+				"ms-python.black-formatter"
 			]
 		}
 	}

@@ -19,6 +19,8 @@ services:
       MongoDB__ConnectionString: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/?authSource=admin
       MongoDB__DatabaseName: ${MONGO_DB_NAME}
       REDIS__ConnectionString: ${REDIS_ConnectionString}
+      Services__DictApi__Host: ${DICT_API_HOST}
+      Services__DictApi__Port: ${DICT_API_PORT}
     networks:
       - pixmanager_network
       - infra_net
@@ -55,6 +57,8 @@ services:
       OutboxPublisher__MessagesLimit: ${OUTBOX_PUBLISHER_MessagesLimit}
       OutboxPublisher__IntervalSeconds: ${OUTBOX_PUBLISHER_IntervalSeconds}
       OutboxPublisher__MaxAttempts: ${OUTBOX_PUBLISHER_MaxAttempts}
+      Services__DictApi__Host: ${DICT_API_HOST}
+      Services__DictApi__Port: ${DICT_API_PORT}
     networks:
       - pixmanager_network
       - infra_net
@@ -64,7 +68,33 @@ services:
       timeout: 5s
       retries: 3
       start_period: 20s    
-
+  dict_service:
+    container_name: sdtech-bank-dict-service
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dict_service
+    ports:
+    - "8000:8000"
+    environment:
+      MONGO_URL: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/?authSource=admin
+    networks:
+      - pixmanager_network
+      - infra_net
+    healthcheck:
+      test: 
+        [
+        "CMD",
+        "python",
+        "-c",
+        "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
+      ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+      
 networks:
   infra_net:
     external: true

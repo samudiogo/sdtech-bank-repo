@@ -11,7 +11,7 @@ public class PaymentOrderTests
 {
     private static PaymentOrder CreateValidOrder()
     {
-        var destination = PaymentDestination.FromPixKey("pixkey");
+        var destination = PaymentDestination.FromPixKey("pixkey@pixkey.com");
         return PaymentOrder.Create(
             new IdempotencyKey(Guid.NewGuid().ToString()),
             Guid.NewGuid(),
@@ -23,7 +23,7 @@ public class PaymentOrderTests
     [Fact]
     public void Create_WithBankAccountDestination_ShouldSetStatusCreated()
     {
-        var destination = PaymentDestination.FromBankAccount(new BankAccount { FullName = "name", BankCode = "0436", Branch = "1818", Account = "16435-2", Cpf = "00012345678" });
+        var destination = PaymentDestination.FromBankAccount(new BankAccount { FullName = "name", BankCode = "0436", Branch = "1818", Account = "16435-2", Document = "00012345678" });
         var order = PaymentOrder.Create(new IdempotencyKey(Guid.NewGuid().ToString()), Guid.NewGuid(), destination, new Money(100, CurrencyType.BRL));
 
         Assert.Equal(PaymentStatus.CREATED, order.PaymentStatus);
@@ -163,7 +163,7 @@ public class PaymentOrderTests
         var destination = PaymentDestination.FromBankAccount(new()
         {
             FullName = "Teste",
-            Cpf = "123",
+            Document = "123",
             BankCode = "001",
             Branch = "0001",
             Account = "12345"

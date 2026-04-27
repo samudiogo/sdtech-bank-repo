@@ -9,7 +9,7 @@ public static class CreateAccountDtoMappingExtensions
         return new CreateAccountResponse(
             AccountId: entity.Id,
             FullName: entity.FullName,
-            Cpf: entity.Cpf,
+            Cpf: entity.Document,
             BankCode: entity.BankCode,
             Branch: entity.Branch,
             AccountCode: entity.AccountCode,
@@ -21,7 +21,7 @@ public static class CreateAccountDtoMappingExtensions
     {
         return Account.Create(
             fullName: request.FullName,
-            cpf: request.Cpf,
+            document: request.Cpf,
             bankCode: request.BankCode,
             branch: request.Branch,
             accountCode: request.AccountCode,
