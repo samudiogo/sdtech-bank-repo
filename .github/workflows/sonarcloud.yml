@@ -52,9 +52,8 @@ jobs:
       # -----------------------------
       - name: Install Python dependencies
         run: |
-          cd apps/dict-service
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r apps/dict-service/requirements.txt
           pip install pytest pytest-cov
 
       # -----------------------------
@@ -71,6 +70,7 @@ jobs:
             /d:sonar.token="${SONAR_TOKEN}" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.sources="apps,libs" \
+            /d:sonar.tests="apps/dict-service/tests,libs" \
             /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml" \
             /d:sonar.python.coverage.reportPaths="apps/dict-service/coverage.xml" \
             /d:sonar.exclusions="${SONAR_EXCLUSIONS}" \
@@ -98,10 +98,10 @@ jobs:
       # -----------------------------
       - name: Run Python tests with coverage
         run: |
-          cd apps/dict-service
-          pytest tests \
-            --cov=app \
-            --cov-report=xml:coverage.xml
+          pytest apps/dict-service/tests \
+            --cov=apps/dict-service/app \
+            --cov-report=xml:apps/dict-service/coverage.xml \
+            --cov-report=term
 
       # -----------------------------
       # Sonar End
@@ -110,4 +110,4 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
-
+        
