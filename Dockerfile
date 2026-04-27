@@ -76,15 +76,23 @@ ENTRYPOINT ["dotnet", "SdtechBank.PixManagerWorker.dll"]
 
 FROM python:3.12-slim AS dict_service
 
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
 RUN addgroup --system app && adduser --system --group app
 
 WORKDIR /apps/dict-service
 
 COPY apps/dict-service/requirements.txt .
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
-COPY --chown=app:app --chmod=555 apps/dict-service/app ./app
+COPY --chown=app:app apps/dict-service/app ./app
+
+RUN find ./app -type d -exec chmod 555 {} \; && \
+    find ./app -type f -exec chmod 444 {} \;
 
 USER app
 
