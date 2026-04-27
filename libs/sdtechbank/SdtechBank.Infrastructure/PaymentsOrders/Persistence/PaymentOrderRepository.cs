@@ -57,11 +57,11 @@ namespace SdtechBank.Infrastructure.PaymentsOrders.Persistence
                 builder.Gte(a => a.CreatedAt, cutoff));
 
             if (destination.IsPix())
-                filterDefinition &= builder.Eq("Destination.PixKey", destination.PixKey);
+                filterDefinition &= builder.Eq("Destination.PixKey.Value", destination.PixKey!.Value);
 
             if (destination.HasBankAccount())
                 filterDefinition &= builder.And(
-                    builder.Eq("Destination.BankAccount.Cpf", destination.BankAccount!.Document),
+                    builder.Eq("Destination.BankAccount.Document", destination.BankAccount!.Document),
                     builder.Eq("Destination.BankAccount.BankCode", destination.BankAccount!.BankCode),
                     builder.Eq("Destination.BankAccount.Branch", destination.BankAccount!.Branch),
                     builder.Eq("Destination.BankAccount.Account", destination.BankAccount!.Account));
