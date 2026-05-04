@@ -38,7 +38,8 @@
 				"SonarSource.sonarlint-vscode",
 				"ritwickdey.LiveServer",
 				"vscode-icons-team.vscode-icons",
-				"ms-python.black-formatter"
+				"ms-python.black-formatter",
+				"Vue.volar"
 			]
 		}
 	}
