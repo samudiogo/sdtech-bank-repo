@@ -68,5 +68,7 @@ namespace SdtechBank.Infrastructure.PaymentsOrders.Persistence
 
             return await _collection.Find(filterDefinition).AnyAsync(cancellationToken);
         }
+
+        public async Task<IEnumerable<PaymentOrder>> GetAllAsync(CancellationToken ct) => await _collection.Find(_ => true).ToListAsync(ct);
     }
 }

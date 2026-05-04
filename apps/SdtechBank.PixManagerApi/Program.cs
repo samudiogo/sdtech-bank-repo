@@ -43,8 +43,17 @@ builder.Services.AddHttpsRedirection(options =>
 {
     options.HttpsPort = int.Parse(builder.Configuration["ASPNETCORE_HTTPS_PORTS"] ?? "5001");
 });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policy => policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
 
 var app = builder.Build();
+app.UseCors("AllowAll");
 
 // Liveness (app subiu)
 app.MapHealthChecks("/healthz", new HealthCheckOptions
@@ -73,7 +82,7 @@ using (var scope = app.Services.CreateScope())
     await initializer.InitializeAsync();
 }
 
-app.UseHttpsRedirection(); 
+app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

@@ -11,4 +11,5 @@ public interface IPaymentOrderRepository
     Task<PaymentOrder?> GetByIdempotencyKeyAsync(IdempotencyKey key, CancellationToken cancellationToken);
 
     Task<bool> ExistsRecentSimilarAsync(Guid payerId, PaymentDestination destination, Money amount, TimeSpan window, CancellationToken cancellationToken);
+    Task<IEnumerable<PaymentOrder>> GetAllAsync(CancellationToken ct);
 }

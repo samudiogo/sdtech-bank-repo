@@ -166,3 +166,5 @@ _TeamCity*
 libs/sdtechbank/coveragereport
 /apps/SdtechBank.PixManagerApi/appsettings.Development.json
 .codex
+apps/sdtechbank-web/.vscode/extensions.json
+apps/sdtechbank-web/.vscode/settings.json

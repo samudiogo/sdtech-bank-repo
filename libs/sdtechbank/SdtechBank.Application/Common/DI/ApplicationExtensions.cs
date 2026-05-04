@@ -15,6 +15,7 @@ using SdtechBank.Application.Payments.Resolvers.Specifications;
 using SdtechBank.Application.Payments.UseCases.CompletePayment;
 using SdtechBank.Application.Payments.UseCases.CreatePayment;
 using SdtechBank.Application.Payments.UseCases.FailPayment;
+using SdtechBank.Application.Payments.UseCases.GetPayments;
 using SdtechBank.Application.Payments.UseCases.ResolvePaymentDictUseCase;
 using SdtechBank.Application.Payments.UseCases.ValidatePayment;
 using SdtechBank.Application.Transactions.Contracts.Events;
@@ -82,6 +83,8 @@ public static class ApplicationExtensions
         services.AddScoped<ICreatePaymentUseCase, CreatePaymentUseCase>();
         services.AddScoped<ICreateDepositUseCase, CreateDepositUseCase>();
         services.AddScoped<ICreateAccountUseCase, CreateAccountUseCase>();
+
+        services.AddScoped<IGetPaymentsUseCase, GetPaymentsUseCase>();
     }
 
     private static void AddResolversConfig(IServiceCollection services)

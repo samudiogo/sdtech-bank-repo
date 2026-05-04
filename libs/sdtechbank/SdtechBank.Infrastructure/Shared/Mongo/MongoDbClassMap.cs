@@ -5,7 +5,6 @@ using SdtechBank.Domain.Deposits;
 using SdtechBank.Domain.PaymentOrders.Entities;
 using SdtechBank.Domain.PaymentOrders.ValueObjects;
 using SdtechBank.Domain.Shared.Messaging;
-using SdtechBank.Domain.Shared.ValueObjects;
 using SdtechBank.Domain.Transactions.Entities;
 using SdtechBank.Domain.Accounts;
 using SdtechBank.Domain.OutboxInbox;

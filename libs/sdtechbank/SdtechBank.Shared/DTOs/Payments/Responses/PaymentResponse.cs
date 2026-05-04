@@ -5,3 +5,12 @@ public record PaymentResponse
     public string Status { get; init; } = default!;
 
 }
+
+public record PaymentDtoResponse
+{
+    public Guid Id { get; init; }
+     public decimal Amount { get; init; }
+    public string Status { get; init; } = default!;
+    public DateTime CreatedAt { get; init; }
+
+}
